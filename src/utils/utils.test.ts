@@ -5,23 +5,31 @@ import {
   formatDataBr,
   formatDataHoraBr,
   formatDiaMesCurto,
+  formatDiaMesHora,
   formatHora,
+  horaValida,
   isoParaDataBr,
   mascararData,
+  mascararHora,
   mesmoDia,
+  paraLocalDateTime,
   parseDataHora,
+  rotuloDia,
 } from './date';
+import { formatMoeda, lerValor } from './moeda';
 import { MENSAGEM_SEM_CONEXAO, mensagemDeErro } from './mensagensErro';
 import { iniciais } from './iniciais';
 import {
   MENSAGENS,
   dataBr,
   email,
+  hora,
   maximo,
   minimo,
   obrigatorio,
   validar,
   validarFormulario,
+  valorEmReais,
 } from './validation';
 
 describe('iniciais', () => {
@@ -151,5 +159,52 @@ describe('mensagemDeErro', () => {
     expect(mensagemDeErro(httpError(500), { 409: 'duplicado' }, 'padrão')).toBe('padrão');
     expect(mensagemDeErro(networkError(), {}, 'padrão')).toBe(MENSAGEM_SEM_CONEXAO);
     expect(mensagemDeErro(new Error('x'), {}, 'padrão')).toBe('padrão');
+  });
+});
+
+describe('datas e valores das consultas', () => {
+  it('rotuloDia: dia da semana e mês por extenso, em maiúsculas', () => {
+    expect(rotuloDia('2026-09-29')).toBe('TERÇA-FEIRA, 29 DE SETEMBRO');
+    expect(rotuloDia('2026-03-01')).toBe('DOMINGO, 01 DE MARÇO');
+  });
+
+  it('formatDiaMesHora: dd/MM · HH:mm', () => {
+    expect(formatDiaMesHora(new Date(2026, 8, 5, 9, 7))).toBe('05/09 · 09:07');
+  });
+
+  it('máscara e validação de hora', () => {
+    expect(mascararHora('1')).toBe('1');
+    expect(mascararHora('1430')).toBe('14:30');
+    expect(mascararHora('14:305')).toBe('14:30');
+    expect(horaValida('14:30')).toBe('14:30');
+    expect(horaValida('24:00')).toBeNull();
+    expect(horaValida('12:60')).toBeNull();
+    expect(horaValida('9:00')).toBeNull();
+    expect(hora('')).toBeNull();
+    expect(hora('25:00')).toBe(MENSAGENS.hora);
+  });
+
+  it('paraLocalDateTime junta data e hora no formato do backend', () => {
+    expect(paraLocalDateTime('30/09/2026', '14:30')).toBe('2026-09-30T14:30:00');
+    expect(paraLocalDateTime('31/09/2026', '14:30')).toBeNull();
+    expect(paraLocalDateTime('30/09/2026', '')).toBeNull();
+  });
+
+  it('formatMoeda: R$ com vírgula e milhar', () => {
+    expect(formatMoeda(150)).toBe('R$ 150,00');
+    expect(formatMoeda(1234.5)).toBe('R$ 1.234,50');
+    expect(formatMoeda(0)).toBe('R$ 0,00');
+  });
+
+  it('lerValor aceita vírgula ou ponto; vazio vira null; texto vira NaN', () => {
+    expect(lerValor('')).toBeNull();
+    expect(lerValor('150')).toBe(150);
+    expect(lerValor('150,50')).toBe(150.5);
+    expect(lerValor('1.234,50')).toBe(1234.5);
+    expect(lerValor('150.5')).toBe(150.5);
+    expect(lerValor('abc')).toBeNaN();
+    expect(lerValor('-10')).toBeNaN();
+    expect(valorEmReais('abc')).toBe(MENSAGENS.valor);
+    expect(valorEmReais('')).toBeNull();
   });
 });
