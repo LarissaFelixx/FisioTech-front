@@ -41,10 +41,10 @@ Com o Metro no ar:
 A URL da API vem da variável `EXPO_PUBLIC_API_URL`, definida no `.env` (que nunca é commitado).
 Use o [`.env.example`](./.env.example) como modelo:
 
-| Onde o app roda | URL |
-| --- | --- |
+| Onde o app roda  | URL                                                                         |
+| ---------------- | --------------------------------------------------------------------------- |
 | Emulador Android | `http://10.0.2.2:<porta>` (`10.0.2.2` é o host visto de dentro do emulador) |
-| Celular físico | `http://<IP-do-PC-na-rede>:<porta>` |
+| Celular físico   | `http://<IP-do-PC-na-rede>:<porta>`                                         |
 
 Não use `localhost`: dentro do emulador ou do celular, ele aponta para o próprio aparelho.
 Também não rode o backend na porta **8081**, que é a porta do Metro (servidor de
