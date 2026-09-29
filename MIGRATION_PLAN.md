@@ -217,6 +217,24 @@ Origem: `src/app/core/**`. Todas as URLs são relativas a `environment.apiUrl`, 
 |                                         | `buscarDisponibilidade`    | GET    | `/me/profissionais/{id}/disponibilidade?data=`             | → `DisponibilidadeResponse`                                |
 |                                         | `marcarConsulta`           | POST   | `/me/consultas`                                            | `ConsultaBookingRequest` → `Consulta`                      |
 
+### 2.1.1 Conferência com o backend e implementação (Batch 3)
+
+- **Verificação:** os 45 endpoints acima foram conferidos contra os controllers do `fisiotech-back` (master, `07cbc22`). Todos existem com o mesmo verbo e caminho, e os campos dos DTOs batem com os models do Angular.
+  - `ProfissionalBusca` corresponde a `ProfissionalPublicoResponse`.
+  - `SlotDisponibilidade.horario` é um `LocalTime` (`"08:00:00"`).
+  - `LocalDate` e `LocalDateTime` chegam sem fuso.
+- **Onde ficou no RN:**
+  - services em `src/services/*Service.ts`, um por service do Angular (`pacienteAdminService` e `adminService` junto dos afins);
+  - hooks do TanStack Query em `src/hooks/use*.ts`;
+  - chaves de cache em `src/hooks/queryKeys.ts`.
+- **Validação:** `npm run test:contract` roda os services contra o backend real com os três perfis (19 cenários).
+- **Achados do contrato:**
+  - Excluir paciente com registros associados (mensagens, consultas) retorna **409** ("recurso associado a outros registros"). O Angular mostrava só "Não foi possível excluir o paciente." A mensagem específica fica para decidir no Batch 4.
+  - `GET /avaliacoes/consulta/{id}` e `GET /me/avaliacoes/consulta/{id}` retornam **404** quando a consulta ainda não foi avaliada. O Angular tratava qualquer erro como "sem avaliação"; o RN converte só o 404 em `null` (`nuloSeNaoEncontrado`), e erros de rede ou 5xx aparecem como erro.
+  - Trocar a senha revoga todas as sessões. `useAlterarSenha` faz o login de novo com a nova senha, como o Angular; se falhar, desloga.
+  - Marcar a primeira consulta vincula o profissional ao paciente (`profissionalId` passa a vir preenchido em `GET /me`).
+- **Sem uso no app:** `POST /avaliacoes` (lado do profissional) existe no service do Angular, mas nenhuma tela o usa. Ficou no service, sem hook.
+
 ### 2.2 Códigos de erro tratados pelas telas
 
 | Status | Onde                                                           | Mensagem                                                    |
