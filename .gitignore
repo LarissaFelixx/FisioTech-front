@@ -57,5 +57,9 @@ coverage/
 .idea/
 .vscode/
 
-# Maestro (relatórios e screenshots gerados localmente)
+# Maestro (relatórios, screenshots e credenciais de teste locais)
 .maestro/reports/
+.maestro/*.local
+
+# APKs gerados localmente
+/build/

@@ -1,0 +1,13 @@
+# Modelo para os testes e2e contra um backend FisioTech de DESENVOLVIMENTO.
+# Copie para `.maestro/e2e.local` (ignorado pelo git) e preencha. Nunca use credenciais reais.
+#
+# Backend visto do PC (o seed roda no PC, não no emulador).
+E2E_API_URL=http://localhost:8080
+# Admin do backend (no perfil dev do backend, veja o README do fisiotech-back).
+E2E_ADMIN_EMAIL=
+E2E_ADMIN_SENHA=
+# Profissional criado pelo seed. Deixe E2E_PROF_EMAIL vazio para gerar um email novo a cada
+# execução (recomendado). Senha de teste com 8+ caracteres.
+E2E_PROF_NOME="Dra. Teste E2E"
+E2E_PROF_EMAIL=
+E2E_PROF_SENHA=

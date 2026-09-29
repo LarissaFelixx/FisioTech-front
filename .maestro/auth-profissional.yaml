@@ -1,0 +1,83 @@
+# Fluxo completo do profissional contra o backend REAL:
+# credencial inválida → login → home com dados → reabrir o app continua logado → logout.
+#
+# Pré-requisitos: backend rodando, dados criados por `scripts/e2e-seed.mjs` e o app apontando
+# para o backend (EXPO_PUBLIC_API_URL). Rodar com `npm run test:e2e` (lê .maestro/e2e.local).
+appId: host.exp.exponent
+name: Profissional — login, home, sessão restaurada e logout
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+  PROF_NOME: Dra. Teste E2E
+---
+- clearState
+- runFlow: subflows/abrir-app.yaml
+- assertVisible: 'Acesse sua conta'
+
+# Validação local: nada preenchido.
+- tapOn:
+    id: 'login-entrar'
+- assertVisible: 'Este campo é obrigatório.'
+
+# Credenciais inválidas → 401. "Enter" no email vai para a senha; "Enter" na senha envia.
+- tapOn:
+    id: 'login-email'
+- inputText: ${PROF_EMAIL}
+- pressKey: Enter
+- inputText: 'senha-incorreta'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Usuário ou senha incorreta.'
+    timeout: 20000
+
+# Login válido.
+- tapOn:
+    id: 'login-senha'
+- eraseText: 30
+- inputText: ${PROF_SENHA}
+- pressKey: Enter
+
+# Home do profissional com os dados do seed.
+- extendedWaitUntil:
+    visible: 'Bem-vindo(a),'
+    timeout: 30000
+- assertVisible: ${PROF_NOME}
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- assertVisible: 'Online · Unimed'
+- assertVisible: 'Iniciar consulta'
+- assertVisible: 'Prontuário'
+- assertVisible: 'pacientes ativos'
+- assertVisible: 'sessões hoje'
+- scrollUntilVisible:
+    element: 'João Paciente E2E'
+    direction: DOWN
+- scrollUntilVisible:
+    element:
+      id: 'home-nome'
+    direction: UP
+- takeScreenshot: home-profissional
+
+# Fechar e reabrir o app: a sessão é restaurada pelo refresh token do SecureStore.
+- stopApp
+- runFlow: subflows/abrir-app.yaml
+- extendedWaitUntil:
+    visible: 'Bem-vindo(a),'
+    timeout: 30000
+- assertVisible: ${PROF_NOME}
+
+# Logout pelo menu do perfil (toque no nome; o avatar fica sob o botão flutuante do Expo Go).
+- tapOn:
+    id: 'home-nome'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
+
+# Depois do logout, reabrir o app continua no login.
+- stopApp
+- runFlow: subflows/abrir-app.yaml
+- assertVisible: 'Acesse sua conta'

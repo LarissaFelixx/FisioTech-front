@@ -47,7 +47,9 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e": "maestro test --test-output-dir .maestro/reports .maestro"
+    "test:e2e": "node scripts/e2e-run.mjs",
+    "e2e:seed": "node scripts/e2e-seed.mjs",
+    "build:apk": "node scripts/build-apk.mjs"
   },
   "private": true,
   "jest": {
@@ -61,7 +63,8 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
-      "!src/**/*.test.{ts,tsx}"
+      "!src/**/*.test.{ts,tsx}",
+      "!src/test/**"
     ]
   }
 }
