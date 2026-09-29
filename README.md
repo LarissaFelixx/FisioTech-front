@@ -163,6 +163,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
   - `auth-profissional.yaml`: passa por senha errada (401), login e home com dados reais, depois
     fecha e reabre o app (a sessão continua) e termina com logout.
   - `cadastro-paciente.yaml`: autocadastro de paciente e email duplicado (409).
+  - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
+    (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário
   fica em `~/.maestro/bin`; adicione essa pasta ao `PATH`.
 
