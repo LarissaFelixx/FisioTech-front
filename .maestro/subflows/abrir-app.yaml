@@ -10,13 +10,18 @@ appId: host.exp.exponent
     commands:
       - openLink: ${METRO_URL}
       - extendedWaitUntil:
-          visible: 'Acesse sua conta|Bem-vindo\(a\),|Continue'
+          visible: 'Acesse sua conta|Bem-vindo\(a\),|Não foi possível conectar|Continue'
           timeout: 60000
 - runFlow:
     when:
       visible: 'Continue'
     commands:
       - tapOn: 'Continue'
+      # O menu completo abre com animação logo depois do "Continue".
+      - extendedWaitUntil:
+          visible: 'Go home'
+          timeout: 5000
+          optional: true
 # Depois do "Continue", o menu de desenvolvedor pode continuar aberto: fecha com "voltar".
 - runFlow:
     when:
@@ -24,5 +29,5 @@ appId: host.exp.exponent
     commands:
       - pressKey: back
 - extendedWaitUntil:
-    visible: 'Acesse sua conta|Bem-vindo\(a\),'
+    visible: 'Acesse sua conta|Bem-vindo\(a\),|Não foi possível conectar'
     timeout: 60000

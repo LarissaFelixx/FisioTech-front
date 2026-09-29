@@ -61,11 +61,24 @@ env:
 - takeScreenshot: home-profissional
 
 # Fechar e reabrir o app: a sessão é restaurada pelo refresh token do SecureStore.
-- stopApp
-- runFlow: subflows/abrir-app.yaml
-- extendedWaitUntil:
-    visible: 'Bem-vindo(a),'
-    timeout: 30000
+# O Expo Go às vezes não recarrega após `stopApp` (a tela antiga continua lá), então o ciclo
+# inteiro é repetido se a home não aparecer. O fluxo do APK (.maestro/apk/) valida a
+# restauração sem essa tolerância.
+- retry:
+    maxRetries: 2
+    commands:
+      - stopApp
+      - runFlow: subflows/abrir-app.yaml
+      # Se a rede do emulador oscilar na reabertura, o app mostra "Não foi possível conectar"
+      # e mantém a sessão (só 401 desloga); o "Tentar novamente" deve levar à home.
+      - runFlow:
+          when:
+            visible: 'Não foi possível conectar'
+          commands:
+            - tapOn: 'Tentar novamente'
+      - extendedWaitUntil:
+          visible: 'Bem-vindo\(a\),'
+          timeout: 30000
 - assertVisible: ${PROF_NOME}
 
 # Logout pelo menu do perfil (toque no nome; o avatar fica sob o botão flutuante do Expo Go).

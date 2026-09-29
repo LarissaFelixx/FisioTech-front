@@ -6,7 +6,10 @@
  * - Se existir `.maestro/e2e.local` (modelo em `.maestro/e2e.example`), também cria os dados de teste no
  *   backend (scripts/e2e-seed.mjs) e roda os fluxos marcados com a tag `backend`.
  *
- * Argumentos extras são repassados ao `maestro test`.
+ * - Com `--apk`, roda os fluxos de `.maestro/apk/` no APK instalado (`com.fisiotech.app`)
+ *   em vez dos fluxos do Expo Go.
+ *
+ * Os demais argumentos são repassados ao `maestro test`.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -33,10 +36,15 @@ function rodar(comando, args, env = {}) {
   return r.status ?? 1;
 }
 
-const extras = process.argv.slice(2);
+const apk = process.argv.includes('--apk');
+const extras = process.argv.slice(2).filter((arg) => arg !== '--apk');
 const base = ['test', '--test-output-dir', '.maestro/reports'];
 const comBackend = existsSync(ENV_FILE);
 
+if (apk && !comBackend) {
+  console.error(`Os fluxos do APK precisam do backend: crie ${ENV_FILE}.`);
+  process.exit(1);
+}
 if (!comBackend) {
   console.log(`(${ENV_FILE} não encontrado: rodando só o smoke test, sem backend)`);
   process.exit(rodar('maestro', [...base, ...extras, '.maestro/smoke.yaml']));
@@ -58,8 +66,12 @@ process.exit(
     '-e',
     `PROF_NOME=${env.E2E_PROF_NOME ?? 'Dra. Teste E2E'}`,
     ...extras,
-    '.maestro/smoke.yaml',
-    '.maestro/auth-profissional.yaml',
-    '.maestro/cadastro-paciente.yaml',
+    ...(apk
+      ? ['.maestro/apk/profissional-apk.yaml']
+      : [
+          '.maestro/smoke.yaml',
+          '.maestro/auth-profissional.yaml',
+          '.maestro/cadastro-paciente.yaml',
+        ]),
   ]),
 );

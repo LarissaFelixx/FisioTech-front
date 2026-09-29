@@ -1,0 +1,61 @@
+# Mesmo fluxo do profissional, mas no APK instalado (build nativo, sem Expo Go):
+# login → home com dados reais → fechar e reabrir mantém a sessão → logout.
+# Rodar: npm run test:e2e -- --apk   (requer o APK instalado: adb install -r build/*.apk)
+appId: com.fisiotech.app
+name: APK — login, home, sessão restaurada e logout
+tags:
+  - apk
+env:
+  PROF_NOME: Dra. Teste E2E
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 60000
+- tapOn:
+    id: 'login-email'
+- inputText: ${PROF_EMAIL}
+- pressKey: Enter
+- inputText: ${PROF_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Bem-vindo(a),'
+    timeout: 30000
+- assertVisible: ${PROF_NOME}
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- assertVisible: 'Online · Unimed'
+- takeScreenshot: apk-home-profissional
+
+# Fechar e reabrir o app instalado: a sessão volta pelo refresh token no Keystore.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: 'Bem-vindo\(a\),|Não foi possível conectar'
+    timeout: 30000
+# Se a rede do emulador oscilar na reabertura, o app mostra "Não foi possível conectar" e
+# mantém a sessão (só 401 desloga); o "Tentar novamente" deve levar à home.
+- runFlow:
+    when:
+      visible: 'Não foi possível conectar'
+    commands:
+      - tapOn: 'Tentar novamente'
+- extendedWaitUntil:
+    visible: 'Bem-vindo(a),'
+    timeout: 30000
+- assertVisible: ${PROF_NOME}
+
+- tapOn:
+    id: 'home-nome'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 30000
