@@ -9,6 +9,9 @@
  * - Com `--apk`, roda os fluxos de `.maestro/apk/` no APK instalado (`com.fisiotech.app`)
  *   em vez dos fluxos do Expo Go.
  *
+ * - Arquivos `.yaml` passados como argumento substituem a lista padrão de fluxos
+ *   (ex.: `npm run test:e2e -- .maestro/profissional-consultas.yaml`).
+ *
  * Os demais argumentos são repassados ao `maestro test`.
  */
 import { spawnSync } from 'node:child_process';
@@ -37,7 +40,9 @@ function rodar(comando, args, env = {}) {
 }
 
 const apk = process.argv.includes('--apk');
-const extras = process.argv.slice(2).filter((arg) => arg !== '--apk');
+const argumentos = process.argv.slice(2).filter((arg) => arg !== '--apk');
+const fluxosEscolhidos = argumentos.filter((arg) => arg.endsWith('.yaml'));
+const extras = argumentos.filter((arg) => !arg.endsWith('.yaml'));
 const base = ['test', '--test-output-dir', '.maestro/reports'];
 const comBackend = existsSync(ENV_FILE);
 
@@ -72,14 +77,17 @@ process.exit(
     '-e',
     `PAC_SENHA=${env.E2E_CHAT_PACIENTE_SENHA}`,
     ...extras,
-    ...(apk
-      ? ['.maestro/apk/profissional-apk.yaml']
-      : [
-          '.maestro/smoke.yaml',
-          '.maestro/auth-profissional.yaml',
-          '.maestro/cadastro-paciente.yaml',
-          '.maestro/profissional-pacientes.yaml',
-          '.maestro/chat-http.yaml',
-        ]),
+    ...(fluxosEscolhidos.length > 0
+      ? fluxosEscolhidos
+      : apk
+        ? ['.maestro/apk/profissional-apk.yaml']
+        : [
+            '.maestro/smoke.yaml',
+            '.maestro/auth-profissional.yaml',
+            '.maestro/cadastro-paciente.yaml',
+            '.maestro/profissional-pacientes.yaml',
+            '.maestro/chat-http.yaml',
+            '.maestro/profissional-consultas.yaml',
+          ]),
   ]),
 );

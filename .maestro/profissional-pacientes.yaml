@@ -109,11 +109,11 @@ env:
 - extendedWaitUntil:
     visible: 'Paciente desde.*'
     timeout: 20000
+# O histórico carrega depois do formulário: rola até a primeira consulta aparecer.
 - scrollUntilVisible:
-    element:
-      id: 'paciente-consultas'
+    element: '.* — Agendada'
     direction: DOWN
-- assertVisible: '.* — Agendada'
+    timeout: 30000
 - scrollUntilVisible:
     element:
       id: 'paciente-excluir'
