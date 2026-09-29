@@ -1,4 +1,5 @@
-import { dataBrParaIso } from './date';
+import { dataBrParaIso, horaValida } from './date';
+import { lerValor } from './moeda';
 
 /**
  * Validação de formulários. Substitui os `Validators` do Angular e as mensagens de
@@ -12,6 +13,8 @@ export const MENSAGENS = {
   minimo: (n: number) => `Deve ter pelo menos ${n} caracteres.`,
   maximo: (n: number) => `Deve ter no máximo ${n} caracteres.`,
   data: 'Data inválida. Use DD/MM/AAAA.',
+  hora: 'Horário inválido. Use HH:MM.',
+  valor: 'Valor inválido. Use, por exemplo, 150 ou 150,50.',
 } as const;
 
 // Mesma expressão usada por `Validators.email` do Angular.
@@ -36,6 +39,13 @@ export const maximo =
 /** Data opcional no formato DD/MM/AAAA (vazio é válido). */
 export const dataBr: Rule = (v) =>
   v.trim().length > 0 && dataBrParaIso(v) === null ? MENSAGENS.data : null;
+
+/** Horário opcional no formato HH:MM (vazio é válido). */
+export const hora: Rule = (v) =>
+  v.trim().length > 0 && horaValida(v) === null ? MENSAGENS.hora : null;
+
+/** Valor em reais opcional, não negativo (vazio é válido). */
+export const valorEmReais: Rule = (v) => (Number.isNaN(lerValor(v)) ? MENSAGENS.valor : null);
 
 /** Primeira mensagem de erro das regras, na ordem informada. */
 export function validar(valor: string, regras: Rule[]): string | null {
