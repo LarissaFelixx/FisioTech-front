@@ -176,7 +176,9 @@ describe('Nova consulta', () => {
         valor: 150.5,
       }),
     );
-    expect(await screen.findByText('O registro clínico chega no Batch 6.')).toBeOnTheScreen();
+    // A consulta nova abre no registro clínico, na primeira etapa.
+    expect(await screen.findByTestId('wizard-titulo')).toHaveTextContent('Quadro Clínico');
+    expect(consultas.buscarPorId).toHaveBeenCalledWith(99);
   });
 
   it('erro ao criar a consulta', async () => {
@@ -262,8 +264,9 @@ describe('Prontuário', () => {
     ).toBeOnTheScreen();
     expect(avaliacoes.buscarPorConsulta).not.toHaveBeenCalled();
 
+    // Só o quadro clínico foi salvo: o registro retoma nos hábitos de vida.
     await fireEvent.press(screen.getByTestId('consulta-continuar-registro'));
-    expect(await screen.findByText('O registro clínico chega no Batch 6.')).toBeOnTheScreen();
+    expect(await screen.findByTestId('wizard-titulo')).toHaveTextContent('Hábitos de Vida');
   });
 
   it('consulta realizada: sem atalho do registro e com a avaliação do paciente', async () => {
