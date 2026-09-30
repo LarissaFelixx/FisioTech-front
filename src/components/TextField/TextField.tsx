@@ -14,6 +14,8 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
   ref,
 ) {
   const [focado, setFocado] = useState(false);
+  // Multilinha (`<textarea rows>` do Angular): altura mínima pelo número de linhas.
+  const linhas = inputProps.multiline ? (inputProps.numberOfLines ?? 3) : 0;
 
   return (
     <View style={styles.field}>
@@ -22,7 +24,12 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
         ref={ref}
         accessibilityLabel={label}
         placeholderTextColor={colors.textTertiary}
-        style={[styles.input, focado && styles.inputFocado, !!error && styles.inputInvalido]}
+        style={[
+          styles.input,
+          linhas > 0 && [styles.multilinha, { minHeight: linhas * LINHA + 2 * spacing.md }],
+          focado && styles.inputFocado,
+          !!error && styles.inputInvalido,
+        ]}
         onFocus={(e) => {
           setFocado(true);
           onFocus?.(e);
@@ -42,6 +49,8 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
   );
 });
 
+const LINHA = 22;
+
 const styles = StyleSheet.create({
   field: { gap: 6 },
   label: {
@@ -60,6 +69,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
   },
+  multilinha: { textAlignVertical: 'top', lineHeight: LINHA },
   inputFocado: { borderColor: colors.primary },
   inputInvalido: { borderColor: colors.danger },
   error: {
