@@ -2,6 +2,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Icon, type IconName } from '../components/Icon/Icon';
+import { PacienteFormScreen } from '../screens/Pacientes/PacienteFormScreen';
+import { PacienteListScreen } from '../screens/Pacientes/PacienteListScreen';
 import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { ProfissionalHomeScreen } from '../screens/ProfissionalHome/ProfissionalHomeScreen';
 import { colors, fonts } from '../theme';
@@ -18,14 +20,17 @@ const TAB_ICONS: Record<keyof ProfissionalTabsParamList, IconName> = {
 };
 
 // Telas que ainda não foram migradas (batches 4 a 7).
-const PacientesPlaceholder = () => (
-  <PlaceholderScreen title="Pacientes" message="A lista de pacientes chega no Batch 4." />
-);
 const ConsultasPlaceholder = () => (
   <PlaceholderScreen title="Consultas" message="A lista de consultas chega no Batch 5." />
 );
 const MensagensPlaceholder = () => (
   <PlaceholderScreen title="Mensagens" message="As mensagens chegam no Batch 7." />
+);
+const ConsultaNovaPlaceholder = () => (
+  <PlaceholderScreen title="Nova consulta" message="O agendamento de consulta chega no Batch 5." />
+);
+const MensagemThreadPlaceholder = () => (
+  <PlaceholderScreen title="Mensagens" message="A conversa com o paciente chega no Batch 7." />
 );
 const ConsultaDetalhePlaceholder = () => (
   <PlaceholderScreen title="Prontuário" message="O detalhe da consulta chega no Batch 5." />
@@ -53,7 +58,7 @@ function ProfissionalTabs() {
       })}
     >
       <Tabs.Screen name="Home" component={ProfissionalHomeScreen} />
-      <Tabs.Screen name="Pacientes" component={PacientesPlaceholder} />
+      <Tabs.Screen name="Pacientes" component={PacienteListScreen} />
       <Tabs.Screen name="Consultas" component={ConsultasPlaceholder} />
       <Tabs.Screen name="Mensagens" component={MensagensPlaceholder} />
     </Tabs.Navigator>
@@ -71,6 +76,21 @@ export function ProfissionalNavigator() {
       }}
     >
       <Stack.Screen name="Tabs" component={ProfissionalTabs} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="PacienteForm"
+        component={PacienteFormScreen}
+        options={{ title: 'Paciente' }}
+      />
+      <Stack.Screen
+        name="ConsultaNova"
+        component={ConsultaNovaPlaceholder}
+        options={{ title: 'Nova Consulta' }}
+      />
+      <Stack.Screen
+        name="MensagemThread"
+        component={MensagemThreadPlaceholder}
+        options={{ title: 'Mensagens' }}
+      />
       <Stack.Screen
         name="ConsultaDetalhe"
         component={ConsultaDetalhePlaceholder}

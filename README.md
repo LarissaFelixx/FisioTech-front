@@ -164,6 +164,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
   - `auth-profissional.yaml`: passa por senha errada (401), login e home com dados reais, depois
     fecha e reabre o app (a sessão continua) e termina com logout.
   - `cadastro-paciente.yaml`: autocadastro de paciente e email duplicado (409).
+  - `profissional-pacientes.yaml`: lista e busca, cadastro, edição (data, sexo, bairro) e
+    exclusão de paciente; paciente com consultas não pode ser excluído (409).
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário
@@ -188,6 +190,9 @@ execução. Fica fora do `npm test` porque depende do backend no ar.
 2. Copie `.maestro/e2e.example` para `.maestro/e2e.local` e preencha o admin do backend de dev e
    uma senha de teste. Esse arquivo é ignorado pelo git; **nunca** use credenciais reais nele.
    Não crie arquivos `.env.*` com segredos na raiz: o Metro pode tentar empacotá-los.
+   Os fluxos lidam sozinhos com as telas do Expo Go e do teclado do emulador que aparecem na
+   primeira abertura (menu de desenvolvedor, botão flutuante de ferramentas e o tutorial de
+   caneta do Gboard).
 3. A cada execução, o `npm run test:e2e` cria um profissional novo, pacientes e consultas de hoje
    (`scripts/e2e-seed.mjs`) e roda os três fluxos.
 4. Recomendado no emulador: use `adb reverse`, que é mais estável que o `10.0.2.2` quando o app é

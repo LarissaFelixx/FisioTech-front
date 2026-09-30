@@ -55,3 +55,46 @@ const MESES_CURTOS = [
 export function formatDiaMesCurto(data: Date): string {
   return `${pad2(data.getDate())} de ${MESES_CURTOS[data.getMonth()]}.`;
 }
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** Formato `dd/MM/yyyy` (DatePipe do Angular). */
+export function formatDataBr(data: Date): string {
+  return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()}`;
+}
+
+/** Formato `dd/MM/yyyy HH:mm` (DatePipe do Angular). */
+export function formatDataHoraBr(data: Date): string {
+  return `${formatDataBr(data)} ${formatHora(data)}`;
+}
+
+/** Aplica a máscara DD/MM/AAAA enquanto o usuário digita (só dígitos, até 8). */
+export function mascararData(texto: string): string {
+  const digitos = texto.replace(/\D/g, '').slice(0, 8);
+  if (digitos.length <= 2) {
+    return digitos;
+  }
+  if (digitos.length <= 4) {
+    return `${digitos.slice(0, 2)}/${digitos.slice(2)}`;
+  }
+  return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4)}`;
+}
+
+/** `31/01/1990` → `1990-01-31` (LocalDate do backend); `null` se incompleta ou inexistente. */
+export function dataBrParaIso(texto: string): string | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(texto.trim());
+  if (!m) {
+    return null;
+  }
+  const [, dia, mes, ano] = m.map(Number);
+  const data = new Date(ano, mes - 1, dia);
+  const valida =
+    data.getFullYear() === ano && data.getMonth() === mes - 1 && data.getDate() === dia;
+  return valida ? `${m[3]}-${m[2]}-${m[1]}` : null;
+}
+
+/** `1990-01-31` → `31/01/1990`; vazio para `null`. */
+export function isoParaDataBr(iso: string | null | undefined): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? '');
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}

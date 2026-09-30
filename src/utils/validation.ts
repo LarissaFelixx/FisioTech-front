@@ -1,3 +1,5 @@
+import { dataBrParaIso } from './date';
+
 /**
  * Validação de formulários. Substitui os `Validators` do Angular e as mensagens de
  * `core/forms/field-error.ts`, mantendo os mesmos textos.
@@ -9,6 +11,7 @@ export const MENSAGENS = {
   email: 'Email inválido.',
   minimo: (n: number) => `Deve ter pelo menos ${n} caracteres.`,
   maximo: (n: number) => `Deve ter no máximo ${n} caracteres.`,
+  data: 'Data inválida. Use DD/MM/AAAA.',
 } as const;
 
 // Mesma expressão usada por `Validators.email` do Angular.
@@ -30,6 +33,10 @@ export const maximo =
   (v) =>
     v.length > n ? MENSAGENS.maximo(n) : null;
 
+/** Data opcional no formato DD/MM/AAAA (vazio é válido). */
+export const dataBr: Rule = (v) =>
+  v.trim().length > 0 && dataBrParaIso(v) === null ? MENSAGENS.data : null;
+
 /** Primeira mensagem de erro das regras, na ordem informada. */
 export function validar(valor: string, regras: Rule[]): string | null {
   for (const regra of regras) {
@@ -46,11 +53,11 @@ export type Schema<K extends string> = Record<K, Rule[]>;
 /** Valida todos os campos; retorna só os campos com erro. */
 export function validarFormulario<K extends string>(
   valores: Record<K, string>,
-  schema: Schema<K>,
+  schema: Partial<Schema<K>>,
 ): Partial<Record<K, string>> {
   const erros: Partial<Record<K, string>> = {};
   for (const campo of Object.keys(schema) as K[]) {
-    const erro = validar(valores[campo], schema[campo]);
+    const erro = validar(valores[campo], schema[campo] ?? []);
     if (erro) {
       erros[campo] = erro;
     }

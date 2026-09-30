@@ -7,6 +7,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { createQueryClient } from './api/queryClient';
+import { ConfirmDialogProvider } from './components/ConfirmDialog/ConfirmDialog';
 import { AuthProvider } from './contexts/AuthContext';
 import { RootNavigator } from './navigation/RootNavigator';
 import { colors } from './theme';
@@ -41,9 +42,11 @@ export default function App() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <NavigationContainer theme={navigationTheme}>
-            <RootNavigator />
-          </NavigationContainer>
+          <ConfirmDialogProvider>
+            <NavigationContainer theme={navigationTheme}>
+              <RootNavigator />
+            </NavigationContainer>
+          </ConfirmDialogProvider>
         </AuthProvider>
         <StatusBar style="dark" />
       </QueryClientProvider>

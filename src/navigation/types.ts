@@ -16,6 +16,10 @@ export type ProfissionalTabsParamList = {
 /** Telas do profissional abertas por cima das abas (`hideNav` no Angular). */
 export type ProfissionalStackParamList = {
   Tabs: NavigatorScreenParams<ProfissionalTabsParamList>;
+  /** Sem `id`: cadastro; com `id`: edição. */
+  PacienteForm: { id?: number };
+  ConsultaNova: { pacienteId?: number };
+  MensagemThread: { pacienteId: number };
   ConsultaDetalhe: { id: number };
   ConsultaWizard: { id: number };
   AlterarSenha: undefined;

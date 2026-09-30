@@ -1,8 +1,21 @@
 import { avatarTint } from './avatarTint';
-import { formatDiaMesCurto, formatHora, mesmoDia, parseDataHora } from './date';
+import { httpError, networkError } from '../test/helpers';
+import {
+  dataBrParaIso,
+  formatDataBr,
+  formatDataHoraBr,
+  formatDiaMesCurto,
+  formatHora,
+  isoParaDataBr,
+  mascararData,
+  mesmoDia,
+  parseDataHora,
+} from './date';
+import { MENSAGEM_SEM_CONEXAO, mensagemDeErro } from './mensagensErro';
 import { iniciais } from './iniciais';
 import {
   MENSAGENS,
+  dataBr,
   email,
   maximo,
   minimo,
@@ -98,5 +111,45 @@ describe('validação (mesmas mensagens de field-error.ts)', () => {
         { email: [obrigatorio, email], senha: [obrigatorio] },
       ),
     ).toEqual({ senha: MENSAGENS.obrigatorio });
+  });
+});
+
+describe('datas do formulário (DD/MM/AAAA ↔ ISO)', () => {
+  it('mascararData insere as barras e limita a 8 dígitos', () => {
+    expect(mascararData('3')).toBe('3');
+    expect(mascararData('3101')).toBe('31/01');
+    expect(mascararData('31011990')).toBe('31/01/1990');
+    expect(mascararData('31/01/19905')).toBe('31/01/1990');
+    expect(mascararData('ab31c01')).toBe('31/01');
+  });
+
+  it('dataBrParaIso aceita só datas completas e existentes', () => {
+    expect(dataBrParaIso('31/01/1990')).toBe('1990-01-31');
+    expect(dataBrParaIso('29/02/2024')).toBe('2024-02-29');
+    expect(dataBrParaIso('29/02/2023')).toBeNull();
+    expect(dataBrParaIso('31/04/2020')).toBeNull();
+    expect(dataBrParaIso('1/1/2020')).toBeNull();
+  });
+
+  it('isoParaDataBr e formatos dd/MM/yyyy', () => {
+    expect(isoParaDataBr('1990-01-31')).toBe('31/01/1990');
+    expect(isoParaDataBr(null)).toBe('');
+    expect(formatDataBr(new Date(2026, 8, 5))).toBe('05/09/2026');
+    expect(formatDataHoraBr(new Date(2026, 8, 5, 9, 7))).toBe('05/09/2026 09:07');
+  });
+
+  it('regra dataBr: vazio é válido; data inexistente não', () => {
+    expect(dataBr('')).toBeNull();
+    expect(dataBr('31/01/1990')).toBeNull();
+    expect(dataBr('31/02/1990')).toBe(MENSAGENS.data);
+  });
+});
+
+describe('mensagemDeErro', () => {
+  it('usa a mensagem do status, a de rede ou a padrão', () => {
+    expect(mensagemDeErro(httpError(409), { 409: 'duplicado' }, 'padrão')).toBe('duplicado');
+    expect(mensagemDeErro(httpError(500), { 409: 'duplicado' }, 'padrão')).toBe('padrão');
+    expect(mensagemDeErro(networkError(), {}, 'padrão')).toBe(MENSAGEM_SEM_CONEXAO);
+    expect(mensagemDeErro(new Error('x'), {}, 'padrão')).toBe('padrão');
   });
 });

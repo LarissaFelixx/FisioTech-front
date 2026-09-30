@@ -550,6 +550,12 @@ Cada batch de telas inclui testes unitários (lógica, hooks, componentes), flux
 
 ---
 
+## 9.1 Registro das entregas
+
+| Batch | Resultado                                                                                | Observações                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ----- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B4    | Lista, cadastro, edição e exclusão de pacientes, histórico de consultas, `ConfirmDialog` | **Cadastro mostra só nome, email e senha**, porque o backend (`PacienteCreateRequest`) só aceita esses campos. O Angular exibia os demais campos no cadastro e os descartava sem avisar; eles podem ser preenchidos na edição. Data de nascimento: campo com máscara DD/MM/AAAA (sem dependência nova). Sexo: chips no lugar do `<select>`. Excluir paciente com consultas ou mensagens (409): "Este paciente tem consultas ou mensagens e não pode ser excluído." (decisão do usuário). O histórico mostra o status legível ("Agendada") em vez do enum. |
+
 ## 10. Riscos e dúvidas
 
 | #   | Tema                             | Situação                                                                                             | Proposta / decisão necessária                                                                                                                                                                                                                 |
