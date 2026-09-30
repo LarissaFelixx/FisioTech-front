@@ -31,7 +31,7 @@ env:
 - assertVisible: 'Maria Paciente E2E'
 - tapOn: 'Todas'
 
-# Nova consulta para um paciente existente: abre o registro clínico da consulta criada.
+# Nova consulta para um paciente existente: abre o registro clínico (Batch 6) da consulta criada.
 - tapOn:
     id: 'consulta-nova'
 - tapOn:
@@ -61,7 +61,7 @@ env:
 - tapOn:
     id: 'consulta-iniciar'
 - extendedWaitUntil:
-    visible: 'O registro clínico chega no Batch 6.'
+    visible: 'Passo 1 de 4'
     timeout: 20000
 
 # Voltar leva à lista, já com a consulta nova.
@@ -101,7 +101,7 @@ env:
 - tapOn:
     id: 'consulta-iniciar'
 - extendedWaitUntil:
-    visible: 'O registro clínico chega no Batch 6.'
+    visible: 'Passo 1 de 4'
     timeout: 20000
 - pressKey: back
 
