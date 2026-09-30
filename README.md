@@ -141,17 +141,18 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
 
 ## Scripts
 
-| Comando             | O que faz                                               |
-| ------------------- | ------------------------------------------------------- |
-| `npm start`         | Sobe o Metro (Expo)                                     |
-| `npm run android`   | Sobe o Metro e abre no emulador ou dispositivo Android  |
-| `npm run typecheck` | `tsc --noEmit`                                          |
-| `npm run lint`      | ESLint (`expo lint`)                                    |
-| `npm run format`    | Prettier (`--write`); `format:check` só verifica        |
-| `npm test`          | Testes unitários (Jest), incluindo a suíte de regressão |
-| `npm run test:e2e`  | Fluxos e2e do Maestro (ver abaixo)                      |
-| `npm run e2e:seed`  | Cria dados de teste no backend de dev (ver abaixo)      |
-| `npm run build:apk` | Gera o APK instalável (ver acima)                       |
+| Comando                 | O que faz                                                  |
+| ----------------------- | ---------------------------------------------------------- |
+| `npm start`             | Sobe o Metro (Expo)                                        |
+| `npm run android`       | Sobe o Metro e abre no emulador ou dispositivo Android     |
+| `npm run typecheck`     | `tsc --noEmit`                                             |
+| `npm run lint`          | ESLint (`expo lint`)                                       |
+| `npm run format`        | Prettier (`--write`); `format:check` só verifica           |
+| `npm test`              | Testes unitários (Jest), incluindo a suíte de regressão    |
+| `npm run test:e2e`      | Fluxos e2e do Maestro (ver abaixo)                         |
+| `npm run e2e:seed`      | Cria dados de teste no backend de dev (ver abaixo)         |
+| `npm run test:contract` | Testa todos os services contra o backend real (ver abaixo) |
+| `npm run build:apk`     | Gera o APK instalável (ver acima)                          |
 
 ## Testes
 
@@ -167,6 +168,19 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário
   fica em `~/.maestro/bin`; adicione essa pasta ao `PATH`.
+
+### Testes de contrato da API
+
+`npm run test:contract` exercita **todos os services** contra o backend de desenvolvimento, com os
+três perfis:
+
+- o admin cria profissionais;
+- o profissional cria pacientes, consultas e mensagens;
+- o paciente se cadastra, marca, remarca e cancela consulta, conversa e avalia;
+- depois vêm as trocas de senha e as exclusões.
+
+Usa as mesmas credenciais de teste do e2e (`.maestro/e2e.local`) e cria dados novos a cada
+execução. Fica fora do `npm test` porque depende do backend no ar.
 
 ### Rodando o e2e contra o backend real
 

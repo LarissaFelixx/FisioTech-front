@@ -73,7 +73,11 @@ export function memoryStorage(
 
 export function createTestQueryClient(): QueryClient {
   return new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false } },
+    // gcTime infinito: sem timers de coleta pendentes que impeçam o Jest de encerrar.
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { retry: false, gcTime: Infinity },
+    },
   });
 }
 
