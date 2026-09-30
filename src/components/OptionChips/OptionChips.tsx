@@ -5,7 +5,9 @@ import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 export type Opcao = { valor: string; label: string };
 
 type Props = {
-  label: string;
+  /** Rótulo visível acima dos chips; sem ele, `accessibilityLabel` nomeia o grupo. */
+  label?: string;
+  accessibilityLabel?: string;
   opcoes: Opcao[];
   valor: string;
   onChange: (valor: string) => void;
@@ -13,11 +15,15 @@ type Props = {
 };
 
 /** Escolha única em chips (substitui o `<select>` dos formulários do Angular). */
-export function OptionChips({ label, opcoes, valor, onChange, testID }: Props) {
+export function OptionChips({ label, accessibilityLabel, opcoes, valor, onChange, testID }: Props) {
   return (
     <View style={styles.field} testID={testID}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel={label}>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+      <View
+        style={styles.chips}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={label ?? accessibilityLabel}
+      >
         {opcoes.map((opcao) => {
           const ativa = opcao.valor === valor;
           return (

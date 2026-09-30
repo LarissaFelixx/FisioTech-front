@@ -166,6 +166,9 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
   - `cadastro-paciente.yaml`: autocadastro de paciente e email duplicado (409).
   - `profissional-pacientes.yaml`: lista e busca, cadastro, edição (data, sexo, bairro) e
     exclusão de paciente; paciente com consultas não pode ser excluído (409).
+  - `profissional-consultas.yaml`: lista agrupada e filtros, nova consulta (paciente existente
+    e cadastro rápido), prontuário e exclusão.
+  - Para rodar só alguns fluxos: `npm run test:e2e -- .maestro/profissional-consultas.yaml`.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário

@@ -1,0 +1,27 @@
+# Menu de boas-vindas do Expo Go (aparece depois de um clearState, às vezes com atraso):
+# toca em "Continue", desliga o botão flutuante de ferramentas (ele cobre os botões do canto
+# superior direito do app) e fecha o menu. Não faz nada se o menu não aparecer.
+appId: host.exp.exponent
+---
+- extendedWaitUntil:
+    visible: 'Continue'
+    timeout: 8000
+    optional: true
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - extendedWaitUntil:
+          visible: 'Go home'
+          timeout: 5000
+          optional: true
+- runFlow:
+    when:
+      visible: 'Go home'
+    commands:
+      - scrollUntilVisible:
+          element: 'Tools button'
+          direction: DOWN
+      - tapOn: 'Tools button'
+      - pressKey: back

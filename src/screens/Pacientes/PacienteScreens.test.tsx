@@ -201,12 +201,16 @@ describe('Edição de paciente', () => {
         ? [consulta({ id: 7, dataHora: '2026-09-10T14:30:00', status: 'REALIZADA' })]
         : [],
     );
+    consultas.buscarPorId.mockResolvedValue(
+      consulta({ id: 7, dataHora: '2026-09-10T14:30:00', status: 'AGENDADA' }),
+    );
     await abrirEdicao();
 
     const historico = await screen.findByTestId('paciente-consultas');
     expect(within(historico).getByText('10/09/2026 14:30 — Realizada')).toBeOnTheScreen();
     await fireEvent.press(within(historico).getByText('10/09/2026 14:30 — Realizada'));
-    expect(await screen.findByText('O detalhe da consulta chega no Batch 5.')).toBeOnTheScreen();
+    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(consultas.buscarPorId).toHaveBeenCalledWith(7);
   });
 
   it('atalhos levam para nova consulta e mensagens', async () => {

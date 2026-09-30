@@ -98,3 +98,64 @@ export function isoParaDataBr(iso: string | null | undefined): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? '');
   return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
 }
+
+/** Formato `dd/MM · HH:mm` (cabeçalho do prontuário). */
+export function formatDiaMesHora(data: Date): string {
+  return `${pad(data.getDate())}/${pad(data.getMonth() + 1)} · ${formatHora(data)}`;
+}
+
+const DIAS_SEMANA = [
+  'domingo',
+  'segunda-feira',
+  'terça-feira',
+  'quarta-feira',
+  'quinta-feira',
+  'sexta-feira',
+  'sábado',
+];
+const MESES = [
+  'janeiro',
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
+];
+
+/**
+ * Rótulo dos grupos da lista de consultas, como o Angular fazia com
+ * `toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).toUpperCase()`:
+ * `2026-09-29` → "TERÇA-FEIRA, 29 DE SETEMBRO".
+ */
+export function rotuloDia(dataIso: string): string {
+  const d = parseDataHora(dataIso);
+  return `${DIAS_SEMANA[d.getDay()]}, ${pad(d.getDate())} de ${MESES[d.getMonth()]}`.toUpperCase();
+}
+
+/** Aplica a máscara HH:MM enquanto o usuário digita. */
+export function mascararHora(texto: string): string {
+  const digitos = texto.replace(/\D/g, '').slice(0, 4);
+  return digitos.length <= 2 ? digitos : `${digitos.slice(0, 2)}:${digitos.slice(2)}`;
+}
+
+/** `14:30` → `14:30`; `null` se não for um horário válido (00:00–23:59). */
+export function horaValida(texto: string): string | null {
+  const m = /^(\d{2}):(\d{2})$/.exec(texto.trim());
+  if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) {
+    return null;
+  }
+  return `${m[1]}:${m[2]}`;
+}
+
+/** Junta data (DD/MM/AAAA) e hora (HH:MM) no LocalDateTime do backend (`AAAA-MM-DDTHH:MM:00`). */
+export function paraLocalDateTime(dataBr: string, hora: string): string | null {
+  const data = dataBrParaIso(dataBr);
+  const h = horaValida(hora);
+  return data && h ? `${data}T${h}:00` : null;
+}
