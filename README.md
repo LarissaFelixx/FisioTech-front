@@ -186,6 +186,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     resposta; usa contas e vínculos criados pelo seed de desenvolvimento.
   - `profissional-consultas.yaml`: lista agrupada e filtros, nova consulta (paciente existente
     e cadastro rápido), prontuário e exclusão.
+  - `registro-clinico.yaml`: registro clínico da consulta nova em 4 etapas, saída no meio e
+    retomada pelo prontuário, voltar com os dados mantidos, finalização e prontuário realizado.
   - Para rodar só alguns fluxos: `npm run test:e2e -- .maestro/profissional-consultas.yaml`.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
