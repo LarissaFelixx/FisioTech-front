@@ -4,10 +4,6 @@ import { env } from '../config/env';
 
 export const REQUEST_TIMEOUT_MS = 15_000;
 
-/**
- * Cria o cliente HTTP da API. O interceptor que injeta a credencial
- * (equivalente ao `authInterceptor` do Angular) é registrado pelo AuthContext.
- */
 export function createApiClient(baseURL: string): AxiosInstance {
   return create({
     baseURL,
@@ -16,4 +12,14 @@ export function createApiClient(baseURL: string): AxiosInstance {
   });
 }
 
+/**
+ * Cliente das rotas protegidas. Os interceptors de autenticação (Bearer + renovação do token)
+ * são instalados pelo AuthProvider.
+ */
 export const api = createApiClient(env.apiUrl);
+
+/**
+ * Cliente sem interceptors, para login, refresh, logout e cadastro público: o backend exige
+ * que essas chamadas saiam sem um Bearer antigo.
+ */
+export const publicApi = createApiClient(env.apiUrl);

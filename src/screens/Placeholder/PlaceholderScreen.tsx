@@ -2,17 +2,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '../../components/Button/Button';
 import { colors, fontSizes, fonts, gradients, radius, shadows, spacing } from '../../theme';
 
 type Props = {
   title: string;
   message: string;
+  action?: { label: string; onPress: () => void; testID?: string };
 };
 
 /** Tela provisória usada enquanto as telas reais não são migradas. */
-export function PlaceholderScreen({ title, message }: Props) {
+export function PlaceholderScreen({ title, message, action }: Props) {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <View style={styles.card}>
         <LinearGradient
           colors={gradients.hero.colors}
@@ -25,6 +27,11 @@ export function PlaceholderScreen({ title, message }: Props) {
         <Text style={styles.brand}>FisioTech</Text>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>
+        {action ? (
+          <View style={styles.action}>
+            <Button label={action.label} onPress={action.onPress} testID={action.testID} />
+          </View>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -74,6 +81,7 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xxl,
     textAlign: 'center',
   },
+  action: { alignSelf: 'stretch', marginTop: spacing.md },
   message: {
     color: colors.textSecondary,
     fontFamily: fonts.regular,

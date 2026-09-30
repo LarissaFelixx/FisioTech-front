@@ -7,6 +7,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { createQueryClient } from './api/queryClient';
+import { AuthProvider } from './contexts/AuthContext';
 import { RootNavigator } from './navigation/RootNavigator';
 import { colors } from './theme';
 import { fontAssets } from './theme/fontAssets';
@@ -39,9 +40,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer theme={navigationTheme}>
-          <RootNavigator isSignedIn={false} />
-        </NavigationContainer>
+        <AuthProvider>
+          <NavigationContainer theme={navigationTheme}>
+            <RootNavigator />
+          </NavigationContainer>
+        </AuthProvider>
         <StatusBar style="dark" />
       </QueryClientProvider>
     </SafeAreaProvider>
