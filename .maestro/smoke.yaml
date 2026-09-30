@@ -1,0 +1,28 @@
+# Smoke test: o app abre no Expo Go e mostra a tela inicial (placeholder de login).
+#
+# Pré-requisitos: emulador aberto, `npx expo start` rodando e Expo Go instalado no emulador.
+# Rodar: npm run test:e2e (relatório e screenshot em .maestro/reports/)
+# Para outro endereço do Metro: maestro test -e METRO_URL=exp://<ip>:8081 .maestro
+appId: host.exp.exponent
+name: Smoke — app abre na tela inicial
+tags:
+  - smoke
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- stopApp
+- openLink: ${METRO_URL}
+# Na primeira abertura, o Expo Go mostra o menu de desenvolvedor por cima do app
+# (e esconde o conteúdo da tela da árvore de acessibilidade até ser fechado).
+- extendedWaitUntil:
+    visible: 'Entrar|Continue'
+    timeout: 120000
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+- assertVisible: 'Entrar'
+- assertVisible: 'FisioTech'
+- assertVisible: 'A tela de login chega no Batch 2.'
+- takeScreenshot: smoke
