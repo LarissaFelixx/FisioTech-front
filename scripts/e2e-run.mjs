@@ -81,6 +81,7 @@ process.exit(
             '.maestro/cadastro-paciente.yaml',
             '.maestro/profissional-pacientes.yaml',
             '.maestro/profissional-consultas.yaml',
+            '.maestro/registro-clinico.yaml',
           ]),
   ]),
 );

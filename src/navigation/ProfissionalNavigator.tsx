@@ -5,6 +5,7 @@ import { Icon, type IconName } from '../components/Icon/Icon';
 import { ConsultaDetalheScreen } from '../screens/Consultas/ConsultaDetalheScreen';
 import { ConsultaListScreen } from '../screens/Consultas/ConsultaListScreen';
 import { ConsultaNovaScreen } from '../screens/Consultas/ConsultaNovaScreen';
+import { ConsultaWizardScreen } from '../screens/ConsultaWizard/ConsultaWizardScreen';
 import { PacienteFormScreen } from '../screens/Pacientes/PacienteFormScreen';
 import { PacienteListScreen } from '../screens/Pacientes/PacienteListScreen';
 import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
@@ -22,15 +23,12 @@ const TAB_ICONS: Record<keyof ProfissionalTabsParamList, IconName> = {
   Mensagens: 'chat',
 };
 
-// Telas que ainda não foram migradas (batches 6 e 7).
+// Telas que ainda não foram migradas (Batch 7).
 const MensagensPlaceholder = () => (
   <PlaceholderScreen title="Mensagens" message="As mensagens chegam no Batch 7." />
 );
 const MensagemThreadPlaceholder = () => (
   <PlaceholderScreen title="Mensagens" message="A conversa com o paciente chega no Batch 7." />
-);
-const ConsultaWizardPlaceholder = () => (
-  <PlaceholderScreen title="Registro clínico" message="O registro clínico chega no Batch 6." />
 );
 const AlterarSenhaPlaceholder = () => (
   <PlaceholderScreen title="Alterar senha" message="A troca de senha chega no Batch 7." />
@@ -92,7 +90,7 @@ export function ProfissionalNavigator() {
       />
       <Stack.Screen
         name="ConsultaWizard"
-        component={ConsultaWizardPlaceholder}
+        component={ConsultaWizardScreen}
         options={{ title: 'Registro Clínico' }}
       />
       <Stack.Screen
