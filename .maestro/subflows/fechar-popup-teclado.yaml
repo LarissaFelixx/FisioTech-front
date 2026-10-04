@@ -1,0 +1,9 @@
+# O Gboard do emulador às vezes abre um tutorial ("Try out your stylus") ao focar um campo.
+# Não é do app: fecha e segue.
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      visible: 'Try out your stylus'
+    commands:
+      - tapOn: 'Cancel'

@@ -72,6 +72,7 @@ process.exit(
           '.maestro/smoke.yaml',
           '.maestro/auth-profissional.yaml',
           '.maestro/cadastro-paciente.yaml',
+          '.maestro/profissional-pacientes.yaml',
         ]),
   ]),
 );
