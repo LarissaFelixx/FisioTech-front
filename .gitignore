@@ -56,3 +56,10 @@ coverage/
 # IDEs
 .idea/
 .vscode/
+
+# Maestro (relatórios, screenshots e credenciais de teste locais)
+.maestro/reports/
+.maestro/*.local
+
+# APKs gerados localmente
+/build/

@@ -1,0 +1,47 @@
+# Autocadastro de paciente contra o backend REAL: cria a conta, entra automaticamente e cai no
+# placeholder da área do paciente (Batch 8); depois sai. Email duplicado → mensagem de 409.
+appId: host.exp.exponent
+name: Paciente — autocadastro e email duplicado
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: ${output.email = 'paciente.' + Date.now() + '@fisiotech.test'}
+- clearState
+- runFlow: subflows/abrir-app.yaml
+- tapOn:
+    id: 'aba-cadastrar'
+- assertVisible: 'Cadastro de paciente'
+- tapOn:
+    id: 'cadastro-nome'
+- inputText: 'Paciente Cadastro E2E'
+- pressKey: Enter
+- inputText: ${output.email}
+- pressKey: Enter
+- inputText: 'senha-e2e-123'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'A área do paciente chega no Batch 8.'
+    timeout: 30000
+- assertVisible: 'Olá, Paciente Cadastro E2E'
+- tapOn:
+    id: 'placeholder-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
+
+# Mesmo email de novo → 409.
+- tapOn:
+    id: 'aba-cadastrar'
+- tapOn:
+    id: 'cadastro-nome'
+- inputText: 'Outra Pessoa'
+- pressKey: Enter
+- inputText: ${output.email}
+- pressKey: Enter
+- inputText: 'senha-e2e-123'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Já existe uma conta com este email.'
+    timeout: 20000

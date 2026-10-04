@@ -1,0 +1,128 @@
+# Batch 4: pacientes do profissional contra o backend REAL.
+# Lista e busca → cadastro → edição (data, sexo, bairro) → histórico de consultas →
+# exclusão bloqueada (409, paciente com consultas) → exclusão de paciente sem vínculos.
+appId: host.exp.exponent
+name: Profissional — pacientes (lista, cadastro, edição e exclusão)
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: ${output.email = 'novo.' + Date.now() + '@fisiotech.test'}
+- runFlow: subflows/login-profissional.yaml
+- tapOn:
+    id: 'tab-pacientes'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+
+# Busca por nome.
+- tapOn:
+    id: 'paciente-busca'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'João'
+- assertVisible: 'João Paciente E2E'
+- assertNotVisible: 'Maria Paciente E2E'
+- eraseText: 10
+- pressKey: Enter
+
+# Cadastro: só nome, email e senha.
+- tapOn:
+    id: 'paciente-novo'
+- tapOn:
+    id: 'paciente-nome'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'Paciente Novo E2E'
+- tapOn:
+    id: 'paciente-email'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: ${output.email}
+- tapOn:
+    id: 'paciente-senha'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'senha-e2e-123'
+- pressKey: Enter
+- tapOn:
+    id: 'paciente-salvar'
+- extendedWaitUntil:
+    visible: 'Paciente Novo E2E'
+    timeout: 20000
+
+# Edição: data de nascimento, sexo e bairro.
+- tapOn: 'Paciente Novo E2E'
+- extendedWaitUntil:
+    visible: 'Paciente desde.*'
+    timeout: 20000
+- tapOn:
+    id: 'paciente-dataNascimento'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: '15031985'
+- pressKey: Enter
+- tapOn: 'Feminino'
+- scrollUntilVisible:
+    element:
+      id: 'paciente-bairro'
+    direction: DOWN
+- tapOn:
+    id: 'paciente-bairro'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'Aldeota'
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: 'paciente-salvar'
+    direction: DOWN
+- tapOn:
+    id: 'paciente-salvar'
+- extendedWaitUntil:
+    visible: 'Paciente Novo E2E'
+    timeout: 20000
+
+# Reabre e confere que o backend guardou os dados.
+- tapOn: 'Paciente Novo E2E'
+- extendedWaitUntil:
+    visible: 'Paciente desde.*'
+    timeout: 20000
+- assertVisible: '15/03/1985'
+- scrollUntilVisible:
+    element: 'Aldeota'
+    direction: DOWN
+- takeScreenshot: paciente-editado
+
+# Exclusão de paciente sem vínculos: confirma e some da lista.
+- scrollUntilVisible:
+    element:
+      id: 'paciente-excluir'
+    direction: DOWN
+- tapOn:
+    id: 'paciente-excluir'
+- assertVisible: 'Excluir este paciente? Essa ação não pode ser desfeita.'
+- tapOn:
+    id: 'confirm-confirmar'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- assertNotVisible: 'Paciente Novo E2E'
+
+# Paciente com consultas: histórico aparece e a exclusão é recusada (409).
+- tapOn: 'Maria Paciente E2E'
+- extendedWaitUntil:
+    visible: 'Paciente desde.*'
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: 'paciente-consultas'
+    direction: DOWN
+- assertVisible: '.* — Agendada'
+- scrollUntilVisible:
+    element:
+      id: 'paciente-excluir'
+    direction: UP
+- tapOn:
+    id: 'paciente-excluir'
+- tapOn:
+    id: 'confirm-confirmar'
+- extendedWaitUntil:
+    visible: 'Este paciente tem consultas ou mensagens e não pode ser excluído.'
+    timeout: 20000
+- takeScreenshot: paciente-exclusao-409

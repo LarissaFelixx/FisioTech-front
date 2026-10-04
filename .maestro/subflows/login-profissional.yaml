@@ -1,0 +1,15 @@
+# Começa limpo e entra como o profissional do seed (PROF_EMAIL / PROF_SENHA).
+appId: host.exp.exponent
+---
+- clearState
+- runFlow: abrir-app.yaml
+- tapOn:
+    id: 'login-email'
+- runFlow: fechar-popup-teclado.yaml
+- inputText: ${PROF_EMAIL}
+- pressKey: Enter
+- inputText: ${PROF_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Bem-vindo\(a\),'
+    timeout: 30000

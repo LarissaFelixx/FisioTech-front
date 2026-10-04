@@ -1,0 +1,44 @@
+# Abre o app no Expo Go e fecha o menu de desenvolvedor, se ele aparecer
+# (na primeira abertura ele cobre a tela e esconde o conteúdo da árvore de acessibilidade).
+#
+# Após vários `stopApp` seguidos, o Android às vezes ignora o link ou o Expo Go falha ao
+# baixar o bundle do Metro. Isso é do ambiente de teste, não do app, então o link é reaberto.
+appId: host.exp.exponent
+---
+- retry:
+    maxRetries: 2
+    commands:
+      - openLink: ${METRO_URL}
+      - extendedWaitUntil:
+          visible: 'Acesse sua conta|Bem-vindo\(a\),|Não foi possível conectar|Continue'
+          timeout: 60000
+# Depois de um clearState, o menu de boas-vindas do Expo Go pode surgir alguns segundos depois
+# de o app carregar; espera um pouco por ele antes de seguir.
+- extendedWaitUntil:
+    visible: 'Continue'
+    timeout: 5000
+    optional: true
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      # O menu completo abre com animação logo depois do "Continue".
+      - extendedWaitUntil:
+          visible: 'Go home'
+          timeout: 5000
+          optional: true
+# Depois do "Continue", o menu de desenvolvedor fica aberto. Desliga o botão flutuante de
+# ferramentas do Expo Go (ele fica em cima dos botões do canto superior direito do app) e fecha.
+- runFlow:
+    when:
+      visible: 'Go home'
+    commands:
+      - scrollUntilVisible:
+          element: 'Tools button'
+          direction: DOWN
+      - tapOn: 'Tools button'
+      - pressKey: back
+- extendedWaitUntil:
+    visible: 'Acesse sua conta|Bem-vindo\(a\),|Não foi possível conectar'
+    timeout: 60000
