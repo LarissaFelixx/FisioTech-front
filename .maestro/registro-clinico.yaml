@@ -1,0 +1,163 @@
+# Batch 6: registro clínico (wizard em 4 etapas) contra o backend REAL.
+# Nova consulta → quadro clínico salvo → sai → retoma nos hábitos pelo prontuário → hábitos,
+# exame físico, voltar (dados mantidos) → diagnóstico → sucesso → prontuário com a consulta
+# realizada e o que foi registrado.
+appId: host.exp.exponent
+name: Profissional — registro clínico (wizard)
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: |
+    ${
+      const d = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+      const p = (n) => String(n).padStart(2, '0');
+      output.data = p(d.getDate()) + p(d.getMonth() + 1) + d.getFullYear();
+    }
+- runFlow: subflows/login-profissional.yaml
+
+# Nova consulta: abre direto no registro clínico, na primeira etapa.
+- tapOn:
+    id: 'tab-consultas'
+- tapOn:
+    id: 'consulta-nova'
+- tapOn:
+    id: 'consulta-busca-paciente'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'João'
+- pressKey: Enter
+- tapOn: 'João Paciente E2E'
+- tapOn:
+    id: 'consulta-data'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: ${output.data}
+- tapOn:
+    id: 'consulta-hora'
+- inputText: '0930'
+- pressKey: Enter
+- tapOn:
+    id: 'consulta-iniciar'
+- extendedWaitUntil:
+    visible: 'Quadro Clínico'
+    timeout: 20000
+- assertVisible: 'Passo 1 de 4'
+- assertVisible: 'João Paciente E2E'
+- assertNotVisible:
+    id: 'wizard-voltar'
+
+# 1. Quadro clínico
+- tapOn:
+    id: 'wizard-queixa'
+- inputText: 'Dor no ombro direito'
+- hideKeyboard
+- tapOn: 'Hipertensão'
+- tapOn: 'Outras'
+- tapOn:
+    id: 'wizard-outras'
+- inputText: 'Fibromialgia'
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: 'wizard-cirurgias'
+    direction: DOWN
+- tapOn:
+    id: 'wizard-cirurgias-sim'
+- scrollUntilVisible:
+    element:
+      id: 'wizard-cirurgias-descricao'
+    direction: DOWN
+- tapOn:
+    id: 'wizard-cirurgias-descricao'
+- inputText: 'Artroscopia'
+- hideKeyboard
+- takeScreenshot: registro-quadro
+- tapOn:
+    id: 'wizard-proximo'
+- extendedWaitUntil:
+    visible: 'Hábitos de Vida'
+    timeout: 20000
+- assertVisible: 'Passo 2 de 4'
+
+# Sai no meio: a consulta nova foi aberta no lugar do formulário, então voltar leva à lista.
+- pressKey: back
+- extendedWaitUntil:
+    visible: '09:30 · Presencial'
+    timeout: 20000
+- tapOn: '09:30 · Presencial'
+- extendedWaitUntil:
+    visible: 'Continuar preenchimento clínico'
+    timeout: 20000
+- assertVisible: 'Queixa principal: Dor no ombro direito'
+
+# Retoma na etapa seguinte à última salva.
+- tapOn:
+    id: 'consulta-continuar-registro'
+- extendedWaitUntil:
+    visible: 'Hábitos de Vida'
+    timeout: 20000
+- assertVisible: 'Passo 2 de 4'
+
+# 2. Hábitos de vida
+- tapOn:
+    id: 'wizard-atividade'
+- inputText: 'Musculação'
+- hideKeyboard
+- tapOn:
+    id: 'wizard-tabagismo-sim'
+- tapOn:
+    id: 'wizard-proximo'
+- extendedWaitUntil:
+    visible: 'Exame Físico'
+    timeout: 20000
+
+# 3. Exame físico, voltar (mantém o salvo) e seguir
+- tapOn:
+    id: 'wizard-postura'
+- inputText: 'Ombro elevado'
+- hideKeyboard
+- tapOn:
+    id: 'wizard-voltar'
+- extendedWaitUntil:
+    visible: 'Hábitos de Vida'
+    timeout: 10000
+- assertVisible: 'Musculação'
+- tapOn:
+    id: 'wizard-proximo'
+- extendedWaitUntil:
+    visible: 'Exame Físico'
+    timeout: 20000
+- assertVisible: 'Ombro elevado'
+- tapOn:
+    id: 'wizard-proximo'
+- extendedWaitUntil:
+    visible: 'Diagnóstico'
+    timeout: 20000
+- assertVisible: 'Passo 4 de 4'
+
+# 4. Diagnóstico: finaliza
+- tapOn:
+    id: 'wizard-plano'
+- inputText: 'Fisioterapia 2x por semana'
+- hideKeyboard
+- tapOn:
+    id: 'wizard-proximo'
+- extendedWaitUntil:
+    visible: 'Consulta realizada com sucesso!'
+    timeout: 20000
+- takeScreenshot: registro-sucesso
+
+# "Visualizar" volta ao prontuário de onde o wizard foi aberto, agora como realizada.
+- tapOn:
+    id: 'wizard-visualizar'
+- extendedWaitUntil:
+    visible: 'Realizada'
+    timeout: 20000
+- assertNotVisible: 'Continuar preenchimento clínico'
+- assertVisible: 'Histórico de saúde: Hipertensão, Fibromialgia'
+- assertVisible: 'Cirurgias: Artroscopia'
+- scrollUntilVisible:
+    element: 'Plano de tratamento: Fisioterapia 2x por semana'
+    direction: DOWN
+- assertVisible: 'Tabagismo: Sim'
+- takeScreenshot: registro-prontuario

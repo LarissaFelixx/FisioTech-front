@@ -1,41 +1,34 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
-
-export type Opcao = { valor: string; label: string };
+import type { Opcao } from '../OptionChips/OptionChips';
 
 type Props = {
-  /** Rótulo visível acima dos chips; sem ele, `accessibilityLabel` nomeia o grupo. */
-  label?: string;
-  accessibilityLabel?: string;
+  label: string;
   opcoes: Opcao[];
-  valor: string;
-  onChange: (valor: string) => void;
+  selecionados: string[];
+  onToggle: (valor: string) => void;
   testID?: string;
 };
 
-/** Escolha única em chips (substitui o `<select>` dos formulários do Angular). */
-export function OptionChips({ label, accessibilityLabel, opcoes, valor, onChange, testID }: Props) {
+/** Múltipla escolha em chips: cada chip liga e desliga (origem: `.chip` / `.chip--ativo`). */
+export function ToggleChips({ label, opcoes, selecionados, onToggle, testID }: Props) {
   return (
     <View style={styles.field} testID={testID}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
-      <View
-        style={styles.chips}
-        accessibilityRole="radiogroup"
-        accessibilityLabel={label ?? accessibilityLabel}
-      >
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.chips} accessibilityLabel={label}>
         {opcoes.map((opcao) => {
-          const ativa = opcao.valor === valor;
+          const ativo = selecionados.includes(opcao.valor);
           return (
             <Pressable
               key={opcao.valor}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: ativa }}
-              onPress={() => onChange(opcao.valor)}
-              style={[styles.chip, ativa && styles.chipAtivo]}
-              testID={testID ? `${testID}-${opcao.valor}` : undefined}
+              accessibilityRole="checkbox"
+              accessibilityLabel={opcao.label}
+              accessibilityState={{ checked: ativo }}
+              onPress={() => onToggle(opcao.valor)}
+              style={[styles.chip, ativo && styles.chipAtivo]}
             >
-              <Text style={[styles.chipTexto, ativa && styles.chipTextoAtivo]}>{opcao.label}</Text>
+              <Text style={[styles.chipTexto, ativo && styles.chipTextoAtivo]}>{opcao.label}</Text>
             </Pressable>
           );
         })}

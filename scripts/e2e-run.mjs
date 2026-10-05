@@ -88,6 +88,7 @@ process.exit(
             '.maestro/profissional-pacientes.yaml',
             '.maestro/chat-http.yaml',
             '.maestro/profissional-consultas.yaml',
+            '.maestro/registro-clinico.yaml',
           ]),
   ]),
 );
