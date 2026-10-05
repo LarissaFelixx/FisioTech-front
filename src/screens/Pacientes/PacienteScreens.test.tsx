@@ -5,12 +5,14 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { ProfissionalNavigator } from '../../navigation/ProfissionalNavigator';
 import { consultaService } from '../../services/consultaService';
 import { pacienteService } from '../../services/pacienteService';
+import { mensagemService } from '../../services/mensagemService';
 import { authValue } from '../../test/authContextValue';
 import { consulta, httpError, Providers } from '../../test/helpers';
 import type { Paciente } from '../../types/paciente';
 
 jest.mock('../../services/consultaService');
 jest.mock('../../services/pacienteService');
+jest.mock('../../services/mensagemService');
 
 const svc = jest.mocked(pacienteService);
 const consultas = jest.mocked(consultaService);
@@ -47,6 +49,7 @@ beforeEach(() => {
   svc.atualizar.mockResolvedValue(undefined);
   svc.deletar.mockResolvedValue(undefined);
   consultas.listarTodos.mockResolvedValue([]);
+  jest.mocked(mensagemService.listarPorPaciente).mockResolvedValue([]);
 });
 
 async function abrirAbaPacientes() {
@@ -212,9 +215,8 @@ describe('Edição de paciente', () => {
   it('atalhos levam para nova consulta e mensagens', async () => {
     await abrirEdicao();
     await fireEvent.press(screen.getByTestId('paciente-mensagens'));
-    expect(
-      await screen.findByText('A conversa com o paciente chega no Batch 7.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByTestId('chat-input')).toBeOnTheScreen();
+    await waitFor(() => expect(mensagemService.listarPorPaciente).toHaveBeenCalledWith(1));
   });
 
   it('excluir pede confirmação; cancelar não chama a API', async () => {

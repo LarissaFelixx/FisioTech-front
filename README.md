@@ -4,12 +4,16 @@ App Android do sistema de gestão de clínica de fisioterapia **FisioTech**. Est
 migração do front Angular + Capacitor para **React Native com Expo**. O app consome a mesma API
 do backend Java 21 / Spring Boot, que não sofre nenhuma alteração.
 
-> **Status:** Batch 2 (primeira entrega). Já funcionam:
+> **Status:** autenticação, home, pacientes e chat HTTP implementados no frontend. Inclui:
 >
 > - login, cadastro de paciente, sessão mantida ao reabrir o app e logout (JWT);
 > - a home do profissional com dados reais.
+> - lista, cadastro, edição e exclusão de pacientes pelo profissional;
+> - caixas de entrada e chat entre paciente e profissional, com atualização a cada 10 segundos
+>   enquanto a tela estiver em foco e o aplicativo em primeiro plano.
 >
-> As demais telas ainda são placeholders. O plano completo está em
+> Consultas/prontuário, registro clínico, troca de senha, demais telas do paciente e área admin
+> ainda são placeholders ou não possuem tela. O plano completo está em
 > [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md).
 
 ## Stack
@@ -156,6 +160,18 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
 
 ## Testes
 
+### Chat HTTP
+
+- **Profissional:** aba Mensagens → conversa; ou Pacientes → editar paciente → Mensagens.
+- **Paciente:** após login, abre a caixa de conversas → profissional. O botão Sair fica no cabeçalho.
+- O histórico mostra autor, dia e horário. O envio usa os endpoints existentes e atualiza o
+  histórico e a caixa de entrada. A consulta periódica para ao sair da tela ou colocar o app
+  em segundo plano, e busca novamente ao voltar.
+- Falha de envio mantém o texto. Em falha de rede, confira o histórico antes de tentar enviar
+  novamente: a API atual não possui chave de idempotência no contrato do frontend.
+- Não há anexos, confirmação de leitura, notificações push ou armazenamento offline.
+- A especificação e o roteiro de validação estão em [`CHAT_HTTP.md`](./CHAT_HTTP.md).
+
 - **Unitários** (`npm test`): arquivos `*.test.ts(x)` ao lado do código, com Jest (`jest-expo`)
   e `@testing-library/react-native`.
 - **E2E** (`npm run test:e2e`): fluxos YAML do [Maestro](https://maestro.mobile.dev) em
@@ -166,6 +182,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
   - `cadastro-paciente.yaml`: autocadastro de paciente e email duplicado (409).
   - `profissional-pacientes.yaml`: lista e busca, cadastro, edição (data, sexo, bairro) e
     exclusão de paciente; paciente com consultas não pode ser excluído (409).
+  - `chat-http.yaml`: profissional envia, paciente recebe e responde, profissional recebe a
+    resposta; usa contas e vínculos criados pelo seed de desenvolvimento.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário

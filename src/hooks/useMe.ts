@@ -6,6 +6,7 @@ import type { ConsultaBookingRequest } from '../types/consultaBooking';
 import type { MePerfilUpdateRequest } from '../types/paciente';
 import { nuloSeNaoEncontrado } from './useAvaliacoes';
 import { queryKeys } from './queryKeys';
+import { chatQueryOptions, type ChatQueryOptions } from './useChatActivity';
 
 /** Hooks do autoatendimento do paciente (`/me/**`, origem: `core/me/me.service.ts`). */
 
@@ -75,17 +76,19 @@ export function useMarcarConsulta() {
   });
 }
 
-export function useMinhasConversas() {
+export function useMinhasConversas(options: ChatQueryOptions = {}) {
   return useQuery({
     queryKey: queryKeys.me.conversas(),
     queryFn: () => meService.minhasConversas(),
+    ...chatQueryOptions(options),
   });
 }
 
-export function useMinhaConversa(profissionalId: number) {
+export function useMinhaConversa(profissionalId: number, options: ChatQueryOptions = {}) {
   return useQuery({
     queryKey: queryKeys.me.conversa(profissionalId),
     queryFn: () => meService.minhaConversa(profissionalId),
+    ...chatQueryOptions(options),
   });
 }
 
@@ -127,10 +130,14 @@ export function useBuscarProfissionais(nome?: string, especialidade?: string) {
   });
 }
 
-export function useProfissionalPublico(profissionalId: number) {
+export function useProfissionalPublico(
+  profissionalId: number,
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: queryKeys.me.profissional(profissionalId),
     queryFn: () => meService.buscarProfissional(profissionalId),
+    enabled: options.enabled ?? true,
   });
 }
 

@@ -182,7 +182,12 @@ function Formulario({ inicial, paciente }: { inicial: PacienteFormValues; pacien
               <Atalho
                 label="Mensagens"
                 icone="chat"
-                onPress={() => navigation.navigate('MensagemThread', { pacienteId: paciente.id })}
+                onPress={() =>
+                  navigation.navigate('MensagemThread', {
+                    pacienteId: paciente.id,
+                    nome: paciente.nome,
+                  })
+                }
                 testID="paciente-mensagens"
               />
             </View>

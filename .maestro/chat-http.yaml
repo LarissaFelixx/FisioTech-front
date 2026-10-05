@@ -1,0 +1,72 @@
+# HTTP nos dois sentidos, contra o backend de desenvolvimento e contas do seed.
+appId: host.exp.exponent
+name: Chat HTTP — profissional e paciente
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: ${output.pergunta = 'Mensagem profissional ' + Date.now()}
+- evalScript: ${output.resposta = 'Resposta paciente ' + Date.now()}
+- runFlow: subflows/login-profissional.yaml
+- tapOn:
+    id: 'tab-pacientes'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- tapOn: 'Maria Paciente E2E'
+- tapOn:
+    id: 'paciente-mensagens'
+- extendedWaitUntil:
+    visible:
+      id: 'chat-input'
+    timeout: 20000
+- tapOn:
+    id: 'chat-input'
+- inputText: ${output.pergunta}
+- hideKeyboard
+- tapOn:
+    id: 'chat-send'
+- extendedWaitUntil:
+    visible: ${output.pergunta}
+    timeout: 20000
+
+# Entra como o paciente e confere a mensagem persistida.
+- clearState
+- runFlow: subflows/abrir-app.yaml
+- tapOn:
+    id: 'login-email'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: ${PAC_EMAIL}
+- pressKey: Enter
+- inputText: ${PAC_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Conversas'
+    timeout: 30000
+- tapOn:
+    text: ${PROF_NOME}
+- extendedWaitUntil:
+    visible: ${output.pergunta}
+    timeout: 20000
+- tapOn:
+    id: 'chat-input'
+- inputText: ${output.resposta}
+- hideKeyboard
+- tapOn:
+    id: 'chat-send'
+- extendedWaitUntil:
+    visible: ${output.resposta}
+    timeout: 20000
+
+# O profissional recebe a resposta usando a caixa de entrada.
+- runFlow: subflows/login-profissional.yaml
+- tapOn:
+    id: 'tab-mensagens'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- tapOn: 'Maria Paciente E2E'
+- extendedWaitUntil:
+    visible: ${output.resposta}
+    timeout: 20000

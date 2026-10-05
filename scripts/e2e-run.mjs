@@ -53,6 +53,8 @@ if (!comBackend) {
 const env = lerEnv(ENV_FILE);
 // Um profissional novo a cada execução, para os dados do seed não se acumularem.
 env.E2E_PROF_EMAIL ||= `e2e.prof.${Date.now()}@fisiotech.test`;
+env.E2E_CHAT_PACIENTE_EMAIL = `e2e.chat.${Date.now()}@fisiotech.test`;
+env.E2E_CHAT_PACIENTE_SENHA = env.E2E_PROF_SENHA;
 if (rodar('node', ['scripts/e2e-seed.mjs'], env) !== 0) {
   process.exit(1);
 }
@@ -65,6 +67,10 @@ process.exit(
     `PROF_SENHA=${env.E2E_PROF_SENHA}`,
     '-e',
     `PROF_NOME=${env.E2E_PROF_NOME ?? 'Dra. Teste E2E'}`,
+    '-e',
+    `PAC_EMAIL=${env.E2E_CHAT_PACIENTE_EMAIL}`,
+    '-e',
+    `PAC_SENHA=${env.E2E_CHAT_PACIENTE_SENHA}`,
     ...extras,
     ...(apk
       ? ['.maestro/apk/profissional-apk.yaml']
@@ -73,6 +79,7 @@ process.exit(
           '.maestro/auth-profissional.yaml',
           '.maestro/cadastro-paciente.yaml',
           '.maestro/profissional-pacientes.yaml',
+          '.maestro/chat-http.yaml',
         ]),
   ]),
 );

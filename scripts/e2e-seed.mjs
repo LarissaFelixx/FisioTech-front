@@ -17,6 +17,8 @@
 const api = (process.env.E2E_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '');
 
 function exigir(nome) {
+  // Este script roda no Node; as variáveis não são embutidas pelo Metro.
+  // eslint-disable-next-line expo/no-dynamic-env-var
   const valor = process.env[nome];
   if (!valor) {
     console.error(`Defina a variável de ambiente ${nome}.`);
@@ -96,7 +98,17 @@ const nomes = ['Maria Paciente E2E', 'João Paciente E2E'];
 for (const [i, nome] of nomes.entries()) {
   await chamar('POST', '/pacientes', {
     token: profToken,
-    body: { nome, email: `paciente${i}.${sufixo}@fisiotech.test`, senha: `senha-${sufixo}` },
+    body: {
+      nome,
+      email:
+        i === 0 && process.env.E2E_CHAT_PACIENTE_EMAIL
+          ? process.env.E2E_CHAT_PACIENTE_EMAIL
+          : `paciente${i}.${sufixo}@fisiotech.test`,
+      senha:
+        i === 0 && process.env.E2E_CHAT_PACIENTE_SENHA
+          ? process.env.E2E_CHAT_PACIENTE_SENHA
+          : `senha-${sufixo}`,
+    },
   });
 }
 

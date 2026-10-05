@@ -19,8 +19,14 @@ export type ProfissionalStackParamList = {
   /** Sem `id`: cadastro; com `id`: edição. */
   PacienteForm: { id?: number };
   ConsultaNova: { pacienteId?: number };
-  MensagemThread: { pacienteId: number };
+  MensagemThread: { pacienteId: number; nome?: string };
   ConsultaDetalhe: { id: number };
   ConsultaWizard: { id: number };
   AlterarSenha: undefined;
+};
+
+/** Área do paciente disponível nesta entrega. */
+export type PacienteStackParamList = {
+  Mensagens: undefined;
+  MensagemThread: { profissionalId: number; nome?: string };
 };

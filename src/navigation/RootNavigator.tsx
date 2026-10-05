@@ -4,6 +4,7 @@ import { RestoreErrorScreen } from '../screens/RestoreError/RestoreErrorScreen';
 import { SplashScreen } from '../screens/Splash/SplashScreen';
 import { ROLES } from '../types/auth';
 import { AuthStack } from './AuthStack';
+import { PacienteNavigator } from './PacienteNavigator';
 import { ProfissionalNavigator } from './ProfissionalNavigator';
 
 /**
@@ -29,13 +30,7 @@ export function RootNavigator() {
     case ROLES.profissional:
       return <ProfissionalNavigator />;
     case ROLES.paciente:
-      return (
-        <PlaceholderScreen
-          title={`Olá, ${user.nome}`}
-          message="A área do paciente chega no Batch 8."
-          action={sair}
-        />
-      );
+      return <PacienteNavigator />;
     case ROLES.admin:
       return (
         <PlaceholderScreen

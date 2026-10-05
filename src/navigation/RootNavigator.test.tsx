@@ -1,9 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { AuthContext, type AuthContextValue } from '../contexts/AuthContext';
 import { consultaService } from '../services/consultaService';
 import { pacienteService } from '../services/pacienteService';
+import { meService } from '../services/meService';
 import { authValue, usuarioProfissional } from '../test/authContextValue';
 import { Providers } from '../test/helpers';
 import { RootNavigator } from './RootNavigator';
@@ -14,6 +15,7 @@ jest.mock('../services/consultaService', () => ({
 jest.mock('../services/pacienteService', () => ({
   pacienteService: { listarTodos: jest.fn(async () => []), cadastrarPublico: jest.fn() },
 }));
+jest.mock('../services/meService');
 
 async function renderRoot(parcial: Partial<AuthContextValue>) {
   const value = authValue(parcial);
@@ -60,8 +62,19 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     expect(pacienteService.listarTodos).toHaveBeenCalled();
   });
 
+  it('paciente entra nas conversas e pode sair', async () => {
+    jest.mocked(meService.minhasConversas).mockResolvedValue([]);
+    const value = await renderRoot({
+      status: 'signedIn',
+      user: { ...usuarioProfissional, role: 'ROLE_PACIENTE' },
+    });
+    expect(await screen.findByTestId('chat-inbox')).toBeOnTheScreen();
+    await waitFor(() => expect(meService.minhasConversas).toHaveBeenCalled());
+    await fireEvent.press(screen.getByTestId('paciente-sair'));
+    expect(value.logout).toHaveBeenCalled();
+  });
+
   it.each([
-    ['ROLE_PACIENTE', 'A área do paciente chega no Batch 8.'],
     ['ROLE_ADMIN', 'A área do administrador chega no Batch 11.'],
     ['ROLE_DESCONHECIDO', 'Seu perfil de acesso não é reconhecido por este app.'],
   ])('%s cai num placeholder com "Sair"', async (role, mensagem) => {

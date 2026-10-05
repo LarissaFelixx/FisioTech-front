@@ -1,5 +1,5 @@
 # Autocadastro de paciente contra o backend REAL: cria a conta, entra automaticamente e cai no
-# placeholder da área do paciente (Batch 8); depois sai. Email duplicado → mensagem de 409.
+# caixa de conversas do paciente; depois sai. Email duplicado → mensagem de 409.
 appId: host.exp.exponent
 name: Paciente — autocadastro e email duplicado
 tags:
@@ -22,11 +22,11 @@ env:
 - inputText: 'senha-e2e-123'
 - pressKey: Enter
 - extendedWaitUntil:
-    visible: 'A área do paciente chega no Batch 8.'
+    visible: 'Conversas'
     timeout: 30000
-- assertVisible: 'Olá, Paciente Cadastro E2E'
+- assertVisible: 'Nenhuma conversa disponível. As conversas com seus profissionais aparecerão aqui.'
 - tapOn:
-    id: 'placeholder-sair'
+    id: 'paciente-sair'
 - extendedWaitUntil:
     visible: 'Acesse sua conta'
     timeout: 15000
