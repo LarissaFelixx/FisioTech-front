@@ -1,0 +1,132 @@
+# Batch 5: consultas do profissional contra o backend REAL.
+# Lista agrupada e filtros → nova consulta para um paciente existente → nova consulta com
+# cadastro rápido de paciente → prontuário → exclusão com confirmação.
+appId: host.exp.exponent
+name: Profissional — consultas (lista, nova consulta e prontuário)
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: |
+    ${
+      const d = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+      const p = (n) => String(n).padStart(2, '0');
+      output.data = p(d.getDate()) + p(d.getMonth() + 1) + d.getFullYear();
+      output.email = 'rapido.' + Date.now() + '@fisiotech.test';
+    }
+- runFlow: subflows/login-profissional.yaml
+- tapOn:
+    id: 'tab-consultas'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- assertVisible: '.*-FEIRA, .*|SÁBADO, .*|DOMINGO, .*'
+- assertVisible: '.* · Online · Unimed'
+
+# Filtros.
+- tapOn: 'Canceladas'
+- assertVisible: 'Nenhuma consulta neste filtro.'
+- tapOn: 'Agendadas'
+- assertVisible: 'Maria Paciente E2E'
+- tapOn: 'Todas'
+
+# Nova consulta para um paciente existente: abre o registro clínico da consulta criada.
+- tapOn:
+    id: 'consulta-nova'
+- tapOn:
+    id: 'consulta-busca-paciente'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'Maria'
+- pressKey: Enter
+- tapOn: 'Maria Paciente E2E'
+- assertVisible: 'Paciente: Maria Paciente E2E'
+- tapOn:
+    id: 'consulta-data'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: ${output.data}
+- tapOn:
+    id: 'consulta-hora'
+- inputText: '1015'
+- pressKey: Enter
+- tapOn: 'Online'
+- tapOn:
+    id: 'consulta-convenio'
+- inputText: 'Amil'
+- pressKey: Enter
+- tapOn:
+    id: 'consulta-valor'
+- inputText: '180,00'
+- pressKey: Enter
+- tapOn:
+    id: 'consulta-iniciar'
+- extendedWaitUntil:
+    visible: 'O registro clínico chega no Batch 6.'
+    timeout: 20000
+
+# Voltar leva à lista, já com a consulta nova.
+- pressKey: back
+- extendedWaitUntil:
+    visible: '10:15 · Online · Amil'
+    timeout: 20000
+
+# Nova consulta com cadastro rápido de paciente.
+- tapOn:
+    id: 'consulta-nova'
+- tapOn:
+    id: 'consulta-cadastrar-paciente'
+- tapOn:
+    id: 'rapido-nome'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'Paciente Rápido E2E'
+- tapOn:
+    id: 'rapido-email'
+- inputText: ${output.email}
+- tapOn:
+    id: 'rapido-senha'
+- inputText: 'senha-e2e-123'
+- pressKey: Enter
+- tapOn:
+    id: 'rapido-cadastrar'
+- extendedWaitUntil:
+    visible: 'Paciente: Paciente Rápido E2E'
+    timeout: 20000
+- tapOn:
+    id: 'consulta-data'
+- inputText: ${output.data}
+- tapOn:
+    id: 'consulta-hora'
+- inputText: '1630'
+- pressKey: Enter
+- tapOn:
+    id: 'consulta-iniciar'
+- extendedWaitUntil:
+    visible: 'O registro clínico chega no Batch 6.'
+    timeout: 20000
+- pressKey: back
+
+# Prontuário da consulta nova e exclusão com confirmação.
+- extendedWaitUntil:
+    visible: 'Paciente Rápido E2E'
+    timeout: 20000
+- tapOn: 'Paciente Rápido E2E'
+- extendedWaitUntil:
+    visible: 'Continuar preenchimento clínico'
+    timeout: 20000
+- assertVisible: 'Presencial'
+- assertVisible: 'Particular'
+- assertVisible: 'Agendada'
+- takeScreenshot: prontuario
+- scrollUntilVisible:
+    element:
+      id: 'consulta-excluir'
+    direction: DOWN
+- tapOn:
+    id: 'consulta-excluir'
+- assertVisible: 'Excluir esta consulta? Essa ação não pode ser desfeita.'
+- tapOn:
+    id: 'confirm-confirmar'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+- assertNotVisible: 'Paciente Rápido E2E'

@@ -4,6 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon, type IconName } from '../components/Icon/Icon';
 import { ProfissionalChatScreen } from '../screens/Chat/ProfissionalChatScreen';
 import { ProfissionalInboxScreen } from '../screens/Chat/ProfissionalInboxScreen';
+import { ConsultaDetalheScreen } from '../screens/Consultas/ConsultaDetalheScreen';
+import { ConsultaListScreen } from '../screens/Consultas/ConsultaListScreen';
+import { ConsultaNovaScreen } from '../screens/Consultas/ConsultaNovaScreen';
 import { PacienteFormScreen } from '../screens/Pacientes/PacienteFormScreen';
 import { PacienteListScreen } from '../screens/Pacientes/PacienteListScreen';
 import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
@@ -21,16 +24,7 @@ const TAB_ICONS: Record<keyof ProfissionalTabsParamList, IconName> = {
   Mensagens: 'chat',
 };
 
-// Telas que ainda não foram migradas (batches 4 a 7).
-const ConsultasPlaceholder = () => (
-  <PlaceholderScreen title="Consultas" message="A lista de consultas chega no Batch 5." />
-);
-const ConsultaNovaPlaceholder = () => (
-  <PlaceholderScreen title="Nova consulta" message="O agendamento de consulta chega no Batch 5." />
-);
-const ConsultaDetalhePlaceholder = () => (
-  <PlaceholderScreen title="Prontuário" message="O detalhe da consulta chega no Batch 5." />
-);
+// Telas que ainda não foram migradas (batches 6 e 7).
 const ConsultaWizardPlaceholder = () => (
   <PlaceholderScreen title="Registro clínico" message="O registro clínico chega no Batch 6." />
 );
@@ -55,7 +49,7 @@ function ProfissionalTabs() {
     >
       <Tabs.Screen name="Home" component={ProfissionalHomeScreen} />
       <Tabs.Screen name="Pacientes" component={PacienteListScreen} />
-      <Tabs.Screen name="Consultas" component={ConsultasPlaceholder} />
+      <Tabs.Screen name="Consultas" component={ConsultaListScreen} />
       <Tabs.Screen name="Mensagens" component={ProfissionalInboxScreen} />
     </Tabs.Navigator>
   );
@@ -79,7 +73,7 @@ export function ProfissionalNavigator() {
       />
       <Stack.Screen
         name="ConsultaNova"
-        component={ConsultaNovaPlaceholder}
+        component={ConsultaNovaScreen}
         options={{ title: 'Nova Consulta' }}
       />
       <Stack.Screen
@@ -89,7 +83,7 @@ export function ProfissionalNavigator() {
       />
       <Stack.Screen
         name="ConsultaDetalhe"
-        component={ConsultaDetalhePlaceholder}
+        component={ConsultaDetalheScreen}
         options={{ title: 'Consulta' }}
       />
       <Stack.Screen
