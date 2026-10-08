@@ -12,10 +12,12 @@ export function ProfissionalInboxScreen() {
   const query = useCaixaEntrada({ active, poll: true });
   return (
     <ConversationList
+      autor="PROFISSIONAL"
       items={(query.data ?? []).map((c) => ({
         id: c.pacienteId,
         nome: c.pacienteNome,
         ultimaMensagem: c.ultimaMensagem,
+        ultimoAutor: c.ultimoAutor,
         dataUltimaMensagem: c.dataUltimaMensagem,
       }))}
       loading={query.isPending}
