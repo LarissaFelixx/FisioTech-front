@@ -3,6 +3,11 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 /** Rotas do fluxo não autenticado. */
 export type AuthStackParamList = {
   Login: undefined;
+  RecuperacaoSenha: undefined;
+  /** Segunda etapa da recuperação: `email` que recebeu o código. */
+  RedefinirSenha: { email: string };
+  /** Terceira etapa da recuperação: confirmação de senha redefinida. */
+  SenhaRedefinida: undefined;
 };
 
 /** Abas do profissional (bottom nav do Shell do Angular). */
