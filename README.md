@@ -162,6 +162,11 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
 
 ### Chat HTTP
 
+- **Caixa de entrada:** lista as conversas por mensagem mais recente, permite buscar por nome
+  ou texto sem diferenciar acentos/maiúsculas e identifica a última mensagem própria com “Você:”.
+  Possui carregamento, caixa vazia, busca sem resultados, nova tentativa e atualização manual.
+  Falhas temporárias preservam a lista; acesso negado oculta os dados anteriores. Detalhes em
+  [`CAIXA_DE_ENTRADA.md`](./CAIXA_DE_ENTRADA.md).
 - **Profissional:** aba Mensagens → conversa; ou Pacientes → editar paciente → Mensagens.
 - **Paciente:** após login, abre a caixa de conversas → profissional. O botão Sair fica no cabeçalho.
 - O histórico mostra autor, dia e horário. O envio usa os endpoints existentes e atualiza o
