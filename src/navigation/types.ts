@@ -45,4 +45,5 @@ export type PacienteStackParamList = {
   AlterarSenha: undefined;
   ConsultaDetalhe: { id: number };
   AvaliarConsulta: { consultaId: number };
+  MeuTratamento: undefined;
 };
