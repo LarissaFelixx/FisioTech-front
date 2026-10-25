@@ -36,10 +36,6 @@ function Provisoria({
   );
 }
 
-export function AlterarSenhaProvisoriaScreen() {
-  return <Provisoria abaixoDoHeader aviso="A troca de senha chega com a atividade #45." />;
-}
-
 export function ConsultaDetalheProvisoriaScreen() {
   return <Provisoria abaixoDoHeader aviso="O detalhe da consulta chega com a atividade #41." />;
 }

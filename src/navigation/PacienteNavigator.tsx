@@ -8,11 +8,11 @@ import { MarcarConsultaScreen } from '../screens/Paciente/Consulta/MarcarConsult
 import { MinhasConsultasScreen } from '../screens/Paciente/Consulta/MinhasConsultasScreen';
 import { HomePacienteScreen } from '../screens/Paciente/Home/HomePacienteScreen';
 import {
-  AlterarSenhaProvisoriaScreen,
   ConsultaDetalheProvisoriaScreen,
   MeuTratamentoProvisoriaScreen,
 } from '../screens/Paciente/PacienteProvisoriaScreens';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
+import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
 
@@ -67,8 +67,8 @@ export function PacienteNavigator() {
       />
       <Stack.Screen
         name="AlterarSenha"
-        component={AlterarSenhaProvisoriaScreen}
-        options={{ title: 'Alterar Senha' }}
+        component={AlterarSenhaScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ConsultaDetalhe"
