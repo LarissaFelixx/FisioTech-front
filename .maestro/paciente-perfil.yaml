@@ -22,6 +22,9 @@ env:
 - runFlow: subflows/fechar-popup-teclado.yaml
 - eraseText: 12
 - inputText: '14051990'
+# Fecha o teclado antes de seguir: com ele aberto o layout se desloca e o próximo toque pode não
+# mudar o foco de campo.
+- hideKeyboard
 - tapOn:
     id: 'perfil-sexo-Feminino'
 - scrollUntilVisible:
