@@ -4,10 +4,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon, type IconName } from '../components/Icon/Icon';
 import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
+import { ConsultaDetalhePacienteScreen } from '../screens/Paciente/Consulta/ConsultaDetalhePacienteScreen';
+import { ConsultasProvisoriaScreen } from '../screens/Paciente/Consulta/ConsultasProvisoriaScreen';
 import { HomeProvisoriaScreen } from '../screens/Paciente/HomeProvisoriaScreen';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
 import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
-import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
 
@@ -20,14 +21,6 @@ const TAB_ICONS: Record<keyof PacienteTabsParamList, IconName> = {
   Mensagens: 'chat',
   Perfil: 'user',
 };
-
-// Telas que ainda não existem (Minhas Consultas é a atividade #39).
-const ConsultasPlaceholder = () => (
-  <PlaceholderScreen
-    title="Minhas Consultas"
-    message="A lista de consultas chega com a atividade #39."
-  />
-);
 
 function PacienteTabs() {
   return (
@@ -45,7 +38,7 @@ function PacienteTabs() {
       })}
     >
       <Tabs.Screen name="Home" component={HomeProvisoriaScreen} />
-      <Tabs.Screen name="Consultas" component={ConsultasPlaceholder} />
+      <Tabs.Screen name="Consultas" component={ConsultasProvisoriaScreen} />
       <Tabs.Screen name="Mensagens" component={PacienteInboxScreen} />
       <Tabs.Screen name="Perfil" component={MeuPerfilScreen} />
     </Tabs.Navigator>
@@ -71,6 +64,11 @@ export function PacienteNavigator() {
       <Stack.Screen
         name="AlterarSenha"
         component={AlterarSenhaScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ConsultaDetalhe"
+        component={ConsultaDetalhePacienteScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
