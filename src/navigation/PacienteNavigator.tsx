@@ -6,6 +6,7 @@ import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
 import { HomeProvisoriaScreen } from '../screens/Paciente/HomeProvisoriaScreen';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
+import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
 import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
@@ -26,9 +27,6 @@ const ConsultasPlaceholder = () => (
     title="Minhas Consultas"
     message="A lista de consultas chega com a atividade #39."
   />
-);
-const AlterarSenhaPlaceholder = () => (
-  <PlaceholderScreen title="Alterar Senha" message="A troca de senha chega com a atividade #45." />
 );
 
 function PacienteTabs() {
@@ -72,8 +70,8 @@ export function PacienteNavigator() {
       />
       <Stack.Screen
         name="AlterarSenha"
-        component={AlterarSenhaPlaceholder}
-        options={{ title: 'Alterar Senha' }}
+        component={AlterarSenhaScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

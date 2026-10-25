@@ -91,6 +91,7 @@ process.exit(
             '.maestro/registro-clinico.yaml',
             '.maestro/paciente-menu.yaml',
             '.maestro/paciente-perfil.yaml',
+            '.maestro/paciente-senha.yaml',
           ]),
   ]),
 );
