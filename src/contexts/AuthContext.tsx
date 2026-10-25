@@ -34,6 +34,8 @@ export interface AuthContextValue {
   cadastrar(request: PacienteCreateRequest): Promise<CurrentUser>;
   logout(): Promise<void>;
   restore(): Promise<void>;
+  /** Relê o usuário logado (`/auth/me`) sem mexer na sessão, ex.: depois de editar o perfil. */
+  recarregarUsuario(): Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -139,9 +141,13 @@ export function AuthProvider({ children, dependencies }: Props) {
     signOutLocally();
   }, [deps, signOutLocally]);
 
+  const recarregarUsuario = useCallback(async () => {
+    setUser(await deps.fetchMe());
+  }, [deps]);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ status, user, login, cadastrar, logout, restore }),
-    [status, user, login, cadastrar, logout, restore],
+    () => ({ status, user, login, cadastrar, logout, restore, recarregarUsuario }),
+    [status, user, login, cadastrar, logout, restore, recarregarUsuario],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
