@@ -74,16 +74,27 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     expect(value.logout).toHaveBeenCalled();
   });
 
-  it.each([
-    ['ROLE_ADMIN', 'A área do administrador chega no Batch 11.'],
-    ['ROLE_DESCONHECIDO', 'Seu perfil de acesso não é reconhecido por este app.'],
-  ])('%s cai num placeholder com "Sair"', async (role, mensagem) => {
+  it('admin cai nas abas do admin e sai pelo menu', async () => {
     const value = await renderRoot({
       status: 'signedIn',
-      user: { ...usuarioProfissional, role },
+      user: { ...usuarioProfissional, nome: 'Administrador', role: 'ROLE_ADMIN' },
     });
 
-    expect(screen.getByText(mensagem)).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Profissionais' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('admin-abrir-menu'));
+    await fireEvent.press(screen.getByTestId('menu-sair'));
+    expect(value.logout).toHaveBeenCalled();
+  });
+
+  it('perfil desconhecido cai num placeholder com "Sair"', async () => {
+    const value = await renderRoot({
+      status: 'signedIn',
+      user: { ...usuarioProfissional, role: 'ROLE_DESCONHECIDO' },
+    });
+
+    expect(
+      screen.getByText('Seu perfil de acesso não é reconhecido por este app.'),
+    ).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('placeholder-sair'));
     expect(value.logout).toHaveBeenCalled();
   });

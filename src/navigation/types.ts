@@ -10,6 +10,18 @@ export type AuthStackParamList = {
   SenhaRedefinida: undefined;
 };
 
+/** Abas do administrador (barra inferior do Figma "12 Admin · Profissionais"). */
+export type AdminTabsParamList = {
+  Profissionais: undefined;
+  Pacientes: undefined;
+};
+
+/** Telas do administrador abertas por cima das abas. */
+export type AdminStackParamList = {
+  Tabs: NavigatorScreenParams<AdminTabsParamList>;
+  AlterarSenha: undefined;
+};
+
 /** Abas do profissional (bottom nav do Shell do Angular). */
 export type ProfissionalTabsParamList = {
   Home: undefined;
