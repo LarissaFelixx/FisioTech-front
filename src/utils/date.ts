@@ -117,11 +117,14 @@ export function isoParaDataBr(iso: string | null | undefined): string {
   return `${dia}/${mes}/${ano}`;
 }
 
+/** Formato `dd/MM`. */
+export function formatDiaMes(data: Date): string {
+  return `${zeroEsquerda(data.getDate())}/${zeroEsquerda(data.getMonth() + 1)}`;
+}
+
 /** Formato `dd/MM · HH:mm` (cabeçalho do prontuário). */
 export function formatDiaMesHora(data: Date): string {
-  const dia = zeroEsquerda(data.getDate());
-  const mes = zeroEsquerda(data.getMonth() + 1);
-  return `${dia}/${mes} · ${formatHora(data)}`;
+  return `${formatDiaMes(data)} · ${formatHora(data)}`;
 }
 
 const DIAS_SEMANA = [

@@ -27,6 +27,8 @@ export type ProfissionalStackParamList = {
   MensagemThread: { pacienteId: number; nome?: string };
   ConsultaDetalhe: { id: number };
   ConsultaWizard: { id: number };
+  /** `id` da consulta em que a evolução é registrada. */
+  NovaEvolucao: { id: number };
   AlterarSenha: undefined;
 };
 
