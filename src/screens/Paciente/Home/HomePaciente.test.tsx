@@ -4,7 +4,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
 import { meService } from '../../../services/meService';
 import { authValue, usuarioProfissional } from '../../../test/authContextValue';
-import { consulta, httpError, Providers } from '../../../test/helpers';
+import { consulta, httpError, paciente as pacienteMe, Providers } from '../../../test/helpers';
 import { clock } from '../../../utils/clock';
 
 jest.mock('../../../services/meService');
@@ -30,6 +30,8 @@ beforeEach(() => {
       consulta({ dataHora: '2025-07-20T08:00:00', status: 'CANCELADA' }),
     ]);
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
+  jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
+  jest.mocked(meService.buscarProfissionais).mockResolvedValue([]);
 });
 
 async function montar() {
@@ -87,7 +89,7 @@ describe('Home do paciente (#38)', () => {
     await montar();
 
     await fireEvent.press(await screen.findByTestId('home-marcar-primeira'));
-    expect(await screen.findByText('Marcar consulta chega com a atividade #40.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Marcar consulta' })).toBeOnTheScreen();
   });
 
   it('se as consultas falham, o atalho continua lá com "Ver consultas"', async () => {
