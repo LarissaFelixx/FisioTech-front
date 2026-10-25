@@ -127,7 +127,20 @@ function Prontuario(props: { consulta: Consulta; atualizando: boolean; onAtualiz
           onPress={() => navigation.navigate('ConsultaWizard', { id: c.id })}
           testID="consulta-continuar-registro"
         />
-      ) : null}
+      ) : (
+        <>
+          <Button
+            label="Nova evolução"
+            onPress={() => navigation.navigate('NovaEvolucao', { id: c.id })}
+            testID="consulta-nova-evolucao"
+          />
+          <Button
+            label="Revisar plano"
+            onPress={() => navigation.navigate('RevisarPlano', { pacienteId: c.pacienteId })}
+            testID="consulta-revisar-plano"
+          />
+        </>
+      )}
 
       {secoesProntuario(c).map((secao) => (
         <View key={secao.titulo} style={styles.secao} testID={`secao-${secao.titulo}`}>
