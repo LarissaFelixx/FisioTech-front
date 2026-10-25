@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 
 async function montar(paciente: boolean) {
-  await render(
+  const resultado = await render(
     <Providers navigation>
       <AuthContext.Provider
         value={authValue({
@@ -53,6 +53,11 @@ async function montar(paciente: boolean) {
       </AuthContext.Provider>
     </Providers>,
   );
+  // O paciente entra na Home; as conversas ficam na aba Mensagens.
+  if (paciente) {
+    await fireEvent.press(screen.getByTestId('tab-mensagens'));
+  }
+  return resultado;
 }
 
 it('profissional busca localmente e abre a conversa com o paciente selecionado', async () => {

@@ -34,8 +34,8 @@ describe('Avatar', () => {
 });
 
 describe('Icon', () => {
-  it('tem os 21 ícones do Angular e renderiza todos', async () => {
-    expect(ICON_NAMES).toHaveLength(21);
+  it('tem os 21 ícones do Angular, mais o de sair do Figma, e renderiza todos', async () => {
+    expect(ICON_NAMES).toHaveLength(22);
     await render(
       <>
         {ICON_NAMES.map((name) => (

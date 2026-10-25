@@ -54,7 +54,7 @@ beforeEach(() => {
 });
 
 async function montar(paciente: boolean) {
-  return render(
+  const resultado = await render(
     <Providers navigation>
       <AuthContext.Provider
         value={authValue({
@@ -65,6 +65,11 @@ async function montar(paciente: boolean) {
       </AuthContext.Provider>
     </Providers>,
   );
+  // O paciente entra na Home; as conversas ficam na aba Mensagens.
+  if (paciente) {
+    await fireEvent.press(screen.getByTestId('tab-mensagens'));
+  }
+  return resultado;
 }
 
 it('profissional abre a caixa, envia com o paciente correto e atualiza o histórico', async () => {

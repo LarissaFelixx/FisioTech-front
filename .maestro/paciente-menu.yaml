@@ -1,0 +1,57 @@
+# Atividade #46: navegação e menu do paciente contra o backend REAL.
+# Home com saudação → abas → menu pelo avatar (Editar Perfil, Alterar Senha) → Sair.
+appId: host.exp.exponent
+name: Paciente — menu e navegação
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+- assertVisible: 'Maria Paciente E2E'
+
+# Abas do Figma.
+- tapOn:
+    id: 'tab-mensagens'
+- extendedWaitUntil:
+    visible: 'Conversas'
+    timeout: 15000
+- tapOn:
+    id: 'tab-home'
+
+# Menu pelo avatar.
+- tapOn:
+    id: 'paciente-avatar'
+- assertVisible: 'Paciente'
+- assertVisible: 'Editar Perfil'
+- assertVisible: 'Alterar Senha'
+- takeScreenshot: paciente-menu
+- tapOn:
+    id: 'menu-editar-perfil'
+- extendedWaitUntil:
+    visible:
+      id: 'tab-perfil'
+    timeout: 10000
+- assertVisible: 'Meu Perfil'
+- tapOn:
+    id: 'tab-home'
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-alterar-senha'
+- extendedWaitUntil:
+    visible: 'Alterar Senha'
+    timeout: 10000
+- pressKey: back
+- extendedWaitUntil:
+    visible: 'Bem-vindo,'
+    timeout: 10000
+
+# Sair.
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000

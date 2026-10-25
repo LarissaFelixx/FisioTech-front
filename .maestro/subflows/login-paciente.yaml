@@ -1,0 +1,15 @@
+# Começa limpo e entra como o paciente do seed (PAC_EMAIL / PAC_SENHA); termina na Home.
+appId: host.exp.exponent
+---
+- clearState
+- runFlow: abrir-app.yaml
+- tapOn:
+    id: 'login-email'
+- runFlow: fechar-popup-teclado.yaml
+- inputText: ${PAC_EMAIL}
+- pressKey: Enter
+- inputText: ${PAC_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Bem-vindo,'
+    timeout: 30000
