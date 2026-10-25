@@ -22,6 +22,19 @@ export function useAtualizarMeuPerfil() {
   });
 }
 
+/** Planos terapêuticos que os profissionais compartilharam com o paciente (Meu Tratamento). */
+export function useMeusPlanos() {
+  return useQuery({ queryKey: queryKeys.me.planos(), queryFn: () => meService.meusPlanos() });
+}
+
+/** Evoluções clínicas compartilhadas com o paciente (Meu Tratamento). */
+export function useMinhasEvolucoes() {
+  return useQuery({
+    queryKey: queryKeys.me.evolucoes(),
+    queryFn: () => meService.minhasEvolucoes(),
+  });
+}
+
 export function useMinhasConsultas() {
   return useQuery({
     queryKey: queryKeys.me.consultas(),

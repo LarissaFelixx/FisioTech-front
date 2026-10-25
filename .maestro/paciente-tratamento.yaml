@@ -1,0 +1,28 @@
+# Atividade #47: Meu Tratamento contra o backend REAL.
+# Atalho da Home → plano terapêutico ativo e evolução que a profissional compartilhou (seed).
+appId: host.exp.exponent
+name: Paciente — meu tratamento
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'home-meu-tratamento'
+- extendedWaitUntil:
+    visible: 'Plano terapêutico'
+    timeout: 20000
+- assertVisible: 'Meu tratamento'
+- assertVisible: 'Ativo'
+- assertVisible: 'Reduzir a dor e recuperar a amplitude completa do ombro.'
+- assertVisible: 'Fortalecimento de manguito rotador, 2x/semana.'
+- assertVisible: 'Início .* · Previsão .*'
+- assertVisible: 'Evoluções'
+- assertVisible: 'Melhora da dor ao elevar o braço. Mantidos exercícios isométricos.'
+- takeScreenshot: paciente-tratamento
+- tapOn:
+    id: 'voltar'
+- extendedWaitUntil:
+    visible: 'Bem-vindo,'
+    timeout: 10000
