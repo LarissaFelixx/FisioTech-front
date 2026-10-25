@@ -1,27 +1,19 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BackLink } from '../../components/BackLink/BackLink';
 import { Button } from '../../components/Button/Button';
 import { ErrorState } from '../../components/ErrorState/ErrorState';
-import { Icon } from '../../components/Icon/Icon';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
+import { SwitchCard } from '../../components/SwitchCard/SwitchCard';
 import { TextField } from '../../components/TextField/TextField';
 import { useConsulta } from '../../hooks/useConsultas';
 import { useCriarEvolucao } from '../../hooks/useEvolucoes';
 import type { ProfissionalStackParamList } from '../../navigation/types';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { colors, fontSizes, fonts, spacing } from '../../theme';
 import type { Consulta } from '../../types/consulta';
 import {
   FORM_VAZIO,
@@ -39,11 +31,12 @@ type Rota = RouteProp<ProfissionalStackParamList, 'NovaEvolucao'>;
 /** Registro de uma evolução clínica a partir do prontuário da consulta. */
 export function NovaEvolucaoScreen() {
   const { params } = useRoute<Rota>();
+  const navigation = useNavigation<Navigation>();
   const consulta = useConsulta(params.id);
 
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
-      <VoltarProntuario />
+      <BackLink label="Prontuário" onPress={() => navigation.goBack()} testID="evolucao-voltar" />
       {consulta.isPending ? (
         <View style={styles.centro}>
           <Skeleton variant="form" count={4} />
@@ -60,22 +53,6 @@ export function NovaEvolucaoScreen() {
         <Formulario consulta={consulta.data} />
       )}
     </SafeAreaView>
-  );
-}
-
-function VoltarProntuario() {
-  const navigation = useNavigation<Navigation>();
-  return (
-    <Pressable
-      onPress={() => navigation.goBack()}
-      accessibilityRole="link"
-      hitSlop={8}
-      style={({ pressed }) => [styles.voltar, pressed && styles.pressed]}
-      testID="evolucao-voltar"
-    >
-      <Icon name="chevron-left" size={18} color={colors.primary} />
-      <Text style={styles.voltarTexto}>Prontuário</Text>
-    </Pressable>
   );
 }
 
@@ -171,18 +148,12 @@ function Formulario({ consulta }: { consulta: Consulta }) {
           testID="evolucao-conduta"
         />
 
-        <View style={styles.visivel}>
-          <Text style={styles.visivelTexto}>Visível para o paciente</Text>
-          <Switch
-            value={form.visivelPaciente}
-            onValueChange={(v) => alterar({ visivelPaciente: v })}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={colors.surface}
-            ios_backgroundColor={colors.border}
-            accessibilityLabel="Visível para o paciente"
-            testID="evolucao-visivel"
-          />
-        </View>
+        <SwitchCard
+          label="Visível para o paciente"
+          value={form.visivelPaciente}
+          onValueChange={(v) => alterar({ visivelPaciente: v })}
+          testID="evolucao-visivel"
+        />
 
         {erro ? (
           <Text style={styles.erro} accessibilityRole="alert" testID="evolucao-erro">
@@ -206,17 +177,6 @@ function Formulario({ consulta }: { consulta: Consulta }) {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   centro: { flex: 1, padding: spacing.xl },
-  voltar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: spacing.xxs,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xs,
-  },
-  voltarTexto: { fontFamily: fonts.semibold, fontSize: fontSizes.md, color: colors.primary },
-  pressed: { opacity: 0.7 },
   content: { padding: spacing.xl, paddingTop: spacing.sm, gap: spacing.lg },
   cabecalho: { gap: spacing.xxs },
   titulo: {
@@ -226,24 +186,6 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   subtitulo: { fontFamily: fonts.regular, fontSize: fontSizes.sm, color: colors.textSecondary },
-  visivel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: 14,
-  },
-  visivelTexto: {
-    flex: 1,
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.base,
-    color: colors.text,
-  },
   erro: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.danger },
   // Mesma margem lateral do formulário: o botão ocupa a largura disponível, sem passar da tela.
   rodape: {
