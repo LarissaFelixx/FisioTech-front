@@ -1,0 +1,57 @@
+# Marcar consulta (#40) contra o backend REAL: o paciente do seed já tem o profissional do seed,
+# então vai direto para a grade dele. Marca amanhã às 14:00, online, pelo convênio, confirma e
+# confere a consulta nova em Minhas Consultas.
+appId: host.exp.exponent
+name: Paciente — marcar consulta
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+  PROF_NOME: Dra. Teste E2E
+---
+- evalScript: ${output.d = new Date(Date.now() + 86400000)}
+- evalScript: ${output.amanha = output.d.getFullYear() + '-' + ('0' + (output.d.getMonth() + 1)).slice(-2) + '-' + ('0' + output.d.getDate()).slice(-2)}
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-consultas'
+- tapOn:
+    id: 'consultas-marcar'
+- extendedWaitUntil:
+    visible: 'com ${PROF_NOME} · Fisioterapia Ortopédica'
+    timeout: 15000
+- assertVisible: 'Escolha um horário'
+- assertVisible: 'R\$ 150,00'
+
+# Amanhã, 14:00.
+- tapOn:
+    id: 'dia-${output.amanha}'
+- tapOn:
+    id: 'horario-14:00'
+- assertVisible: 'Confirmar \d{2} \w{3}, 14:00'
+
+# Convênio exige escolher um; depois online.
+- tapOn:
+    id: 'marcar-pagamento-convenio'
+- assertNotVisible: 'R\$ 150,00'
+- tapOn:
+    id: 'marcar-convenio-Unimed'
+- tapOn:
+    id: 'marcar-tipo-ONLINE'
+
+# Confirma no diálogo e cai no detalhe da consulta nova.
+- tapOn:
+    id: 'marcar-confirmar'
+- extendedWaitUntil:
+    visible: 'Confirmar consulta com ${PROF_NOME} em .*'
+    timeout: 10000
+- tapOn:
+    id: 'confirm-confirmar'
+- extendedWaitUntil:
+    visible: 'O detalhe da consulta chega com a atividade #41.'
+    timeout: 15000
+- back
+
+# A consulta nova aparece em Minhas Consultas.
+- extendedWaitUntil:
+    visible: '\d{2}/\d{2}/\d{4} 14:00 · Online'
+    timeout: 15000
