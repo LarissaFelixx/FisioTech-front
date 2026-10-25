@@ -1,17 +1,63 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { useAuth } from '../hooks/useAuth';
+import { Icon, type IconName } from '../components/Icon/Icon';
 import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
-import { colors, fonts, spacing } from '../theme';
-import type { PacienteStackParamList } from './types';
+import { HomeProvisoriaScreen } from '../screens/Paciente/HomeProvisoriaScreen';
+import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
+import { colors, fonts } from '../theme';
+import type { PacienteStackParamList, PacienteTabsParamList } from './types';
 
+const Tabs = createBottomTabNavigator<PacienteTabsParamList>();
 const Stack = createNativeStackNavigator<PacienteStackParamList>();
 
-/** Primeira área do paciente: caixa de entrada e conversas HTTP. */
+const TAB_ICONS: Record<keyof PacienteTabsParamList, IconName> = {
+  Home: 'home',
+  Consultas: 'calendar',
+  Mensagens: 'chat',
+  Perfil: 'user',
+};
+
+// Telas que ainda não existem (Minhas Consultas é a atividade #39).
+const ConsultasPlaceholder = () => (
+  <PlaceholderScreen
+    title="Minhas Consultas"
+    message="A lista de consultas chega com a atividade #39."
+  />
+);
+const PerfilPlaceholder = () => (
+  <PlaceholderScreen title="Meu Perfil" message="O perfil chega com a atividade #44." />
+);
+const AlterarSenhaPlaceholder = () => (
+  <PlaceholderScreen title="Alterar Senha" message="A troca de senha chega com a atividade #45." />
+);
+
+function PacienteTabs() {
+  return (
+    <Tabs.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.navInactive,
+        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12 },
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarIcon: ({ color, size }) => (
+          <Icon name={TAB_ICONS[route.name]} color={color} size={size} />
+        ),
+        tabBarButtonTestID: `tab-${route.name.toLowerCase()}`,
+      })}
+    >
+      <Tabs.Screen name="Home" component={HomeProvisoriaScreen} />
+      <Tabs.Screen name="Consultas" component={ConsultasPlaceholder} />
+      <Tabs.Screen name="Mensagens" component={PacienteInboxScreen} />
+      <Tabs.Screen name="Perfil" component={PerfilPlaceholder} />
+    </Tabs.Navigator>
+  );
+}
+
+/** Área do paciente: abas (Figma) + telas empilhadas por cima delas. */
 export function PacienteNavigator() {
-  const { logout } = useAuth();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -20,34 +66,17 @@ export function PacienteNavigator() {
         headerStyle: { backgroundColor: colors.surface },
       }}
     >
-      <Stack.Screen
-        name="Mensagens"
-        component={PacienteInboxScreen}
-        options={{
-          title: 'Mensagens',
-          headerRight: () => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Sair"
-              testID="paciente-sair"
-              onPress={() => void logout()}
-              style={styles.logout}
-            >
-              <Text style={styles.label}>Sair</Text>
-            </Pressable>
-          ),
-        }}
-      />
+      <Stack.Screen name="Tabs" component={PacienteTabs} options={{ headerShown: false }} />
       <Stack.Screen
         name="MensagemThread"
         component={PacienteChatScreen}
         options={{ title: 'Conversa' }}
       />
+      <Stack.Screen
+        name="AlterarSenha"
+        component={AlterarSenhaPlaceholder}
+        options={{ title: 'Alterar Senha' }}
+      />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  logout: { padding: spacing.sm },
-  label: { color: colors.primaryDark, fontFamily: fonts.semibold },
-});

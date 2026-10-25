@@ -62,15 +62,21 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     expect(pacienteService.listarTodos).toHaveBeenCalled();
   });
 
-  it('paciente entra nas conversas e pode sair', async () => {
+  it('paciente cai na sua home, chega às conversas pela aba e sai pelo menu', async () => {
     jest.mocked(meService.minhasConversas).mockResolvedValue([]);
     const value = await renderRoot({
       status: 'signedIn',
       user: { ...usuarioProfissional, role: 'ROLE_PACIENTE' },
     });
+    expect(await screen.findByText('Bem-vindo,')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByTestId('tab-mensagens'));
     expect(await screen.findByTestId('chat-inbox')).toBeOnTheScreen();
     await waitFor(() => expect(meService.minhasConversas).toHaveBeenCalled());
-    await fireEvent.press(screen.getByTestId('paciente-sair'));
+
+    await fireEvent.press(screen.getByTestId('tab-home'));
+    await fireEvent.press(screen.getByTestId('paciente-avatar'));
+    await fireEvent.press(screen.getByTestId('menu-sair'));
     expect(value.logout).toHaveBeenCalled();
   });
 
