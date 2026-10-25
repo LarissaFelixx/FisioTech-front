@@ -36,10 +36,6 @@ function Provisoria({
   );
 }
 
-export function MarcarConsultaProvisoriaScreen() {
-  return <Provisoria abaixoDoHeader aviso="Marcar consulta chega com a atividade #40." />;
-}
-
 export function PerfilProvisoriaScreen() {
   return <Provisoria titulo="Meu Perfil" aviso="O seu perfil chega com a atividade #44." />;
 }

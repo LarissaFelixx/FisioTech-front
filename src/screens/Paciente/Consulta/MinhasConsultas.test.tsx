@@ -4,7 +4,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
 import { meService } from '../../../services/meService';
 import { authValue, usuarioProfissional } from '../../../test/authContextValue';
-import { consulta, httpError, Providers } from '../../../test/helpers';
+import { consulta, httpError, paciente as pacienteMe, Providers } from '../../../test/helpers';
 import { linhaConsulta, ordenarConsultas } from './minhasConsultasLogic';
 
 jest.mock('../../../services/meService');
@@ -40,6 +40,8 @@ describe('regras de Minhas Consultas', () => {
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
+  jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
+  jest.mocked(meService.buscarProfissionais).mockResolvedValue([]);
   jest.mocked(meService.minhasConsultas).mockResolvedValue([
     consulta({ id: 3, dataHora: '2025-08-01T10:00:00', tipo: 'ONLINE', status: 'REALIZADA' }),
     consulta({
@@ -112,7 +114,7 @@ describe('Minhas Consultas (#39)', () => {
     await montarNaAba();
 
     await fireEvent.press(screen.getByTestId('consultas-marcar'));
-    expect(await screen.findByText('Marcar consulta chega com a atividade #40.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Marcar consulta' })).toBeOnTheScreen();
   });
 
   it('sem consultas, mantém o botão de marcar e avisa que a lista está vazia', async () => {
