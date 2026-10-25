@@ -139,6 +139,10 @@ describe('Meu Perfil (tela)', () => {
     expect(await screen.findByTestId('perfil-sucesso')).toHaveTextContent(
       'Perfil atualizado com sucesso.',
     );
+    // Regressão: o retorno fica no rodapé, junto do botão, e não no fim do formulário (fora da tela).
+    expect(
+      within(screen.getByTestId('perfil-rodape')).getByTestId('perfil-sucesso'),
+    ).toBeOnTheScreen();
     expect(recarregarUsuario).toHaveBeenCalled();
   });
 
@@ -157,6 +161,9 @@ describe('Meu Perfil (tela)', () => {
     expect(await screen.findByTestId('perfil-erro')).toHaveTextContent(
       'Já existe uma conta com este email.',
     );
+    expect(
+      within(screen.getByTestId('perfil-rodape')).getByTestId('perfil-erro'),
+    ).toBeOnTheScreen();
     expect(recarregarUsuario).not.toHaveBeenCalled();
   });
 

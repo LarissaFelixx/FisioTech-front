@@ -136,7 +136,10 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
           <TextField label="Telefone" keyboardType="phone-pad" {...campo('telefone')} />
           <TextField label="Endereço" {...campo('endereco')} />
         </View>
+      </ScrollView>
 
+      {/* Retorno no rodapé, junto do botão: no fim do formulário ele ficaria fora da tela. */}
+      <View style={styles.rodape} testID="perfil-rodape">
         {erro ? (
           <Text style={styles.erro} accessibilityRole="alert" testID="perfil-erro">
             {erro}
@@ -147,9 +150,6 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
             {MENSAGEM_PERFIL_SALVO}
           </Text>
         ) : null}
-      </ScrollView>
-
-      <View style={styles.rodape}>
         <Button
           label={atualizar.isPending ? 'Salvando...' : 'Salvar'}
           onPress={() => void salvar()}
@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
   erro: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.danger },
   sucesso: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.success },
   rodape: {
+    gap: spacing.sm,
     paddingHorizontal: spacing.xl,
     paddingVertical: 14,
     backgroundColor: colors.surface,
