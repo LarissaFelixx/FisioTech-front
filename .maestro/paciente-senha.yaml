@@ -1,0 +1,89 @@
+# Atividade #45: Alterar Senha do paciente contra o backend REAL.
+# Troca a senha → continua logado → sai e entra com a nova → volta para a senha original
+# (os outros fluxos usam a mesma conta do seed).
+appId: host.exp.exponent
+name: Paciente — alterar senha
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: ${output.novaSenha = PAC_SENHA + '-nova'}
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-alterar-senha'
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E · Paciente'
+    timeout: 10000
+
+# Confirmação diferente não envia.
+- tapOn:
+    id: 'senha-senhaAtual'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: ${PAC_SENHA}
+- tapOn:
+    id: 'senha-novaSenha'
+- inputText: ${output.novaSenha}
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- inputText: 'outra-coisa-123'
+- hideKeyboard
+- tapOn:
+    id: 'senha-enviar'
+- assertVisible: 'As senhas não coincidem.'
+
+# Agora certo.
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- eraseText: 30
+- inputText: ${output.novaSenha}
+- hideKeyboard
+- takeScreenshot: paciente-senha
+- tapOn:
+    id: 'senha-enviar'
+- extendedWaitUntil:
+    visible: 'Senha alterada com sucesso.'
+    timeout: 20000
+
+# Continua logado neste aparelho; sai e entra com a nova senha.
+- tapOn:
+    id: 'voltar'
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
+- tapOn:
+    id: 'login-email'
+- inputText: ${PAC_EMAIL}
+- pressKey: Enter
+- inputText: ${output.novaSenha}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Bem-vindo,'
+    timeout: 30000
+
+# Volta para a senha original.
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-alterar-senha'
+- tapOn:
+    id: 'senha-senhaAtual'
+- inputText: ${output.novaSenha}
+- tapOn:
+    id: 'senha-novaSenha'
+- inputText: ${PAC_SENHA}
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- inputText: ${PAC_SENHA}
+- hideKeyboard
+- tapOn:
+    id: 'senha-enviar'
+- extendedWaitUntil:
+    visible: 'Senha alterada com sucesso.'
+    timeout: 20000

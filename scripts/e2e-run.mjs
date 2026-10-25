@@ -99,6 +99,7 @@ process.exit(
             '.maestro/paciente-marcar-consulta.yaml',
             '.maestro/paciente-menu.yaml',
             '.maestro/paciente-perfil.yaml',
+            '.maestro/paciente-senha.yaml',
           ]),
   ]),
 );
