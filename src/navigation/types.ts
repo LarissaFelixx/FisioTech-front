@@ -44,4 +44,5 @@ export type PacienteStackParamList = {
   MensagemThread: { profissionalId: number; nome?: string };
   AlterarSenha: undefined;
   ConsultaDetalhe: { id: number };
+  AvaliarConsulta: { consultaId: number };
 };
