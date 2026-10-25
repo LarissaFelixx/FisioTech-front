@@ -61,7 +61,7 @@ describe('Consulta Realizada (#42)', () => {
   it('"Avaliar consulta" abre a avaliação', async () => {
     await abrir();
     await fireEvent.press(await screen.findByTestId('consulta-avaliar'));
-    expect(await screen.findByText('A avaliação chega com a atividade #43.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Avaliar atendimento' })).toBeOnTheScreen();
   });
 
   it('já avaliada: mostra as estrelas e o comentário no lugar do convite', async () => {
