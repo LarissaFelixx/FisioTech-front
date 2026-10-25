@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 
-/** Ícones de `core/ui/icon/icon.ts` do Angular (mesmos paths SVG, 24×24, traço). */
+/**
+ * Ícones de `core/ui/icon/icon.ts` do Angular (mesmos paths SVG, 24×24, traço), mais os que as
+ * telas do paciente do Figma pedem (`log-out`, no estilo Feather).
+ */
 export type IconName =
   | 'home'
   | 'users'
@@ -23,7 +26,8 @@ export type IconName =
   | 'chevron-right'
   | 'x'
   | 'heart'
-  | 'credit-card';
+  | 'credit-card'
+  | 'log-out';
 
 const ICONS: Record<IconName, { strokeWidth: number; body: ReactNode }> = {
   home: {
@@ -224,6 +228,16 @@ const ICONS: Record<IconName, { strokeWidth: number; body: ReactNode }> = {
       <>
         <Rect x="2" y="5" width="20" height="14" rx="2" />
         <Line x1="2" y1="10" x2="22" y2="10" />
+      </>
+    ),
+  },
+  'log-out': {
+    strokeWidth: 2,
+    body: (
+      <>
+        <Path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <Polyline points="16 17 21 12 16 7" />
+        <Line x1="21" y1="12" x2="9" y2="12" />
       </>
     ),
   },
