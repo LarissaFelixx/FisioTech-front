@@ -13,7 +13,6 @@ export function PacienteInboxScreen() {
   return (
     <ConversationList
       autor="PACIENTE"
-      nativeHeader
       items={(query.data ?? []).map((c) => ({
         id: c.profissionalId,
         nome: c.profissionalNome,

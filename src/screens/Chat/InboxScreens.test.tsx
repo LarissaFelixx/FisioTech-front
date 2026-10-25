@@ -30,6 +30,7 @@ beforeEach(() => {
       dataUltimaMensagem: '2026-10-08T10:00:00',
     },
   ]);
+  jest.mocked(meService.minhasConsultas).mockResolvedValue([]);
   jest.mocked(meService.minhasConversas).mockResolvedValue([
     {
       profissionalId: 9,
@@ -42,7 +43,7 @@ beforeEach(() => {
 });
 
 async function montar(paciente: boolean) {
-  await render(
+  const resultado = await render(
     <Providers navigation>
       <AuthContext.Provider
         value={authValue({
@@ -53,6 +54,11 @@ async function montar(paciente: boolean) {
       </AuthContext.Provider>
     </Providers>,
   );
+  // O paciente entra na Home; as conversas ficam na aba Mensagens.
+  if (paciente) {
+    await fireEvent.press(screen.getByTestId('tab-mensagens'));
+  }
+  return resultado;
 }
 
 it('profissional busca localmente e abre a conversa com o paciente selecionado', async () => {
@@ -82,7 +88,9 @@ it('uma falha de atualização mantém a conversa e a nova tentativa recupera a 
   await fireEvent(screen.getByTestId('chat-inbox'), 'refresh');
   expect(await screen.findByTestId('error-state')).toBeOnTheScreen();
   expect(screen.getByTestId('conversa-9')).toBeOnTheScreen();
+  // A Home do paciente também busca as conversas; conta só a nova tentativa.
+  const chamadasAntes = jest.mocked(meService.minhasConversas).mock.calls.length;
   await fireEvent.press(screen.getByText('Tentar novamente'));
   await waitFor(() => expect(screen.queryByTestId('error-state')).toBeNull());
-  expect(meService.minhasConversas).toHaveBeenCalledTimes(3);
+  expect(meService.minhasConversas).toHaveBeenCalledTimes(chamadasAntes + 1);
 });
