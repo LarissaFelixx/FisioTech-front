@@ -99,9 +99,8 @@ describe('Navegação do paciente', () => {
     await montar();
     await fireEvent.press(await screen.findByTestId('paciente-avatar'));
     await fireEvent.press(screen.getByTestId('menu-alterar-senha'));
-    expect(
-      await screen.findByText('A troca de senha chega com a atividade #45.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Alterar Senha' })).toBeOnTheScreen();
+    expect(screen.getByText('Marcos Coelho · Paciente')).toBeOnTheScreen();
   });
 
   it('"Sair" desloga', async () => {
