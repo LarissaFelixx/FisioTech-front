@@ -9,9 +9,9 @@ import { ConsultaDetalhePacienteScreen } from '../screens/Paciente/Consulta/Cons
 import { MarcarConsultaScreen } from '../screens/Paciente/Consulta/MarcarConsultaScreen';
 import { MinhasConsultasScreen } from '../screens/Paciente/Consulta/MinhasConsultasScreen';
 import { HomePacienteScreen } from '../screens/Paciente/Home/HomePacienteScreen';
-import { MeuTratamentoProvisoriaScreen } from '../screens/Paciente/PacienteProvisoriaScreens';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
 import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
+import { MeuTratamentoScreen } from '../screens/Paciente/Tratamento/MeuTratamentoScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
 
@@ -81,8 +81,8 @@ export function PacienteNavigator() {
       />
       <Stack.Screen
         name="MeuTratamento"
-        component={MeuTratamentoProvisoriaScreen}
-        options={{ title: 'Meu Tratamento' }}
+        component={MeuTratamentoScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="MarcarConsulta"
