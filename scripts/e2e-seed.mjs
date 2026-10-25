@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Prepara dados para os testes e2e (Maestro) num backend FisioTech de DESENVOLVIMENTO:
- * cria um profissional, dois pacientes dele e consultas para hoje.
+ * cria um profissional, dois pacientes dele, consultas para hoje e uma consulta já realizada.
  *
  * Nada de credencial fica no repositório. Tudo vem de variáveis de ambiente:
  *   E2E_API_URL        URL do backend visto do PC (padrão: http://localhost:8080)
@@ -139,12 +139,40 @@ for (const c of consultas) {
   });
 }
 
+// Uma consulta já realizada da primeira paciente, com registro clínico (telas #42 e #43).
+const realizadaEm = new Date(agora.getTime() - 3 * 24 * 60 * 60_000);
+realizadaEm.setHours(15, 0, 0, 0);
+const { headers: criada } = await chamar('POST', '/consultas', {
+  token: profToken,
+  body: {
+    pacienteId: porNome[nomes[0]],
+    dataHora: localDateTime(realizadaEm),
+    tipo: 'PRESENCIAL',
+    convenio: 'Unimed',
+    valor: null,
+  },
+});
+const realizadaId = Number(criada.get('location').split('/').pop());
+await chamar('PUT', `/consultas/${realizadaId}`, {
+  token: profToken,
+  body: {
+    dataHora: localDateTime(realizadaEm),
+    tipo: 'PRESENCIAL',
+    status: 'REALIZADA',
+    convenio: 'Unimed',
+    valor: null,
+    quadroClinico: { queixaPrincipal: 'Dor no ombro direito ao elevar o braço.' },
+    diagnostico: { planoTratamento: 'Fortalecimento de manguito rotador, 2x/semana.' },
+  },
+});
+
 console.log(
   JSON.stringify(
     {
       profissional: prof.nome,
       pacientes: nomes,
       consultas: consultas.map((c) => `${localDateTime(c.quando)} ${c.paciente}`),
+      realizada: `${localDateTime(realizadaEm)} ${nomes[0]}`,
     },
     null,
     2,
