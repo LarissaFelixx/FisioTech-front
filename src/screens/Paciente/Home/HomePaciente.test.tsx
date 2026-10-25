@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
+import { ConfirmDialogProvider } from '../../../components/ConfirmDialog/ConfirmDialog';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
 import { meService } from '../../../services/meService';
@@ -30,6 +31,7 @@ beforeEach(() => {
       consulta({ dataHora: '2025-07-20T08:00:00', status: 'CANCELADA' }),
     ]);
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
+  jest.mocked(meService.minhaConsulta).mockResolvedValue(consulta({ id: 1 }));
   jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
   jest.mocked(meService.buscarProfissionais).mockResolvedValue([]);
 });
@@ -39,7 +41,9 @@ async function montar() {
   await render(
     <Providers navigation>
       <AuthContext.Provider value={value}>
-        <PacienteNavigator />
+        <ConfirmDialogProvider>
+          <PacienteNavigator />
+        </ConfirmDialogProvider>
       </AuthContext.Provider>
     </Providers>,
   );
@@ -68,9 +72,7 @@ describe('Home do paciente (#38)', () => {
       await montar();
 
       await fireEvent.press(await screen.findByTestId(testID));
-      expect(
-        await screen.findByText('O detalhe da consulta chega com a atividade #41.'),
-      ).toBeOnTheScreen();
+      expect(await screen.findByTestId('consulta-paciente')).toBeOnTheScreen();
     },
   );
 
