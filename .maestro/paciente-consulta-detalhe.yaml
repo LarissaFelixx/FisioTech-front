@@ -1,0 +1,86 @@
+# Atividade #41: Consulta Detalhe do Paciente contra o backend REAL.
+# Abre a consulta do seed (online, Unimed) pela aba Consultas → remarca para amanhã às 14:00 →
+# cancela com confirmação.
+appId: host.exp.exponent
+name: Paciente — detalhe da consulta (remarcar e cancelar)
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: |
+    ${
+      const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const p = (n) => String(n).padStart(2, '0');
+      output.amanhaIso = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+      output.amanhaBr = p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear();
+      // A consulta online do seed é de hoje (daqui a 1 hora); outros fluxos criam outras online.
+      const h = new Date(Date.now() + 60 * 60 * 1000);
+      output.hojeBr = p(h.getDate()) + '/' + p(h.getMonth() + 1) + '/' + h.getFullYear();
+    }
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-consultas'
+- extendedWaitUntil:
+    visible: '${output.hojeBr} .* · Online'
+    timeout: 20000
+- tapOn: '${output.hojeBr} .* · Online'
+- extendedWaitUntil:
+    visible:
+      id: 'consulta-paciente'
+    timeout: 20000
+- assertVisible: 'Agendada'
+- assertVisible: 'Online'
+- assertVisible: 'Unimed'
+- takeScreenshot: paciente-consulta-detalhe
+
+# Remarcar para amanhã às 14:00.
+- tapOn:
+    id: 'consulta-remarcar'
+- scrollUntilVisible:
+    element:
+      id: 'dia-${output.amanhaIso}'
+    direction: DOWN
+- tapOn:
+    id: 'dia-${output.amanhaIso}'
+- scrollUntilVisible:
+    element:
+      id: 'horario-14:00'
+    direction: DOWN
+- tapOn:
+    id: 'horario-14:00'
+- scrollUntilVisible:
+    element:
+      id: 'consulta-remarcar-confirmar'
+    direction: DOWN
+- assertVisible: 'Confirmar .*, 14:00'
+- takeScreenshot: paciente-consulta-remarcar
+- tapOn:
+    id: 'consulta-remarcar-confirmar'
+- scrollUntilVisible:
+    element: ${output.amanhaBr}
+    direction: UP
+- assertVisible: '14:00'
+
+# Cancelar com confirmação.
+- scrollUntilVisible:
+    element:
+      id: 'consulta-cancelar'
+    direction: DOWN
+- tapOn:
+    id: 'consulta-cancelar'
+- assertVisible: 'Cancelar esta consulta? Essa ação não pode ser desfeita.'
+- tapOn:
+    id: 'confirm-confirmar'
+- extendedWaitUntil:
+    visible: 'Cancelada'
+    timeout: 20000
+- assertNotVisible:
+    id: 'consulta-remarcar'
+
+# Volta para a lista, já com a consulta cancelada.
+- tapOn:
+    id: 'voltar'
+- extendedWaitUntil:
+    visible: 'Cancelada'
+    timeout: 20000
