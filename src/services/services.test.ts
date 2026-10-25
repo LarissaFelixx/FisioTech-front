@@ -278,6 +278,12 @@ const casos: Caso[] = [
     () => meService.minhaAvaliacao(2),
     { metodo: 'GET', url: '/me/avaliacoes/consulta/2' },
   ],
+  ['me.meusPlanos', () => meService.meusPlanos(), { metodo: 'GET', url: '/me/prontuario/planos' }],
+  [
+    'me.minhasEvolucoes',
+    () => meService.minhasEvolucoes(),
+    { metodo: 'GET', url: '/me/prontuario/evolucoes' },
+  ],
   [
     'me.buscarProfissionais sem filtros',
     () => meService.buscarProfissionais(),
