@@ -11,8 +11,8 @@ import {
   AlterarSenhaProvisoriaScreen,
   ConsultaDetalheProvisoriaScreen,
   MeuTratamentoProvisoriaScreen,
-  PerfilProvisoriaScreen,
 } from '../screens/Paciente/PacienteProvisoriaScreens';
+import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
 
@@ -44,7 +44,7 @@ function PacienteTabs() {
       <Tabs.Screen name="Home" component={HomePacienteScreen} />
       <Tabs.Screen name="Consultas" component={MinhasConsultasScreen} />
       <Tabs.Screen name="Mensagens" component={PacienteInboxScreen} />
-      <Tabs.Screen name="Perfil" component={PerfilProvisoriaScreen} />
+      <Tabs.Screen name="Perfil" component={MeuPerfilScreen} />
     </Tabs.Navigator>
   );
 }

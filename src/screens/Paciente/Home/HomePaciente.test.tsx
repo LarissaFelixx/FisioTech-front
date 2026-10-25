@@ -135,7 +135,7 @@ describe('Home do paciente (#38)', () => {
 
     await fireEvent.press(screen.getByTestId('tab-home'));
     await fireEvent.press(screen.getByTestId('home-meu-perfil'));
-    expect(await screen.findByText('O seu perfil chega com a atividade #44.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Meu Perfil' })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByTestId('tab-home'));
     await fireEvent.press(screen.getByTestId('home-meu-tratamento'));
