@@ -1,0 +1,35 @@
+# Atividade #42: Consulta Realizada contra o backend REAL.
+# Abre a consulta realizada do seed → registro clínico, sem remarcar/cancelar → convite para avaliar.
+appId: host.exp.exponent
+name: Paciente — consulta realizada
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-consultas'
+- extendedWaitUntil:
+    visible: '.* 15:00 · Presencial'
+    timeout: 20000
+- tapOn: '.* 15:00 · Presencial'
+- extendedWaitUntil:
+    visible: 'Realizada'
+    timeout: 20000
+- assertVisible: 'Queixa principal: Dor no ombro direito ao elevar o braço.'
+- assertVisible: 'Plano de tratamento: Fortalecimento de manguito rotador, 2x/semana.'
+- assertNotVisible:
+    id: 'consulta-remarcar'
+- assertNotVisible:
+    id: 'consulta-cancelar'
+- extendedWaitUntil:
+    visible: 'Como foi seu atendimento?'
+    timeout: 20000
+- assertVisible: 'Sua avaliação ajuda a clínica a melhorar'
+- takeScreenshot: paciente-consulta-realizada
+- tapOn:
+    id: 'consulta-avaliar'
+- extendedWaitUntil:
+    visible: 'Avaliar atendimento'
+    timeout: 10000
