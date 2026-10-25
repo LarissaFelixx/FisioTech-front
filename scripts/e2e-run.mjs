@@ -76,6 +76,10 @@ process.exit(
     `PAC_EMAIL=${env.E2E_CHAT_PACIENTE_EMAIL}`,
     '-e',
     `PAC_SENHA=${env.E2E_CHAT_PACIENTE_SENHA}`,
+    '-e',
+    `ADMIN_EMAIL=${env.E2E_ADMIN_EMAIL}`,
+    '-e',
+    `ADMIN_SENHA=${env.E2E_ADMIN_SENHA}`,
     ...extras,
     ...(fluxosEscolhidos.length > 0
       ? fluxosEscolhidos
@@ -89,6 +93,7 @@ process.exit(
             '.maestro/chat-http.yaml',
             '.maestro/profissional-consultas.yaml',
             '.maestro/registro-clinico.yaml',
+            '.maestro/admin-menu.yaml',
           ]),
   ]),
 );

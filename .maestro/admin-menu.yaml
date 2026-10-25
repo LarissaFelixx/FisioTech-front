@@ -1,0 +1,57 @@
+# Menu do administrador (#37) contra o backend REAL: abre pelo botão do cabeçalho nas duas abas,
+# fecha tocando fora, "Alterar Senha" abre a tela de senha e "Sair" volta ao login.
+appId: host.exp.exponent
+name: Admin — menu lateral
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-admin.yaml
+- assertVisible: 'Profissionais'
+
+# Abre e fecha tocando fora do painel.
+- tapOn:
+    id: 'admin-abrir-menu'
+- extendedWaitUntil:
+    visible:
+      id: 'menu-lateral'
+    timeout: 10000
+- assertVisible: 'Administrador'
+- assertVisible: 'Admin'
+- assertVisible: 'Alterar Senha'
+- assertVisible: 'Sair'
+- tapOn:
+    id: 'menu-lateral-fechar'
+- assertNotVisible:
+    id: 'menu-lateral'
+
+# "Alterar Senha" leva à tela de senha; o voltar retorna às abas.
+- tapOn:
+    id: 'admin-abrir-menu'
+- tapOn:
+    id: 'menu-alterar-senha'
+- extendedWaitUntil:
+    visible: 'Alterar Senha'
+    timeout: 10000
+- assertNotVisible:
+    id: 'menu-lateral'
+- back
+- extendedWaitUntil:
+    visible:
+      id: 'admin-abrir-menu'
+    timeout: 10000
+
+# Na aba Pacientes o menu também abre; "Sair" encerra a sessão.
+- tapOn:
+    id: 'tab-pacientes'
+- extendedWaitUntil:
+    visible: 'Pacientes'
+    timeout: 10000
+- tapOn:
+    id: 'admin-abrir-menu'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000

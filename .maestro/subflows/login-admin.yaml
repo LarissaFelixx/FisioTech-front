@@ -1,0 +1,17 @@
+# Começa limpo e entra como o admin do backend de dev (ADMIN_EMAIL / ADMIN_SENHA); termina na aba
+# Profissionais.
+appId: host.exp.exponent
+---
+- clearState
+- runFlow: abrir-app.yaml
+- tapOn:
+    id: 'login-email'
+- runFlow: fechar-popup-teclado.yaml
+- inputText: ${ADMIN_EMAIL}
+- pressKey: Enter
+- inputText: ${ADMIN_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: 'admin-abrir-menu'
+    timeout: 30000
