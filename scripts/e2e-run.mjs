@@ -92,6 +92,7 @@ process.exit(
             '.maestro/paciente-menu.yaml',
             '.maestro/paciente-perfil.yaml',
             '.maestro/paciente-senha.yaml',
+            '.maestro/paciente-consulta-detalhe.yaml',
           ]),
   ]),
 );
