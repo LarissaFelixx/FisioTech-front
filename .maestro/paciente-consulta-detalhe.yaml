@@ -14,14 +14,17 @@ env:
       const p = (n) => String(n).padStart(2, '0');
       output.amanhaIso = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
       output.amanhaBr = p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear();
+      // A consulta online do seed é de hoje (daqui a 1 hora); outros fluxos criam outras online.
+      const h = new Date(Date.now() + 60 * 60 * 1000);
+      output.hojeBr = p(h.getDate()) + '/' + p(h.getMonth() + 1) + '/' + h.getFullYear();
     }
 - runFlow: subflows/login-paciente.yaml
 - tapOn:
     id: 'tab-consultas'
 - extendedWaitUntil:
-    visible: '.* · Online'
+    visible: '${output.hojeBr} .* · Online'
     timeout: 20000
-- tapOn: '.* · Online'
+- tapOn: '${output.hojeBr} .* · Online'
 - extendedWaitUntil:
     visible:
       id: 'consulta-paciente'
