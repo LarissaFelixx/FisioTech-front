@@ -6,8 +6,12 @@ tags:
 env:
   METRO_URL: exp://10.0.2.2:8081
 ---
-- evalScript: ${output.pergunta = 'Mensagem profissional ' + Date.now()}
-- evalScript: ${output.resposta = 'Resposta paciente ' + Date.now()}
+# O autocorretor do teclado do emulador pode trocar palavras (ex.: "profissional" → "Professional");
+# por isso as asserções procuram só o número único de cada mensagem.
+- evalScript: ${output.idPergunta = String(Date.now())}
+- evalScript: ${output.idResposta = String(Date.now() + 1)}
+- evalScript: ${output.pergunta = 'Mensagem profissional ' + output.idPergunta}
+- evalScript: ${output.resposta = 'Resposta paciente ' + output.idResposta}
 - runFlow: subflows/login-profissional.yaml
 - tapOn:
     id: 'tab-pacientes'
@@ -28,7 +32,7 @@ env:
 - tapOn:
     id: 'chat-send'
 - extendedWaitUntil:
-    visible: ${output.pergunta}
+    visible: '.*${output.idPergunta}'
     timeout: 20000
 
 # Entra como o paciente e confere a mensagem persistida.
@@ -42,12 +46,17 @@ env:
 - inputText: ${PAC_SENHA}
 - pressKey: Enter
 - extendedWaitUntil:
-    visible: 'Conversas'
+    visible: 'Bem-vindo,'
     timeout: 30000
+- tapOn:
+    id: 'tab-mensagens'
+- extendedWaitUntil:
+    visible: 'Conversas'
+    timeout: 15000
 - tapOn:
     text: ${PROF_NOME}
 - extendedWaitUntil:
-    visible: ${output.pergunta}
+    visible: '.*${output.idPergunta}'
     timeout: 20000
 - tapOn:
     id: 'chat-input'
@@ -56,7 +65,7 @@ env:
 - tapOn:
     id: 'chat-send'
 - extendedWaitUntil:
-    visible: ${output.resposta}
+    visible: '.*${output.idResposta}'
     timeout: 20000
 
 # O profissional recebe a resposta usando a caixa de entrada.
@@ -68,5 +77,5 @@ env:
     timeout: 20000
 - tapOn: 'Maria Paciente E2E'
 - extendedWaitUntil:
-    visible: ${output.resposta}
+    visible: '.*${output.idResposta}'
     timeout: 20000
