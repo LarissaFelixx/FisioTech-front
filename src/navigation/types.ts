@@ -42,8 +42,18 @@ export type ProfissionalStackParamList = {
   AlterarSenha: undefined;
 };
 
-/** Área do paciente disponível nesta entrega. */
-export type PacienteStackParamList = {
+/** Abas do paciente (barra inferior do Figma: Home, Consultas, Mensagens e Perfil). */
+export type PacienteTabsParamList = {
+  Home: undefined;
+  Consultas: undefined;
   Mensagens: undefined;
+  Perfil: undefined;
+};
+
+/** Telas do paciente abertas por cima das abas. */
+export type PacienteStackParamList = {
+  Tabs: NavigatorScreenParams<PacienteTabsParamList>;
   MensagemThread: { profissionalId: number; nome?: string };
+  ConsultaDetalhe: { id: number };
+  MeuTratamento: undefined;
 };
