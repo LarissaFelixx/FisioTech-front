@@ -98,6 +98,7 @@ process.exit(
             '.maestro/paciente-consultas.yaml',
             '.maestro/paciente-marcar-consulta.yaml',
             '.maestro/paciente-menu.yaml',
+            '.maestro/paciente-perfil.yaml',
           ]),
   ]),
 );
