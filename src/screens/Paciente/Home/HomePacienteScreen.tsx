@@ -1,13 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '../../../components/Avatar/Avatar';
 import { Icon, type IconName } from '../../../components/Icon/Icon';
-import { MenuLateral } from '../../../components/MenuLateral/MenuLateral';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
 import { useAuth } from '../../../hooks/useAuth';
 import { useMinhasConsultas, useMinhasConversas } from '../../../hooks/useMe';
@@ -24,6 +23,7 @@ import {
   tints,
 } from '../../../theme';
 import { clock } from '../../../utils/clock';
+import { useMenuPaciente } from '../useMenuPaciente';
 import {
   destaqueConsulta,
   proximaConsulta,
@@ -43,14 +43,14 @@ type Atalho = {
 
 /**
  * Home do paciente (#38, Figma "17 Home Paciente"): saudação, destaque da próxima consulta e
- * atalhos para consultas, tratamento, mensagens e perfil. O avatar abre o menu com "Sair".
+ * atalhos para consultas, tratamento, mensagens e perfil. O avatar abre o menu do paciente (#46).
  */
 export function HomePacienteScreen() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<PacienteStackParamList>>();
   const consultas = useMinhasConsultas();
   const conversas = useMinhasConversas();
-  const [menuAberto, setMenuAberto] = useState(false);
+  const { menu, abrirMenu } = useMenuPaciente();
   const nome = user?.nome ?? '';
 
   const { refetch: refetchConsultas } = consultas;
@@ -121,7 +121,7 @@ export function HomePacienteScreen() {
             </Text>
           </View>
           <Pressable
-            onPress={() => setMenuAberto(true)}
+            onPress={abrirMenu}
             accessibilityRole="button"
             accessibilityLabel="Abrir menu"
             hitSlop={8}
@@ -183,14 +183,7 @@ export function HomePacienteScreen() {
           ))}
         </View>
       </ScrollView>
-      <MenuLateral
-        visible={menuAberto}
-        nome={nome}
-        papel="Paciente"
-        items={[]}
-        onClose={() => setMenuAberto(false)}
-        onLogout={() => void logout()}
-      />
+      {menu}
     </SafeAreaView>
   );
 }

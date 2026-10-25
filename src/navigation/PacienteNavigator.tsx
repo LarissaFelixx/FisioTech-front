@@ -8,6 +8,7 @@ import { MarcarConsultaScreen } from '../screens/Paciente/Consulta/MarcarConsult
 import { MinhasConsultasScreen } from '../screens/Paciente/Consulta/MinhasConsultasScreen';
 import { HomePacienteScreen } from '../screens/Paciente/Home/HomePacienteScreen';
 import {
+  AlterarSenhaProvisoriaScreen,
   ConsultaDetalheProvisoriaScreen,
   MeuTratamentoProvisoriaScreen,
   PerfilProvisoriaScreen,
@@ -63,6 +64,11 @@ export function PacienteNavigator() {
         name="MensagemThread"
         component={PacienteChatScreen}
         options={{ title: 'Conversa' }}
+      />
+      <Stack.Screen
+        name="AlterarSenha"
+        component={AlterarSenhaProvisoriaScreen}
+        options={{ title: 'Alterar Senha' }}
       />
       <Stack.Screen
         name="ConsultaDetalhe"
