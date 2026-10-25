@@ -4,10 +4,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon, type IconName } from '../components/Icon/Icon';
 import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
+import { MinhasConsultasScreen } from '../screens/Paciente/Consulta/MinhasConsultasScreen';
 import { HomePacienteScreen } from '../screens/Paciente/Home/HomePacienteScreen';
 import {
   ConsultaDetalheProvisoriaScreen,
-  ConsultasProvisoriaScreen,
+  MarcarConsultaProvisoriaScreen,
   MeuTratamentoProvisoriaScreen,
   PerfilProvisoriaScreen,
 } from '../screens/Paciente/PacienteProvisoriaScreens';
@@ -40,7 +41,7 @@ function PacienteTabs() {
       })}
     >
       <Tabs.Screen name="Home" component={HomePacienteScreen} />
-      <Tabs.Screen name="Consultas" component={ConsultasProvisoriaScreen} />
+      <Tabs.Screen name="Consultas" component={MinhasConsultasScreen} />
       <Tabs.Screen name="Mensagens" component={PacienteInboxScreen} />
       <Tabs.Screen name="Perfil" component={PerfilProvisoriaScreen} />
     </Tabs.Navigator>
@@ -72,6 +73,11 @@ export function PacienteNavigator() {
         name="MeuTratamento"
         component={MeuTratamentoProvisoriaScreen}
         options={{ title: 'Meu Tratamento' }}
+      />
+      <Stack.Screen
+        name="MarcarConsulta"
+        component={MarcarConsultaProvisoriaScreen}
+        options={{ title: 'Marcar consulta' }}
       />
     </Stack.Navigator>
   );

@@ -87,9 +87,7 @@ describe('Home do paciente (#38)', () => {
     await montar();
 
     await fireEvent.press(await screen.findByTestId('home-marcar-primeira'));
-    expect(
-      await screen.findByText('A lista de consultas chega com a atividade #39.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Marcar consulta chega com a atividade #40.')).toBeOnTheScreen();
   });
 
   it('se as consultas falham, o atalho continua lá com "Ver consultas"', async () => {
@@ -127,9 +125,7 @@ describe('Home do paciente (#38)', () => {
     await montar();
 
     await fireEvent.press(screen.getByTestId('home-minhas-consultas'));
-    expect(
-      await screen.findByText('A lista de consultas chega com a atividade #39.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Minhas Consultas' })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByTestId('tab-home'));
     await fireEvent.press(screen.getByTestId('home-mensagens'));
