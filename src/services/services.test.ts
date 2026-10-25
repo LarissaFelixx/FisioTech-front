@@ -57,6 +57,13 @@ const evolucao = {
   conduta: 'Manter exercícios',
   visivelPaciente: true,
 };
+const plano = {
+  objetivos: 'Recuperar a amplitude',
+  condutas: 'Fortalecimento 2x/semana',
+  dataInicio: '2025-08-22',
+  dataFimPrevista: null,
+  visivelPaciente: true,
+};
 const pacienteCreate = { nome: 'Ana', email: 'ana@x.com', senha: '12345678' };
 const pacienteUpdate = {
   nome: 'Ana',
@@ -208,6 +215,16 @@ const casos: Caso[] = [
     'prontuario.criarEvolucao',
     () => prontuarioService.criarEvolucao(10, evolucao),
     { metodo: 'POST', url: '/prontuario/pacientes/10/evolucoes', corpo: evolucao },
+  ],
+  [
+    'prontuario.listarPlanos',
+    () => prontuarioService.listarPlanos(10),
+    { metodo: 'GET', url: '/prontuario/pacientes/10/planos' },
+  ],
+  [
+    'prontuario.revisarPlano',
+    () => prontuarioService.revisarPlano(10, plano),
+    { metodo: 'POST', url: '/prontuario/pacientes/10/planos', corpo: plano },
   ],
   // mensagemService
   [
