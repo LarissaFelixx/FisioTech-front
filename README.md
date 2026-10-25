@@ -162,6 +162,11 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
 
 ### Chat HTTP
 
+- **Caixa de entrada:** lista as conversas por mensagem mais recente, permite buscar por nome
+  ou texto sem diferenciar acentos/maiúsculas e identifica a última mensagem própria com “Você:”.
+  Possui carregamento, caixa vazia, busca sem resultados, nova tentativa e atualização manual.
+  Falhas temporárias preservam a lista; acesso negado oculta os dados anteriores. Detalhes em
+  [`CAIXA_DE_ENTRADA.md`](./CAIXA_DE_ENTRADA.md).
 - **Profissional:** aba Mensagens → conversa; ou Pacientes → editar paciente → Mensagens.
 - **Paciente:** após login, abre a caixa de conversas → profissional. O botão Sair fica no cabeçalho.
 - O histórico mostra autor, dia e horário. O envio usa os endpoints existentes e atualiza o
@@ -184,6 +189,11 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     exclusão de paciente; paciente com consultas não pode ser excluído (409).
   - `chat-http.yaml`: profissional envia, paciente recebe e responde, profissional recebe a
     resposta; usa contas e vínculos criados pelo seed de desenvolvimento.
+  - `profissional-consultas.yaml`: lista agrupada e filtros, nova consulta (paciente existente
+    e cadastro rápido), prontuário e exclusão.
+  - `registro-clinico.yaml`: registro clínico da consulta nova em 4 etapas, saída no meio e
+    retomada pelo prontuário, voltar com os dados mantidos, finalização e prontuário realizado.
+  - Para rodar só alguns fluxos: `npm run test:e2e -- .maestro/profissional-consultas.yaml`.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).
 - Instalar o Maestro: <https://docs.maestro.dev/getting-started/installing-maestro>. O binário

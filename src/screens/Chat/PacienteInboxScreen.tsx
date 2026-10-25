@@ -12,10 +12,13 @@ export function PacienteInboxScreen() {
   const query = useMinhasConversas({ active, poll: true });
   return (
     <ConversationList
+      autor="PACIENTE"
+      nativeHeader
       items={(query.data ?? []).map((c) => ({
         id: c.profissionalId,
         nome: c.profissionalNome,
         ultimaMensagem: c.ultimaMensagem,
+        ultimoAutor: c.ultimoAutor,
         dataUltimaMensagem: c.dataUltimaMensagem,
       }))}
       loading={query.isPending}

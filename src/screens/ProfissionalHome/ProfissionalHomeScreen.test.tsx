@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 
+import { ConfirmDialogProvider } from '../../components/ConfirmDialog/ConfirmDialog';
 import { AuthContext, type AuthContextValue } from '../../contexts/AuthContext';
 import { ProfissionalNavigator } from '../../navigation/ProfissionalNavigator';
 import { consultaService } from '../../services/consultaService';
@@ -10,13 +11,14 @@ import type { Paciente } from '../../types/paciente';
 import { clock } from '../../utils/clock';
 
 jest.mock('../../services/consultaService', () => ({
-  consultaService: { listarTodos: jest.fn() },
+  consultaService: { listarTodos: jest.fn(), buscarPorId: jest.fn() },
 }));
 jest.mock('../../services/pacienteService', () => ({
   pacienteService: { listarTodos: jest.fn(), cadastrarPublico: jest.fn() },
 }));
 
 const listarConsultas = jest.mocked(consultaService.listarTodos);
+const buscarConsulta = jest.mocked(consultaService.buscarPorId);
 const listarPacientes = jest.mocked(pacienteService.listarTodos);
 
 const pacientes = (n: number) => Array.from({ length: n }, (_, i) => ({ id: i }) as Paciente);
@@ -32,7 +34,9 @@ async function renderHome(parcial: Partial<AuthContextValue> = {}) {
   await render(
     <Providers navigation>
       <AuthContext.Provider value={value}>
-        <ProfissionalNavigator />
+        <ConfirmDialogProvider>
+          <ProfissionalNavigator />
+        </ConfirmDialogProvider>
       </AuthContext.Provider>
     </Providers>,
   );
@@ -124,12 +128,15 @@ describe('Home do profissional', () => {
   });
 
   it('"Prontuário" e "Iniciar consulta" abrem as telas da consulta', async () => {
-    listarConsultas.mockResolvedValue([consulta({ id: 5, dataHora: '2026-09-29T11:00:00' })]);
+    const proxima = consulta({ id: 5, dataHora: '2026-09-29T11:00:00', pacienteNome: 'Lia Costa' });
+    listarConsultas.mockResolvedValue([proxima]);
+    buscarConsulta.mockResolvedValue(proxima);
     listarPacientes.mockResolvedValue([]);
     await renderHome();
 
     await fireEvent.press(await screen.findByTestId('home-prontuario'));
-    expect(await screen.findByText('O detalhe da consulta chega no Batch 5.')).toBeOnTheScreen();
+    expect(await screen.findByTestId('consulta-detalhe-paciente')).toHaveTextContent('Lia Costa');
+    expect(buscarConsulta).toHaveBeenCalledWith(5);
   });
 
   it('"ver tudo" leva para a aba Consultas', async () => {
@@ -139,7 +146,7 @@ describe('Home do profissional', () => {
 
     await fireEvent.press(await screen.findByText('ver tudo'));
 
-    expect(await screen.findByText('A lista de consultas chega no Batch 5.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Consultas' })).toBeOnTheScreen();
   });
 
   it('a saudação abre o menu com "Sair", que faz logout', async () => {

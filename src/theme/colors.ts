@@ -21,6 +21,9 @@ export const colors = {
   textInverse: '#ffffff',
 
   navInactive: '#a7b0b6',
+
+  /** Estrelas da avaliação (`.consulta-detail__nota`). */
+  estrela: '#f5b301',
 } as const;
 
 export type AvatarTint = 'blue' | 'orange' | 'green' | 'purple';

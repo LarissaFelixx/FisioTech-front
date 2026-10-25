@@ -10,6 +10,12 @@ import { installAuthInterceptors } from '../api/authInterceptors';
 import { api, publicApi } from '../api/client';
 import { createSession, type Session } from '../api/session';
 import { nuloSeNaoEncontrado } from '../hooks/useAvaliacoes';
+import {
+  etapaParaRetomar,
+  formsDaConsulta,
+  montarAtualizacao,
+  type Etapa,
+} from '../screens/ConsultaWizard/wizardLogic';
 import { avaliacaoService } from '../services/avaliacaoService';
 import { consultaService } from '../services/consultaService';
 import { mensagemService } from '../services/mensagemService';
@@ -242,6 +248,53 @@ describe('contrato com o backend real', () => {
         status: 'CONFIRMADA',
         quadroClinico: { queixaPrincipal: 'Dor lombar' },
       });
+    });
+
+    it('registro clínico: salva etapa por etapa sem apagar as anteriores e finaliza', async () => {
+      const quando = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+      quando.setHours(11, 0, 0, 0);
+      const id = await consultaService.criar({
+        pacienteId: paciente1Id,
+        dataHora: localDateTime(quando),
+        tipo: 'ONLINE',
+        convenio: 'Unimed',
+        valor: 120,
+      });
+      let c = await consultaService.buscarPorId(id);
+      expect(etapaParaRetomar(c)).toBe('quadro-clinico');
+
+      const forms = formsDaConsulta(c);
+      forms.quadro.queixaPrincipal = 'Dor lombar';
+      forms.quadro.historico = { opcoes: ['Asma'], outrasAtivo: true, outras: 'Fibromialgia' };
+      forms.habitos.tabagismo = true;
+      forms.exame.postura = 'Hiperlordose';
+      forms.diagnostico.planoTratamento = 'Fisioterapia 2x/semana';
+
+      const esperado: Record<Exclude<Etapa, 'sucesso'>, Etapa> = {
+        'quadro-clinico': 'habitos-vida',
+        'habitos-vida': 'exame-fisico',
+        'exame-fisico': 'diagnostico',
+        diagnostico: 'sucesso',
+      };
+      for (const [etapa, retomada] of Object.entries(esperado) as [Etapa, Etapa][]) {
+        await consultaService.atualizar(id, montarAtualizacao(c, etapa, forms));
+        c = await consultaService.buscarPorId(id);
+        // A retomada do wizard enxerga a etapa salva no backend real.
+        expect(etapaParaRetomar(c)).toBe(retomada);
+      }
+
+      // Os blocos omitidos em cada PUT foram mantidos; a dataHora não mudou (não é remarcação).
+      expect(c).toMatchObject({
+        status: 'REALIZADA',
+        foiRemarcada: false,
+        dataHora: localDateTime(quando),
+        convenio: 'Unimed',
+        quadroClinico: { queixaPrincipal: 'Dor lombar', historicoSaude: 'Asma, Fibromialgia' },
+        habitosVida: { tabagismo: true, atividadeFisica: '' },
+        exameFisico: { postura: 'Hiperlordose' },
+        diagnostico: { planoTratamento: 'Fisioterapia 2x/semana' },
+      });
+      await consultaService.deletar(id);
     });
 
     it('mensagens com o paciente e caixa de entrada', async () => {
