@@ -1,0 +1,46 @@
+# Atividade #43: Avaliar Atendimento contra o backend REAL.
+# Consulta realizada do seed → "Avaliar consulta" → 4 estrelas e comentário → volta ao detalhe
+# com a avaliação no lugar do convite. Roda DEPOIS de `paciente-consulta-realizada.yaml`, que
+# precisa da consulta ainda sem avaliação (as duas usam a mesma consulta do seed).
+appId: host.exp.exponent
+name: Paciente — avaliar atendimento
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-consultas'
+- extendedWaitUntil:
+    visible: '.* 15:00 · Presencial'
+    timeout: 20000
+- tapOn: '.* 15:00 · Presencial'
+- extendedWaitUntil:
+    visible:
+      id: 'consulta-avaliar'
+    timeout: 20000
+- tapOn:
+    id: 'consulta-avaliar'
+- extendedWaitUntil:
+    visible: 'Avaliar atendimento'
+    timeout: 10000
+- assertVisible: 'Toque nas estrelas para dar sua nota'
+- tapOn:
+    id: 'estrela-4'
+- assertVisible: '4 de 5 · Muito bom'
+- tapOn:
+    id: 'avaliacao-comentario'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'Atendimento atencioso e pontual'
+- hideKeyboard
+- takeScreenshot: paciente-avaliar
+- tapOn:
+    id: 'avaliacao-enviar'
+- extendedWaitUntil:
+    visible: 'Sua avaliação'
+    timeout: 20000
+- assertVisible: '4 de 5'
+# O autocorretor do teclado do emulador pode mudar as primeiras palavras.
+- assertVisible: '.*e pontual'
+- assertNotVisible: 'Como foi seu atendimento?'

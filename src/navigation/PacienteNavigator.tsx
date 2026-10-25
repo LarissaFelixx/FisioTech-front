@@ -4,19 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon, type IconName } from '../components/Icon/Icon';
 import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
+import { AvaliarAtendimentoScreen } from '../screens/Paciente/Avaliacao/AvaliarAtendimentoScreen';
 import { ConsultaDetalhePacienteScreen } from '../screens/Paciente/Consulta/ConsultaDetalhePacienteScreen';
 import { ConsultasProvisoriaScreen } from '../screens/Paciente/Consulta/ConsultasProvisoriaScreen';
 import { HomeProvisoriaScreen } from '../screens/Paciente/HomeProvisoriaScreen';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
 import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
-import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
-
-// Tela que ainda não existe nesta camada (Avaliar Atendimento é a atividade #43).
-const AvaliarPlaceholder = () => (
-  <PlaceholderScreen title="Avaliar atendimento" message="A avaliação chega com a atividade #43." />
-);
 
 const Tabs = createBottomTabNavigator<PacienteTabsParamList>();
 const Stack = createNativeStackNavigator<PacienteStackParamList>();
@@ -79,8 +74,8 @@ export function PacienteNavigator() {
       />
       <Stack.Screen
         name="AvaliarConsulta"
-        component={AvaliarPlaceholder}
-        options={{ title: 'Avaliar atendimento' }}
+        component={AvaliarAtendimentoScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
