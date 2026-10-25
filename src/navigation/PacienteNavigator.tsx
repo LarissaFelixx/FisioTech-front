@@ -9,8 +9,14 @@ import { ConsultasProvisoriaScreen } from '../screens/Paciente/Consulta/Consulta
 import { HomeProvisoriaScreen } from '../screens/Paciente/HomeProvisoriaScreen';
 import { MeuPerfilScreen } from '../screens/Paciente/Perfil/MeuPerfilScreen';
 import { AlterarSenhaScreen } from '../screens/Paciente/Senha/AlterarSenhaScreen';
+import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { colors, fonts } from '../theme';
 import type { PacienteStackParamList, PacienteTabsParamList } from './types';
+
+// Tela que ainda não existe nesta camada (Avaliar Atendimento é a atividade #43).
+const AvaliarPlaceholder = () => (
+  <PlaceholderScreen title="Avaliar atendimento" message="A avaliação chega com a atividade #43." />
+);
 
 const Tabs = createBottomTabNavigator<PacienteTabsParamList>();
 const Stack = createNativeStackNavigator<PacienteStackParamList>();
@@ -70,6 +76,11 @@ export function PacienteNavigator() {
         name="ConsultaDetalhe"
         component={ConsultaDetalhePacienteScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AvaliarConsulta"
+        component={AvaliarPlaceholder}
+        options={{ title: 'Avaliar atendimento' }}
       />
     </Stack.Navigator>
   );

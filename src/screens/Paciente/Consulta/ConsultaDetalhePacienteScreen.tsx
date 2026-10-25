@@ -1,4 +1,5 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +15,7 @@ import { VoltarLink } from '../../../components/VoltarLink/VoltarLink';
 import {
   useCancelarConsulta,
   useDisponibilidade,
+  useMinhaAvaliacao,
   useMinhaConsulta,
   useRemarcarConsulta,
 } from '../../../hooks/useMe';
@@ -23,6 +25,7 @@ import { colors, fontSizes, fonts, radius, shadows, spacing, statusColors } from
 import type { Consulta } from '../../../types/consulta';
 import { clock } from '../../../utils/clock';
 import { formatMoeda } from '../../../utils/moeda';
+import { estrelas } from '../../Consultas/consultaLogic';
 import {
   MENSAGEM_ERRO_CARREGAR,
   horaCurta,
@@ -192,12 +195,67 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
         <Remarcar consulta={c} onFechar={() => setRemarcando(false)} onErro={setErro} />
       ) : null}
 
+      {c.status === 'REALIZADA' ? <AvaliacaoDaConsulta consultaId={c.id} /> : null}
+
       {erro ? (
         <Text style={styles.erro} accessibilityRole="alert" testID="consulta-paciente-erro">
           {erro}
         </Text>
       ) : null}
     </ScrollView>
+  );
+}
+
+/**
+ * Consulta realizada (#42, Figma "20b Consulta Realizada (Pac.)"): convite para avaliar ou, se o
+ * paciente já avaliou, a avaliação dada (como no Angular).
+ */
+function AvaliacaoDaConsulta({ consultaId }: { consultaId: number }) {
+  const navigation = useNavigation<NativeStackNavigationProp<PacienteStackParamList>>();
+  const avaliacao = useMinhaAvaliacao(consultaId);
+
+  if (avaliacao.isPending) {
+    return <Skeleton variant="lines" count={2} />;
+  }
+  if (avaliacao.isError) {
+    return (
+      <ErrorState
+        message="Não foi possível carregar sua avaliação."
+        onRetry={() => void avaliacao.refetch()}
+        retrying={avaliacao.isRefetching}
+      />
+    );
+  }
+  if (avaliacao.data) {
+    const { nota, comentario } = avaliacao.data;
+    return (
+      <View style={styles.secao} testID="consulta-minha-avaliacao">
+        <Text style={styles.secaoTitulo}>Sua avaliação</Text>
+        <View style={styles.card}>
+          <Text style={styles.estrelas} accessibilityLabel={`Nota ${nota} de 5`}>
+            {estrelas(nota)}
+          </Text>
+          <Text style={styles.convidaDica}>{nota} de 5</Text>
+          {comentario ? <Text style={styles.linha}>{comentario}</Text> : null}
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.convite} testID="consulta-convite-avaliar">
+      <View style={[styles.card, styles.conviteCard]}>
+        <Text style={styles.estrelaConvite}>★</Text>
+        <View style={styles.conviteTexto}>
+          <Text style={styles.conviteTitulo}>Como foi seu atendimento?</Text>
+          <Text style={styles.convidaDica}>Sua avaliação ajuda a clínica a melhorar</Text>
+        </View>
+      </View>
+      <Button
+        label="Avaliar consulta"
+        onPress={() => navigation.navigate('AvaliarConsulta', { consultaId })}
+        testID="consulta-avaliar"
+      />
+    </View>
   );
 }
 
@@ -306,4 +364,11 @@ const styles = StyleSheet.create({
   link: { paddingVertical: spacing.md, alignItems: 'center' },
   linkTexto: { fontFamily: fonts.semibold, fontSize: fontSizes.md, color: colors.primary },
   pressed: { opacity: 0.7 },
+  convite: { gap: spacing.md, marginTop: spacing.sm },
+  conviteCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  conviteTexto: { flex: 1, gap: 2 },
+  conviteTitulo: { fontFamily: fonts.bold, fontSize: fontSizes.md, color: colors.text },
+  convidaDica: { fontFamily: fonts.regular, fontSize: fontSizes.xs, color: colors.textTertiary },
+  estrelaConvite: { fontSize: 20, color: colors.estrela },
+  estrelas: { fontSize: 20, color: colors.estrela, letterSpacing: 2 },
 });
