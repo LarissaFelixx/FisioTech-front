@@ -17,6 +17,7 @@ export function authValue(parcial: Partial<AuthContextValue> = {}): AuthContextV
     cadastrar: jest.fn(async () => usuarioProfissional),
     logout: jest.fn(async () => undefined),
     restore: jest.fn(async () => undefined),
+    recarregarUsuario: jest.fn(async () => undefined),
     ...parcial,
   };
 }

@@ -90,6 +90,7 @@ process.exit(
             '.maestro/profissional-consultas.yaml',
             '.maestro/registro-clinico.yaml',
             '.maestro/paciente-menu.yaml',
+            '.maestro/paciente-perfil.yaml',
           ]),
   ]),
 );

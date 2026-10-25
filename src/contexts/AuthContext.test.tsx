@@ -270,3 +270,21 @@ describe('useAuth', () => {
     await expect(renderHook(() => useAuth())).rejects.toThrow(/AuthProvider/);
   });
 });
+
+describe('AuthProvider: recarregar o usuário', () => {
+  it('relê /auth/me e troca o usuário sem refazer a sessão nem sair de "signedIn"', async () => {
+    const session = fakeSession({ hasStoredSession: jest.fn(async () => true) });
+    const fetchMe = jest.fn(async () => profissional);
+    const { result } = await renderAuth({ session, fetchMe });
+    await waitFor(() => expect(result.current.status).toBe('signedIn'));
+
+    fetchMe.mockResolvedValueOnce({ ...profissional, nome: 'Ana Lima Souza', email: 'nova@x.com' });
+    await act(async () => {
+      await result.current.recarregarUsuario();
+    });
+
+    expect(result.current.user).toMatchObject({ nome: 'Ana Lima Souza', email: 'nova@x.com' });
+    expect(result.current.status).toBe('signedIn');
+    expect(session.refresh).toHaveBeenCalledTimes(1);
+  });
+});
