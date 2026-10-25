@@ -143,7 +143,7 @@ export function HomePacienteScreen() {
 
         {semConsultas ? (
           <Pressable
-            onPress={() => navigation.navigate('Tabs', { screen: 'Consultas' })}
+            onPress={() => navigation.navigate('MarcarConsulta')}
             accessibilityRole="button"
             style={({ pressed }) => [styles.primeira, pressed && styles.pressed]}
             testID="home-marcar-primeira"
