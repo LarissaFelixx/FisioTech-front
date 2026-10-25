@@ -1,5 +1,5 @@
-# Autocadastro de paciente contra o backend REAL: cria a conta, entra automaticamente e cai no
-# caixa de conversas do paciente; depois sai. Email duplicado → mensagem de 409.
+# Autocadastro de paciente contra o backend REAL: cria a conta, entra automaticamente e cai na
+# Home do paciente; confere a caixa de conversas vazia e sai pelo menu. Email duplicado → 409.
 appId: host.exp.exponent
 name: Paciente — autocadastro e email duplicado
 tags:
@@ -22,11 +22,21 @@ env:
 - inputText: 'senha-e2e-123'
 - pressKey: Enter
 - extendedWaitUntil:
-    visible: 'Conversas'
+    visible: 'Bem-vindo,'
     timeout: 30000
+- assertVisible: 'Paciente Cadastro E2E'
+- tapOn:
+    id: 'tab-mensagens'
+- extendedWaitUntil:
+    visible: 'Conversas'
+    timeout: 15000
 - assertVisible: 'Nenhuma conversa disponível. As conversas com seus profissionais aparecerão aqui.'
 - tapOn:
-    id: 'paciente-sair'
+    id: 'tab-home'
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-sair'
 - extendedWaitUntil:
     visible: 'Acesse sua conta'
     timeout: 15000
