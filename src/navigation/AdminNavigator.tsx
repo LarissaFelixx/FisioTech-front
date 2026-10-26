@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
 import { useAuth } from '../hooks/useAuth';
 import { PacienteAdminListScreen } from '../screens/Admin/Pacientes/PacienteAdminListScreen';
+import { EditarPacienteAdminScreen } from '../screens/Admin/Pacientes/EditarPacienteAdminScreen';
 import { EditarProfissionalScreen } from '../screens/Admin/Profissionais/EditarProfissionalScreen';
 import { NovoProfissionalScreen } from '../screens/Admin/Profissionais/NovoProfissionalScreen';
 import { ProfissionalListScreen } from '../screens/Admin/Profissionais/ProfissionalListScreen';
@@ -57,6 +58,11 @@ export function AdminNavigator() {
           name="Pacientes"
           component={PacienteAdminListScreen}
           options={{ title: 'Admin - Pacientes' }}
+        />
+        <Stack.Screen
+          name="EditarPaciente"
+          component={EditarPacienteAdminScreen}
+          options={{ title: 'Admin - Editar Paciente' }}
         />
         <Stack.Screen
           name="NovoProfissional"

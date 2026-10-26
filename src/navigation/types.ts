@@ -40,6 +40,7 @@ export type PacienteStackParamList = {
 export type AdminStackParamList = {
   Profissionais: undefined;
   Pacientes: undefined;
+  EditarPaciente: { id: number };
   NovoProfissional: undefined;
   EditarProfissional: { id: number };
 };

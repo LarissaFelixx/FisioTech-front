@@ -1,5 +1,62 @@
-import type { Paciente } from '../../../types/paciente';
+import type { Paciente, PacienteAdminUpdateRequest } from '../../../types/paciente';
+import type { Profissional } from '../../../types/profissional';
 import { mensagemDeErro } from '../../../utils/mensagensErro';
+import { email, maximo, minimo, obrigatorio, type Schema } from '../../../utils/validation';
+
+export type PacienteAdminCampo = 'nome' | 'email' | 'senha' | 'profissionalId';
+export type PacienteAdminValores = Record<PacienteAdminCampo, string>;
+
+export function valoresPacienteAdmin(paciente: Paciente): PacienteAdminValores {
+  return {
+    nome: paciente.nome,
+    email: paciente.email,
+    senha: '',
+    profissionalId: paciente.profissionalId === null ? '' : String(paciente.profissionalId),
+  };
+}
+
+export function schemaPacienteAdmin(profissionais: Profissional[]): Schema<PacienteAdminCampo> {
+  return {
+    nome: [obrigatorio, maximo(120)],
+    email: [obrigatorio, email, maximo(120)],
+    senha: [minimo(8), maximo(100)],
+    profissionalId: [
+      obrigatorio,
+      (valor) =>
+        profissionais.some((profissional) => String(profissional.id) === valor)
+          ? null
+          : 'Selecione um profissional disponível.',
+    ],
+  };
+}
+
+export function montarAtualizacaoPacienteAdmin(
+  valores: PacienteAdminValores,
+): PacienteAdminUpdateRequest {
+  return {
+    nome: valores.nome.trim(),
+    email: valores.email.trim(),
+    senha: valores.senha.trim() ? valores.senha : null,
+    profissionalId: Number(valores.profissionalId),
+  };
+}
+
+export function correcoesPacienteAdmin(
+  paciente: Paciente,
+  valores: PacienteAdminValores,
+): string[] {
+  const correcoes: string[] = [];
+  if (paciente.email.toLowerCase() !== valores.email.trim().toLowerCase()) {
+    correcoes.push('email de acesso');
+  }
+  if (valores.senha.trim()) {
+    correcoes.push('senha de acesso');
+  }
+  if (paciente.profissionalId !== Number(valores.profissionalId)) {
+    correcoes.push('profissional responsável');
+  }
+  return correcoes;
+}
 
 export function filtrarPacientesAdmin(pacientes: Paciente[], busca: string): Paciente[] {
   const normalizar = (texto: string) =>

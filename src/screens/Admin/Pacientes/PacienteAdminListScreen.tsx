@@ -1,15 +1,19 @@
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { toApiError } from '../../../api/errors';
 import { AdminOnly } from '../../../components/AdminOnly/AdminOnly';
 import { Avatar } from '../../../components/Avatar/Avatar';
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
+import { Icon } from '../../../components/Icon/Icon';
 import { SearchField } from '../../../components/SearchField/SearchField';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
 import { usePacientesAdmin } from '../../../hooks/usePacientes';
 import { useRefetchOnFocus } from '../../../hooks/useRefetchOnFocus';
+import type { AdminStackParamList } from '../../../navigation/types';
 import { colors, fontSizes, fonts, radius, spacing } from '../../../theme';
 import { filtrarPacientesAdmin, mensagemErroPacienteAdmin } from './pacienteAdminLogic';
 
@@ -22,6 +26,7 @@ export function PacienteAdminListScreen() {
 }
 
 function ListaPacientesAdmin() {
+  const navigation = useNavigation<NativeStackNavigationProp<AdminStackParamList>>();
   const query = usePacientesAdmin();
   const [busca, setBusca] = useState('');
   useRefetchOnFocus(query.refetch);
@@ -84,7 +89,13 @@ function ListaPacientesAdmin() {
           ) : null
         }
         renderItem={({ item }) => (
-          <View testID={`admin-paciente-${item.id}`} style={styles.card}>
+          <Pressable
+            testID={`admin-paciente-${item.id}`}
+            accessibilityRole="button"
+            accessibilityLabel={`Editar paciente ${item.nome}`}
+            onPress={() => navigation.navigate('EditarPaciente', { id: item.id })}
+            style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+          >
             <Avatar nome={item.nome} />
             <View style={styles.info}>
               <Text style={styles.name} numberOfLines={2}>
@@ -98,7 +109,8 @@ function ListaPacientesAdmin() {
               </Text>
               {item.telefone ? <Text style={styles.subtitle}>{item.telefone}</Text> : null}
             </View>
-          </View>
+            <Icon name="chevron-right" color={colors.textSecondary} size={20} />
+          </Pressable>
         )}
       />
     </SafeAreaView>
@@ -106,6 +118,7 @@ function ListaPacientesAdmin() {
 }
 
 const styles = StyleSheet.create({
+  pressed: { opacity: 0.7 },
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { padding: spacing.xl, gap: spacing.md },
   title: { fontFamily: fonts.extrabold, fontSize: fontSizes.xxl, color: colors.text },
