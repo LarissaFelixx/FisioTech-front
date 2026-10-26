@@ -17,6 +17,8 @@ do backend Java 21 / Spring Boot, que não sofre nenhuma alteração.
 > A área de profissionais do ADM está descrita em [`ADMIN_PROFISSIONAIS.md`](./ADMIN_PROFISSIONAIS.md).
 > As tarefas de pacientes estão separadas em [`ADMIN_PACIENTES.md`](./ADMIN_PACIENTES.md)
 > e [`ADMIN_EDITAR_PACIENTE.md`](./ADMIN_EDITAR_PACIENTE.md), com branches e commits próprios.
+> A definição de senhas de pacientes e profissionais pelo ADM está descrita em
+> [`ADMIN_CRIACAO_SENHA.md`](./ADMIN_CRIACAO_SENHA.md).
 > As demais áreas ainda não migradas seguem no plano de [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md).
 
 ## Stack

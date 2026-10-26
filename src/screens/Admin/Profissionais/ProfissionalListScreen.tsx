@@ -50,6 +50,12 @@ function ListaProfissionais() {
         {!acessoNegado ? (
           <>
             <Button
+              label="Criação de senha"
+              variant="secondary"
+              onPress={() => navigation.navigate('CriacaoSenha')}
+              testID="admin-abrir-criacao-senha"
+            />
+            <Button
               label="Novo profissional"
               onPress={() => navigation.navigate('NovoProfissional')}
               testID="admin-profissional-novo"
