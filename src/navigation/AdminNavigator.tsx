@@ -1,8 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
 import { useAuth } from '../hooks/useAuth';
+import { PacienteAdminListScreen } from '../screens/Admin/Pacientes/PacienteAdminListScreen';
 import { EditarProfissionalScreen } from '../screens/Admin/Profissionais/EditarProfissionalScreen';
 import { NovoProfissionalScreen } from '../screens/Admin/Profissionais/NovoProfissionalScreen';
 import { ProfissionalListScreen } from '../screens/Admin/Profissionais/ProfissionalListScreen';
@@ -26,20 +27,36 @@ export function AdminNavigator() {
         <Stack.Screen
           name="Profissionais"
           component={ProfissionalListScreen}
-          options={{
+          options={({ navigation }) => ({
             title: 'Administração',
             headerRight: () => (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Sair"
-                testID="admin-sair"
-                onPress={() => void logout()}
-                style={styles.logout}
-              >
-                <Text style={styles.logoutText}>Sair</Text>
-              </Pressable>
+              <View style={styles.actions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Administrar pacientes"
+                  testID="admin-abrir-pacientes"
+                  onPress={() => navigation.navigate('Pacientes')}
+                  style={styles.logout}
+                >
+                  <Text style={styles.logoutText}>Pacientes</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Sair"
+                  testID="admin-sair"
+                  onPress={() => void logout()}
+                  style={styles.logout}
+                >
+                  <Text style={styles.logoutText}>Sair</Text>
+                </Pressable>
+              </View>
             ),
-          }}
+          })}
+        />
+        <Stack.Screen
+          name="Pacientes"
+          component={PacienteAdminListScreen}
+          options={{ title: 'Admin - Pacientes' }}
         />
         <Stack.Screen
           name="NovoProfissional"
@@ -57,6 +74,7 @@ export function AdminNavigator() {
 }
 
 const styles = StyleSheet.create({
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   logout: { padding: spacing.sm },
   logoutText: { color: colors.primaryDark, fontFamily: fonts.semibold },
 });

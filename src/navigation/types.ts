@@ -39,6 +39,7 @@ export type PacienteStackParamList = {
 /** Rotas montadas somente para ROLE_ADMIN. */
 export type AdminStackParamList = {
   Profissionais: undefined;
+  Pacientes: undefined;
   NovoProfissional: undefined;
   EditarProfissional: { id: number };
 };
