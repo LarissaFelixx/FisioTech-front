@@ -1,17 +1,25 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  CommonActions,
+  createNavigationContainerRef,
+  NavigationContainer,
+} from '@react-navigation/native';
 
 import { ConfirmDialogProvider } from '../../../components/ConfirmDialog/ConfirmDialog';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { AdminNavigator } from '../../../navigation/AdminNavigator';
+import type { AdminStackParamList } from '../../../navigation/types';
 import { profissionalService } from '../../../services/profissionalService';
 import { authValue, usuarioProfissional } from '../../../test/authContextValue';
 import { httpError, networkError, Providers } from '../../../test/helpers';
 import type { Profissional } from '../../../types/profissional';
-import { ProfissionalFormScreen } from './ProfissionalFormScreen';
+import { EditarProfissionalScreen } from './EditarProfissionalScreen';
+import { NovoProfissionalScreen } from './NovoProfissionalScreen';
 import { ProfissionalListScreen } from './ProfissionalListScreen';
 
 jest.mock('../../../services/profissionalService');
 const service = jest.mocked(profissionalService);
+const navigationRef = createNavigationContainerRef<AdminStackParamList>();
 const profissional: Profissional = {
   id: 7,
   nome: 'Dra. Ana',
@@ -38,10 +46,12 @@ beforeEach(() => {
 
 function conteudo(role = 'ROLE_ADMIN') {
   return (
-    <Providers navigation>
+    <Providers>
       <ConfirmDialogProvider>
         <AuthContext.Provider value={authValue({ user: { ...usuarioProfissional, role } })}>
-          <AdminNavigator />
+          <NavigationContainer ref={navigationRef}>
+            <AdminNavigator />
+          </NavigationContainer>
         </AuthContext.Provider>
       </ConfirmDialogProvider>
     </Providers>
@@ -84,7 +94,7 @@ describe('acesso exclusivo do ADM', () => {
     },
   );
 
-  it.each([ProfissionalListScreen, ProfissionalFormScreen])(
+  it.each([ProfissionalListScreen, NovoProfissionalScreen, EditarProfissionalScreen])(
     'bloqueia também a tela montada diretamente',
     async (Tela) => {
       await render(
@@ -153,6 +163,47 @@ describe('lista administrativa', () => {
 });
 
 describe('cadastro e correção administrativa', () => {
+  it('mantém listagem, cadastro e edição em telas e rotas distintas', async () => {
+    await render(conteudo());
+    await screen.findByTestId('admin-profissional-7');
+    expect(navigationRef.getCurrentRoute()?.name).toBe('Profissionais');
+    expect(screen.queryByTestId('admin-editar-profissional')).toBeNull();
+
+    await fireEvent.press(screen.getByTestId('admin-profissional-novo'));
+    expect(navigationRef.getCurrentRoute()?.name).toBe('NovoProfissional');
+    expect(screen.getByTestId('admin-novo-profissional')).toBeOnTheScreen();
+    expect(screen.queryByTestId('admin-profissional-excluir')).toBeNull();
+    expect(service.buscarPorId).not.toHaveBeenCalled();
+
+    await act(async () => navigationRef.goBack());
+    await fireEvent.press(await screen.findByTestId('admin-profissional-7'));
+    await screen.findByTestId('admin-editar-profissional');
+    expect(navigationRef.getCurrentRoute()?.name).toBe('EditarProfissional');
+    expect(navigationRef.getCurrentRoute()?.params).toEqual({ id: 7 });
+    expect(screen.getByTestId('admin-profissional-nome')).toHaveProp('value', 'Dra. Ana');
+    expect(screen.getByText('Salvar alterações')).toBeOnTheScreen();
+    expect(service.buscarPorId).toHaveBeenCalledWith(7);
+    expect(service.criar).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, 0, -1])(
+    'edição com id %s nunca abre cadastro nem consulta um perfil inválido',
+    async (id) => {
+      await render(conteudo());
+      await screen.findByTestId('admin-profissional-7');
+      await act(async () =>
+        navigationRef.dispatch(
+          CommonActions.navigate('EditarProfissional', id === undefined ? undefined : { id }),
+        ),
+      );
+      expect(await screen.findByText('Profissional inválido. Volte à lista.')).toBeOnTheScreen();
+      expect(screen.queryByTestId('admin-novo-profissional')).toBeNull();
+      expect(screen.queryByTestId('admin-profissional-salvar')).toBeNull();
+      expect(service.buscarPorId).not.toHaveBeenCalled();
+      expect(service.criar).not.toHaveBeenCalled();
+    },
+  );
+
   it('não expõe o formulário se o servidor negar a consulta do perfil', async () => {
     service.buscarPorId.mockRejectedValueOnce(httpError(403));
     await render(conteudo());

@@ -1,6 +1,7 @@
 # Administração de perfis de profissionais
 
-Implementação na branch `feat/tela-adm-profissionais`, em 22/10/2026.
+Implementação na branch `feat/tela-adm-editar-profissionais`, criada a partir de `origin/dev`.
+A base administrativa anterior foi reaproveitada; a separação das telas foi feita em 26/10/2026.
 
 ## Acesso e fluxo
 
@@ -9,7 +10,19 @@ Após autenticação, `ROLE_ADMIN` entra em `AdminNavigator`, na lista de profis
 administrativas. O navegador e cada tela administrativa usam `AdminOnly`, que exige sessão
 autenticada e o papel exato de administrador antes de montar componentes ou buscar dados.
 
-Fluxo: lista → Novo profissional ou selecionar perfil → formulário → salvar ou excluir → lista.
+As telas administrativas possuem arquivos e rotas diferentes:
+
+| Tela                           | Rota                 | Responsabilidade                                    |
+| ------------------------------ | -------------------- | --------------------------------------------------- |
+| `ProfissionalListScreen.tsx`   | `Profissionais`      | Listagem e gestão dos perfis                        |
+| `NovoProfissionalScreen.tsx`   | `NovoProfissional`   | Cadastro de um novo profissional, sem id            |
+| `EditarProfissionalScreen.tsx` | `EditarProfissional` | Correção de um perfil existente, com id obrigatório |
+
+Selecionar um profissional abre exclusivamente a edição. O botão Novo profissional abre o
+cadastro. A edição sem id ou com id inválido exibe erro e não muda para o cadastro. O componente
+`ProfissionalEditor.tsx` reutiliza os campos e validações, sem unificar as telas ou suas rotas.
+
+Fluxo: lista → cadastro ou edição → salvar ou excluir → lista.
 O botão Sair permanece no cabeçalho administrativo.
 
 As telas seguem os componentes, fonte Inter, cores, espaçamentos, cards, campos e confirmação
@@ -86,7 +99,7 @@ campos, redefinir a senha, verificar que duplicidades e vínculos continuam bloq
 confirmar que contas de profissional/paciente não acessam os endpoints administrativos.
 Testes com serviços simulados não comprovam execução em aparelho nem autorização real.
 
-### Resultado em 22/10/2026
+### Validação da base em 22/10/2026
 
 - TypeScript: `tsc --noEmit` passou.
 - ESLint e Prettier: os arquivos adicionados/alterados passaram.
@@ -97,3 +110,16 @@ Testes com serviços simulados não comprovam execução em aparelho nem autoriz
   do Hermes, sem alterar a configuração do aplicativo.
 - Não houve execução no aparelho/emulador, teste HTTP contra backend real ou modificação
   do repositório backend. O bundle exportado não é um APK instalado.
+
+### Separação das telas — 26/10/2026
+
+- Rotas diferentes para listagem, cadastro e edição, com componentes de tela próprios.
+- O id é obrigatório na edição. Os testes cobrem id ausente, zero e negativo sem consultar
+  a API nem abrir o cadastro.
+- O cadastro não busca um perfil existente nem oferece exclusão; a edição carrega o id
+  selecionado e mantém as correções, redefinição de senha e confirmação de exclusão.
+- A proteção de acesso também cobre a montagem direta das três telas.
+- TypeScript, ESLint e Prettier dos arquivos da implementação passaram.
+- Jest: 38 suítes e 385 testes passaram com o cache local indicado acima.
+- Exportação Expo Android passou, com saída em `dist/admin-edicao-profissionais`.
+- A execução em aparelho/emulador e a integração HTTP real continuam não verificadas.

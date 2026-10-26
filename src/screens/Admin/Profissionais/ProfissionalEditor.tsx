@@ -1,6 +1,6 @@
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,17 +12,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AdminOnly } from '../../../components/AdminOnly/AdminOnly';
 import { Button } from '../../../components/Button/Button';
 import { useConfirm } from '../../../components/ConfirmDialog/ConfirmDialog';
-import { ErrorState } from '../../../components/ErrorState/ErrorState';
-import { Skeleton } from '../../../components/Skeleton/Skeleton';
 import { TextField } from '../../../components/TextField/TextField';
 import {
   useAtualizarProfissional,
   useCriarProfissional,
   useDeletarProfissional,
-  useProfissional,
 } from '../../../hooks/useProfissionais';
 import type { AdminStackParamList } from '../../../navigation/types';
 import { colors, fontSizes, fonts, radius, spacing } from '../../../theme';
@@ -38,85 +34,23 @@ import {
   schemaProfissional,
   valoresDoProfissional,
   type ProfissionalCampo,
-  type ProfissionalFormValues,
 } from './profissionalLogic';
 
 type Navigation = NativeStackNavigationProp<AdminStackParamList>;
 
-export function ProfissionalFormScreen() {
-  return (
-    <AdminOnly>
-      <ProfissionalFormRoute />
-    </AdminOnly>
-  );
-}
+type Props = { modo: 'cadastro' } | { modo: 'edicao'; profissional: Profissional };
 
-function ProfissionalFormRoute() {
-  const navigation = useNavigation<Navigation>();
-  const { params } = useRoute<RouteProp<AdminStackParamList, 'ProfissionalForm'>>();
-  const id = params?.id;
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: id == null ? 'Novo profissional' : 'Editar profissional' });
-  }, [navigation, id]);
-
-  if (id == null) {
-    return <ProfissionalEditor inicial={PROFISSIONAL_VAZIO} />;
-  }
-  if (!Number.isSafeInteger(id) || id <= 0) {
-    return (
-      <View style={styles.state}>
-        <ErrorState message="Profissional inválido. Volte à lista." />
-      </View>
-    );
-  }
-  return <CarregarProfissional id={id} />;
-}
-
-function CarregarProfissional({ id }: { id: number }) {
-  const query = useProfissional(id);
-
-  if (query.isPending) {
-    return (
-      <View style={styles.state}>
-        <Skeleton variant="form" count={6} />
-      </View>
-    );
-  }
-  if (query.isError) {
-    return (
-      <View style={styles.state}>
-        <ErrorState
-          message={mensagemErroProfissional(query.error, 'carregar')}
-          onRetry={() => void query.refetch()}
-          retrying={query.isRefetching}
-        />
-      </View>
-    );
-  }
-
-  return (
-    <ProfissionalEditor
-      key={query.data.id}
-      inicial={valoresDoProfissional(query.data)}
-      profissional={query.data}
-    />
-  );
-}
-
-function ProfissionalEditor({
-  inicial,
-  profissional,
-}: {
-  inicial: ProfissionalFormValues;
-  profissional?: Profissional;
-}) {
+/** Campos e operações compartilhados pelas telas distintas de cadastro e edição. */
+export function ProfissionalEditor(props: Props) {
+  const profissional = props.modo === 'edicao' ? props.profissional : undefined;
   const navigation = useNavigation<Navigation>();
   const confirmar = useConfirm();
   const criar = useCriarProfissional();
   const atualizar = useAtualizarProfissional();
   const deletar = useDeletarProfissional();
-  const [valores, setValores] = useState(inicial);
+  const [valores, setValores] = useState(() =>
+    profissional ? valoresDoProfissional(profissional) : PROFISSIONAL_VAZIO,
+  );
   const [erros, setErros] = useState<Partial<Record<ProfissionalCampo, string>>>({});
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -236,7 +170,11 @@ function ProfissionalEditor({
   });
 
   return (
-    <SafeAreaView style={styles.flex} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView
+      style={styles.flex}
+      edges={['bottom', 'left', 'right']}
+      testID={editando ? 'admin-editar-profissional' : 'admin-novo-profissional'}
+    >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -340,7 +278,9 @@ function ProfissionalEditor({
             </Text>
           ) : null}
           <Button
-            label={ocupado ? 'Aguarde...' : 'Salvar profissional'}
+            label={
+              ocupado ? 'Aguarde...' : editando ? 'Salvar alterações' : 'Cadastrar profissional'
+            }
             onPress={() => void salvar()}
             loading={ocupado}
             testID="admin-profissional-salvar"
@@ -366,7 +306,6 @@ function ProfissionalEditor({
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
-  state: { flex: 1, backgroundColor: colors.bg, padding: spacing.xl },
   content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   card: {
     padding: spacing.xl,

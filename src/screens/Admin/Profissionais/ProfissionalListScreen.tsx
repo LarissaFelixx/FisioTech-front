@@ -51,7 +51,7 @@ function ListaProfissionais() {
           <>
             <Button
               label="Novo profissional"
-              onPress={() => navigation.navigate('ProfissionalForm', {})}
+              onPress={() => navigation.navigate('NovoProfissional')}
               testID="admin-profissional-novo"
             />
             <SearchField
@@ -100,7 +100,7 @@ function ListaProfissionais() {
             testID={`admin-profissional-${item.id}`}
             accessibilityRole="button"
             accessibilityLabel={`Editar ${item.nome}, ${item.registroProfissional}`}
-            onPress={() => navigation.navigate('ProfissionalForm', { id: item.id })}
+            onPress={() => navigation.navigate('EditarProfissional', { id: item.id })}
             style={({ pressed }) => [styles.card, pressed && styles.pressed]}
           >
             <Avatar nome={item.nome} />

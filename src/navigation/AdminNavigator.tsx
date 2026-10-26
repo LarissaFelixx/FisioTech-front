@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
 import { useAuth } from '../hooks/useAuth';
-import { ProfissionalFormScreen } from '../screens/Admin/Profissionais/ProfissionalFormScreen';
+import { EditarProfissionalScreen } from '../screens/Admin/Profissionais/EditarProfissionalScreen';
+import { NovoProfissionalScreen } from '../screens/Admin/Profissionais/NovoProfissionalScreen';
 import { ProfissionalListScreen } from '../screens/Admin/Profissionais/ProfissionalListScreen';
 import { colors, fonts, spacing } from '../theme';
 import type { AdminStackParamList } from './types';
@@ -41,9 +42,14 @@ export function AdminNavigator() {
           }}
         />
         <Stack.Screen
-          name="ProfissionalForm"
-          component={ProfissionalFormScreen}
-          options={{ title: 'Profissional' }}
+          name="NovoProfissional"
+          component={NovoProfissionalScreen}
+          options={{ title: 'Novo profissional' }}
+        />
+        <Stack.Screen
+          name="EditarProfissional"
+          component={EditarProfissionalScreen}
+          options={{ title: 'Editar profissional' }}
         />
       </Stack.Navigator>
     </AdminOnly>
