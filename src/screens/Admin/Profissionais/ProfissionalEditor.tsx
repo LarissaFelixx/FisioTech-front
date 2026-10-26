@@ -8,29 +8,22 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
 import { useConfirm } from '../../../components/ConfirmDialog/ConfirmDialog';
-import { TextField } from '../../../components/TextField/TextField';
-import {
-  useAtualizarProfissional,
-  useCriarProfissional,
-  useDeletarProfissional,
-} from '../../../hooks/useProfissionais';
+import { useAtualizarProfissional, useDeletarProfissional } from '../../../hooks/useProfissionais';
 import type { AdminStackParamList } from '../../../navigation/types';
-import { colors, fontSizes, fonts, radius, spacing } from '../../../theme';
+import { colors, fontSizes, fonts, spacing } from '../../../theme';
 import type { Profissional } from '../../../types/profissional';
-import { formatDataBr, mascararData, parseDataHora } from '../../../utils/date';
+import { formatDataBr, parseDataHora } from '../../../utils/date';
 import { validarFormulario } from '../../../utils/validation';
+import { ProfissionalFields } from './ProfissionalFields';
 import {
-  PROFISSIONAL_VAZIO,
   correcoesSensiveis,
   mensagemErroProfissional,
   montarAtualizacaoProfissional,
-  montarCriacaoProfissional,
   schemaProfissional,
   valoresDoProfissional,
   type ProfissionalCampo,
@@ -38,25 +31,20 @@ import {
 
 type Navigation = NativeStackNavigationProp<AdminStackParamList>;
 
-type Props = { modo: 'cadastro' } | { modo: 'edicao'; profissional: Profissional };
+type Props = { profissional: Profissional };
 
-/** Campos e operações compartilhados pelas telas distintas de cadastro e edição. */
-export function ProfissionalEditor(props: Props) {
-  const profissional = props.modo === 'edicao' ? props.profissional : undefined;
+/** Edição e exclusão de um profissional existente. */
+export function ProfissionalEditor({ profissional }: Props) {
   const navigation = useNavigation<Navigation>();
   const confirmar = useConfirm();
-  const criar = useCriarProfissional();
   const atualizar = useAtualizarProfissional();
   const deletar = useDeletarProfissional();
-  const [valores, setValores] = useState(() =>
-    profissional ? valoresDoProfissional(profissional) : PROFISSIONAL_VAZIO,
-  );
+  const [valores, setValores] = useState(() => valoresDoProfissional(profissional));
   const [erros, setErros] = useState<Partial<Record<ProfissionalCampo, string>>>({});
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const bloqueado = useRef(false);
   const montado = useRef(true);
-  const editando = profissional !== undefined;
 
   useEffect(() => {
     montado.current = true;
@@ -78,9 +66,9 @@ export function ProfissionalEditor(props: Props) {
       {
         ...valores,
         email: valores.email.trim(),
-        senha: editando && !valores.senha.trim() ? '' : valores.senha,
+        senha: !valores.senha.trim() ? '' : valores.senha,
       },
-      schemaProfissional(editando),
+      schemaProfissional(true),
     );
     setErros(errosAtuais);
     if (Object.keys(errosAtuais).length > 0) {
@@ -92,11 +80,11 @@ export function ProfissionalEditor(props: Props) {
     setErro(null);
 
     try {
-      const correcoes = profissional ? correcoesSensiveis(profissional, valores) : [];
+      const correcoes = correcoesSensiveis(profissional, valores);
       if (correcoes.length > 0) {
         const confirmado = await confirmar({
           titulo: 'Confirmar correção administrativa',
-          mensagem: `Você está alterando: ${correcoes.join(', ')}. Confirme a substituição dos dados de ${profissional?.nome}.`,
+          mensagem: `Você está alterando: ${correcoes.join(', ')}. Confirme a substituição dos dados de ${profissional.nome}.`,
           confirmarLabel: 'Aplicar correção',
           destrutivo: false,
         });
@@ -105,14 +93,10 @@ export function ProfissionalEditor(props: Props) {
         }
       }
 
-      if (profissional) {
-        await atualizar.mutateAsync({
-          id: profissional.id,
-          request: montarAtualizacaoProfissional(valores),
-        });
-      } else {
-        await criar.mutateAsync(montarCriacaoProfissional(valores));
-      }
+      await atualizar.mutateAsync({
+        id: profissional.id,
+        request: montarAtualizacaoProfissional(valores),
+      });
       if (montado.current) {
         navigation.goBack();
       }
@@ -129,7 +113,7 @@ export function ProfissionalEditor(props: Props) {
   }
 
   async function excluir() {
-    if (!profissional || bloqueado.current) {
+    if (bloqueado.current) {
       return;
     }
     bloqueado.current = true;
@@ -161,116 +145,29 @@ export function ProfissionalEditor(props: Props) {
     }
   }
 
-  const campo = (nome: ProfissionalCampo) => ({
-    value: valores[nome],
-    onChangeText: (valor: string) => alterar(nome, valor),
-    error: erros[nome],
-    editable: !ocupado,
-    testID: `admin-profissional-${nome}`,
-  });
-
   return (
     <SafeAreaView
       style={styles.flex}
       edges={['bottom', 'left', 'right']}
-      testID={editando ? 'admin-editar-profissional' : 'admin-novo-profissional'}
+      testID="admin-editar-profissional"
     >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          {profissional ? (
-            <Text style={styles.meta}>
-              ID {profissional.id} · Cadastrado em{' '}
-              {formatDataBr(parseDataHora(profissional.dataCriacao))}
-            </Text>
-          ) : null}
+          <Text style={styles.meta}>
+            ID {profissional.id} · Cadastrado em{' '}
+            {formatDataBr(parseDataHora(profissional.dataCriacao))}
+          </Text>
 
-          <View style={styles.card}>
-            <Text style={styles.section} accessibilityRole="header">
-              Identificação e acesso
-            </Text>
-            <TextField label="Nome" autoComplete="name" maxLength={120} {...campo('nome')} />
-            <TextField
-              label="Email de acesso"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={120}
-              {...campo('email')}
-            />
-            <TextField
-              label="Registro profissional"
-              maxLength={20}
-              autoCapitalize="characters"
-              {...campo('registroProfissional')}
-            />
-            <TextField label="Especialidade" maxLength={120} {...campo('especialidade')} />
-            <TextField
-              label={editando ? 'Nova senha' : 'Senha inicial'}
-              placeholder={editando ? 'Em branco mantém a senha atual' : 'Pelo menos 8 caracteres'}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="new-password"
-              maxLength={100}
-              {...campo('senha')}
-            />
-            {editando ? (
-              <Text style={styles.hint}>
-                O ADM pode definir uma nova senha sem informar a anterior. A redefinição encerra as
-                sessões do profissional.
-              </Text>
-            ) : null}
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.section} accessibilityRole="header">
-              Atendimento
-            </Text>
-            <TextField
-              label="Valor da consulta particular (R$)"
-              placeholder="Ex.: 150,00"
-              keyboardType="decimal-pad"
-              {...campo('valorConsultaParticular')}
-            />
-            <TextField
-              label="Convênios aceitos"
-              placeholder="Um convênio por linha"
-              multiline
-              numberOfLines={4}
-              {...campo('conveniosAceitos')}
-            />
-            <Text style={styles.hint}>
-              Deixe os convênios em branco para remover todos. Valor zero é aceito; em branco, fica
-              não informado.
-            </Text>
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.section} accessibilityRole="header">
-              Dados pessoais e contato
-            </Text>
-            <TextField
-              label="Data de nascimento"
-              placeholder="DD/MM/AAAA"
-              keyboardType="number-pad"
-              maxLength={10}
-              {...campo('dataNascimento')}
-              onChangeText={(valor) => alterar('dataNascimento', mascararData(valor))}
-            />
-            <TextField label="Sexo" {...campo('sexo')} />
-            <TextField label="Telefone" keyboardType="phone-pad" {...campo('telefone')} />
-            <TextField
-              label="Foto (URL)"
-              placeholder="https://..."
-              keyboardType="url"
-              autoCapitalize="none"
-              autoCorrect={false}
-              {...campo('foto')}
-            />
-          </View>
+          <ProfissionalFields
+            valores={valores}
+            erros={erros}
+            ocupado={ocupado}
+            editando
+            alterar={alterar}
+          />
 
           {erro ? (
             <Text style={styles.error} accessibilityRole="alert" testID="admin-profissional-erro">
@@ -278,26 +175,22 @@ export function ProfissionalEditor(props: Props) {
             </Text>
           ) : null}
           <Button
-            label={
-              ocupado ? 'Aguarde...' : editando ? 'Salvar alterações' : 'Cadastrar profissional'
-            }
+            label={ocupado ? 'Aguarde...' : 'Salvar alterações'}
             onPress={() => void salvar()}
             loading={ocupado}
             testID="admin-profissional-salvar"
           />
-          {profissional ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Excluir profissional"
-              accessibilityState={{ disabled: ocupado }}
-              disabled={ocupado}
-              testID="admin-profissional-excluir"
-              onPress={() => void excluir()}
-              style={({ pressed }) => [styles.delete, pressed && styles.pressed]}
-            >
-              <Text style={styles.deleteText}>Excluir profissional</Text>
-            </Pressable>
-          ) : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Excluir profissional"
+            accessibilityState={{ disabled: ocupado }}
+            disabled={ocupado}
+            testID="admin-profissional-excluir"
+            onPress={() => void excluir()}
+            style={({ pressed }) => [styles.delete, pressed && styles.pressed]}
+          >
+            <Text style={styles.deleteText}>Excluir profissional</Text>
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -307,20 +200,7 @@ export function ProfissionalEditor(props: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
-  card: {
-    padding: spacing.xl,
-    gap: spacing.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-  },
-  section: { fontFamily: fonts.bold, fontSize: fontSizes.xl, color: colors.text },
   meta: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.textSecondary },
-  hint: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
   error: { fontFamily: fonts.medium, fontSize: fontSizes.md, color: colors.danger },
   delete: { paddingVertical: spacing.lg, alignItems: 'center' },
   deleteText: { fontFamily: fonts.bold, fontSize: fontSizes.md, color: colors.danger },

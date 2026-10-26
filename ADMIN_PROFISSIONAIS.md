@@ -20,7 +20,9 @@ As telas administrativas possuem arquivos e rotas diferentes:
 
 Selecionar um profissional abre exclusivamente a edição. O botão Novo profissional abre o
 cadastro. A edição sem id ou com id inválido exibe erro e não muda para o cadastro. O componente
-`ProfissionalEditor.tsx` reutiliza os campos e validações, sem unificar as telas ou suas rotas.
+`ProfissionalFields.tsx` reutiliza somente os campos visuais. O cadastro possui formulário e
+operação de criação próprios; `ProfissionalEditor.tsx` executa somente edição e exclusão.
+As validações e a montagem dos contratos permanecem em `profissionalLogic.ts`.
 
 Fluxo: lista → cadastro ou edição → salvar ou excluir → lista.
 O botão Sair permanece no cabeçalho administrativo.
@@ -123,3 +125,22 @@ Testes com serviços simulados não comprovam execução em aparelho nem autoriz
 - Jest: 38 suítes e 385 testes passaram com o cache local indicado acima.
 - Exportação Expo Android passou, com saída em `dist/admin-edicao-profissionais`.
 - A execução em aparelho/emulador e a integração HTTP real continuam não verificadas.
+
+### Cadastro independente de novo profissional — 26/10/2026
+
+Branch `feat/tela-adm-novo-profissional`, derivada de `feat/tela-adm-editar-profissionais`
+no commit `ff898f9`, preservando a base administrativa já implementada.
+
+- Acesso pela lista administrativa → Novo profissional, em rota sem id.
+- Formulário exclusivo de criação: identificação, senha inicial, atendimento e contato,
+  com os mesmos componentes, cores e espaçamentos das demais telas.
+- Envia `POST /profissionais` usando a sessão do ADM, sem autenticar como o novo usuário.
+- Exige senha inicial de 8 a 100 caracteres e valida os campos antes de enviar.
+- Mantém os dados em erros de rede, permissão ou duplicidade; permite corrigir e reenviar.
+- Bloqueia envios simultâneos; ao concluir, atualiza a lista e volta para ela.
+- Uma nova abertura começa vazia, inclusive a senha; não consulta, altera ou exclui perfis.
+- Os testes cobrem senha obrigatória, conflitos, falhas, nova tentativa, atualização da lista,
+  bloqueio de envio repetido e limpeza do formulário, além das proteções já existentes.
+- Validação: TypeScript, ESLint e Prettier passaram; Jest com 38 suítes e 390 testes passou.
+- Exportação Android concluída em `dist/admin-novo-profissional`, sem incluir o bundle no Git.
+- A validação em aparelho/emulador e com a API real permanece pendente.

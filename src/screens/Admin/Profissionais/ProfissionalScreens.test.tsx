@@ -68,6 +68,69 @@ async function abrirEdicao() {
 const preencher = (campo: string, valor: string) =>
   fireEvent.changeText(screen.getByTestId(`admin-profissional-${campo}`), valor);
 
+async function abrirCadastroPreenchido() {
+  await render(conteudo());
+  await fireEvent.press(await screen.findByTestId('admin-profissional-novo'));
+  await preencher('nome', 'Novo Profissional');
+  await preencher('email', 'novo@clinica.com');
+  await preencher('registroProfissional', 'REG-123');
+  await preencher('especialidade', 'Reabilitação');
+  await preencher('senha', 'senha-inicial-123');
+}
+
+describe('novo profissional', () => {
+  it('exige senha inicial mesmo com os demais campos obrigatórios preenchidos', async () => {
+    await abrirCadastroPreenchido();
+    await preencher('senha', '');
+    await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+    expect(service.criar).not.toHaveBeenCalled();
+    expect(screen.getByTestId('admin-novo-profissional')).toBeOnTheScreen();
+    expect(screen.getByTestId('admin-profissional-senha')).toHaveProp('secureTextEntry', true);
+  });
+
+  it.each([httpError(409), networkError(), httpError(403)])(
+    'preserva os dados e permite tentar novamente após recusa do cadastro %#',
+    async (erro) => {
+      service.criar.mockRejectedValueOnce(erro);
+      await abrirCadastroPreenchido();
+      await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+      expect(await screen.findByTestId('admin-profissional-erro')).toBeOnTheScreen();
+      expect(screen.getByTestId('admin-profissional-email')).toHaveProp(
+        'value',
+        'novo@clinica.com',
+      );
+      expect(screen.getByTestId('admin-profissional-nome')).toHaveProp('editable', true);
+      expect(service.buscarPorId).not.toHaveBeenCalled();
+      expect(service.atualizar).not.toHaveBeenCalled();
+      expect(service.deletar).not.toHaveBeenCalled();
+      await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+      await screen.findByTestId('admin-profissionais-lista');
+      expect(service.criar).toHaveBeenCalledTimes(2);
+      expect(service.listarTodos.mock.calls.length).toBeGreaterThan(1);
+    },
+  );
+
+  it('impede cadastros simultâneos e reabre um formulário vazio após sucesso', async () => {
+    let terminar!: () => void;
+    service.criar.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          terminar = resolve;
+        }),
+    );
+    await abrirCadastroPreenchido();
+    await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+    await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+    expect(service.criar).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('admin-profissional-nome')).toHaveProp('editable', false);
+    await act(async () => terminar());
+    await screen.findByTestId('admin-profissionais-lista');
+    await fireEvent.press(screen.getByTestId('admin-profissional-novo'));
+    expect(screen.getByTestId('admin-profissional-nome')).toHaveProp('value', '');
+    expect(screen.getByTestId('admin-profissional-senha')).toHaveProp('value', '');
+  });
+});
+
 describe('acesso exclusivo do ADM', () => {
   it('exige sessão autenticada mesmo quando o usuário contém o papel administrativo', async () => {
     await render(

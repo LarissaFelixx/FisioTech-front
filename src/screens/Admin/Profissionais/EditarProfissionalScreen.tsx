@@ -57,7 +57,7 @@ function CarregarProfissional({ id }: { id: number }) {
     );
   }
 
-  return <ProfissionalEditor key={query.data.id} modo="edicao" profissional={query.data} />;
+  return <ProfissionalEditor key={query.data.id} profissional={query.data} />;
 }
 
 const styles = StyleSheet.create({
