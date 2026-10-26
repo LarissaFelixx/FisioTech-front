@@ -5,6 +5,7 @@ import { AuthContext, type AuthContextValue } from '../contexts/AuthContext';
 import { consultaService } from '../services/consultaService';
 import { pacienteService } from '../services/pacienteService';
 import { meService } from '../services/meService';
+import { profissionalService } from '../services/profissionalService';
 import { authValue, usuarioProfissional } from '../test/authContextValue';
 import { Providers } from '../test/helpers';
 import { RootNavigator } from './RootNavigator';
@@ -16,6 +17,7 @@ jest.mock('../services/pacienteService', () => ({
   pacienteService: { listarTodos: jest.fn(async () => []), cadastrarPublico: jest.fn() },
 }));
 jest.mock('../services/meService');
+jest.mock('../services/profissionalService');
 
 async function renderRoot(parcial: Partial<AuthContextValue>) {
   const value = authValue(parcial);
@@ -74,17 +76,30 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     expect(value.logout).toHaveBeenCalled();
   });
 
-  it.each([
-    ['ROLE_ADMIN', 'A área do administrador chega no Batch 11.'],
-    ['ROLE_DESCONHECIDO', 'Seu perfil de acesso não é reconhecido por este app.'],
-  ])('%s cai num placeholder com "Sair"', async (role, mensagem) => {
+  it('admin entra na gestão de profissionais e pode sair', async () => {
+    jest.mocked(profissionalService.listarTodos).mockResolvedValue([]);
     const value = await renderRoot({
       status: 'signedIn',
-      user: { ...usuarioProfissional, role },
+      user: { ...usuarioProfissional, role: 'ROLE_ADMIN' },
     });
 
-    expect(screen.getByText(mensagem)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByTestId('placeholder-sair'));
+    expect(await screen.findByTestId('admin-profissionais-lista')).toBeOnTheScreen();
+    await waitFor(() => expect(profissionalService.listarTodos).toHaveBeenCalled());
+    await fireEvent.press(screen.getByTestId('admin-sair'));
     expect(value.logout).toHaveBeenCalled();
   });
+
+  it.each([['ROLE_DESCONHECIDO', 'Seu perfil de acesso não é reconhecido por este app.']])(
+    '%s cai num placeholder com "Sair"',
+    async (role, mensagem) => {
+      const value = await renderRoot({
+        status: 'signedIn',
+        user: { ...usuarioProfissional, role },
+      });
+
+      expect(screen.getByText(mensagem)).toBeOnTheScreen();
+      await fireEvent.press(screen.getByTestId('placeholder-sair'));
+      expect(value.logout).toHaveBeenCalled();
+    },
+  );
 });

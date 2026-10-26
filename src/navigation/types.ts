@@ -35,3 +35,9 @@ export type PacienteStackParamList = {
   Mensagens: undefined;
   MensagemThread: { profissionalId: number; nome?: string };
 };
+
+/** Rotas montadas somente para ROLE_ADMIN. */
+export type AdminStackParamList = {
+  Profissionais: undefined;
+  ProfissionalForm: { id?: number };
+};
