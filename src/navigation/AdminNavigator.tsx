@@ -3,10 +3,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Icon, type IconName } from '../components/Icon/Icon';
 import {
-  AlterarSenhaAdminProvisoriaScreen,
   PacientesProvisoriaScreen,
   ProfissionaisProvisoriaScreen,
 } from '../screens/Admin/AdminProvisoriaScreens';
+import { AlterarSenhaAdminScreen } from '../screens/Admin/Senha/AlterarSenhaAdminScreen';
 import { colors, fonts } from '../theme';
 import type { AdminStackParamList, AdminTabsParamList } from './types';
 
@@ -52,8 +52,9 @@ export function AdminNavigator() {
       <Stack.Screen name="Tabs" component={AdminTabs} options={{ headerShown: false }} />
       <Stack.Screen
         name="AlterarSenha"
-        component={AlterarSenhaAdminProvisoriaScreen}
-        options={{ title: 'Alterar Senha' }}
+        component={AlterarSenhaAdminScreen}
+        // O "‹ Profissionais" no topo da tela substitui o header nativo, como no Figma.
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

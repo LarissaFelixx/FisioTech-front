@@ -1,7 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PlaceholderScreen } from '../Placeholder/PlaceholderScreen';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import { AdminCabecalho } from './AdminCabecalho';
 import { useMenuAdmin } from './useMenuAdmin';
@@ -37,16 +36,6 @@ export function ProfissionaisProvisoriaScreen() {
 export function PacientesProvisoriaScreen() {
   return (
     <AbaProvisoria titulo="Pacientes" aviso="A lista de pacientes chega com a atividade #34." />
-  );
-}
-
-/** Destino de "Alterar Senha" no menu; a tela de verdade é a atividade #36. */
-export function AlterarSenhaAdminProvisoriaScreen() {
-  return (
-    <PlaceholderScreen
-      title="Alterar senha"
-      message="A troca de senha do administrador chega com a atividade #36."
-    />
   );
 }
 

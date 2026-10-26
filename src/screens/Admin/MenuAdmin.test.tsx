@@ -87,9 +87,7 @@ describe('Menu do administrador (#37)', () => {
     await fireEvent.press(screen.getByTestId('admin-abrir-menu'));
     await fireEvent.press(screen.getByTestId('menu-alterar-senha'));
 
-    expect(
-      await screen.findByText('A troca de senha do administrador chega com a atividade #36.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Alterar Senha' })).toBeOnTheScreen();
     expect(screen.queryByTestId('menu-lateral')).toBeNull();
   });
 
