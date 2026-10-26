@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
 import { useAuth } from '../hooks/useAuth';
+import { CriacaoSenhaAdminScreen } from '../screens/Admin/Senhas/CriacaoSenhaAdminScreen';
 import { PacienteAdminListScreen } from '../screens/Admin/Pacientes/PacienteAdminListScreen';
 import { EditarPacienteAdminScreen } from '../screens/Admin/Pacientes/EditarPacienteAdminScreen';
 import { EditarProfissionalScreen } from '../screens/Admin/Profissionais/EditarProfissionalScreen';
@@ -58,6 +59,11 @@ export function AdminNavigator() {
           name="Pacientes"
           component={PacienteAdminListScreen}
           options={{ title: 'Admin - Pacientes' }}
+        />
+        <Stack.Screen
+          name="CriacaoSenha"
+          component={CriacaoSenhaAdminScreen}
+          options={{ title: 'Admin - Criação de senha' }}
         />
         <Stack.Screen
           name="EditarPaciente"
