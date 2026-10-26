@@ -9,12 +9,15 @@ do backend Java 21 / Spring Boot, que não sofre nenhuma alteração.
 > - login, cadastro de paciente, sessão mantida ao reabrir o app e logout (JWT);
 > - a home do profissional com dados reais.
 > - lista, cadastro, edição e exclusão de pacientes pelo profissional;
+> - administração de profissionais exclusiva de ADM: cadastro, correção de perfil, redefinição
+>   de senha e exclusão, mantendo os bloqueios de duplicidade e vínculos;
 > - caixas de entrada e chat entre paciente e profissional, com atualização a cada 10 segundos
 >   enquanto a tela estiver em foco e o aplicativo em primeiro plano.
 >
-> Consultas/prontuário, registro clínico, troca de senha, demais telas do paciente e área admin
-> ainda são placeholders ou não possuem tela. O plano completo está em
-> [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md).
+> A área de profissionais do ADM está descrita em [`ADMIN_PROFISSIONAIS.md`](./ADMIN_PROFISSIONAIS.md).
+> As tarefas de pacientes estão separadas em [`ADMIN_PACIENTES.md`](./ADMIN_PACIENTES.md)
+> e [`ADMIN_EDITAR_PACIENTE.md`](./ADMIN_EDITAR_PACIENTE.md), com branches e commits próprios.
+> As demais áreas ainda não migradas seguem no plano de [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md).
 
 ## Stack
 
