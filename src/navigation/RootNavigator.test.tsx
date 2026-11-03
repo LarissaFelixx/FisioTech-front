@@ -85,7 +85,14 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
 
     expect(await screen.findByTestId('admin-profissionais-lista')).toBeOnTheScreen();
     await waitFor(() => expect(profissionalService.listarTodos).toHaveBeenCalled());
-    await fireEvent.press(screen.getByTestId('admin-sair'));
+    await fireEvent.press(screen.getByTestId('admin-menu'));
+    expect(screen.getByText('Gerenciar profissionais')).toBeOnTheScreen();
+    expect(screen.getByText('Gerenciar pacientes')).toBeOnTheScreen();
+    expect(screen.getByText('Definir senha de outra conta')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('profile-menu-overlay'));
+    expect(value.logout).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getByTestId('admin-menu'));
+    await fireEvent.press(screen.getByTestId('menu-sair'));
     expect(value.logout).toHaveBeenCalled();
   });
 

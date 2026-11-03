@@ -1,7 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
+import { ProfileMenu } from '../components/ProfileMenu/ProfileMenu';
 import { useAuth } from '../hooks/useAuth';
 import { CriacaoSenhaAdminScreen } from '../screens/Admin/Senhas/CriacaoSenhaAdminScreen';
 import { PacienteAdminListScreen } from '../screens/Admin/Pacientes/PacienteAdminListScreen';
@@ -14,46 +16,73 @@ import type { AdminStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AdminStackParamList>();
 
-export function AdminNavigator() {
-  const { logout } = useAuth();
+type DestinoMenuAdmin = 'Profissionais' | 'Pacientes' | 'CriacaoSenha';
 
+function MenuAdmin({ abrir }: { abrir: (destino: DestinoMenuAdmin) => void }) {
+  const { user, logout } = useAuth();
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Abrir menu do administrador"
+        accessibilityState={{ expanded: aberto }}
+        testID="admin-menu"
+        onPress={() => setAberto(true)}
+        style={styles.trigger}
+      >
+        <Text style={styles.label}>Menu</Text>
+      </Pressable>
+      <ProfileMenu
+        visible={aberto}
+        nome={user?.nome ?? ''}
+        items={[
+          { label: 'Gerenciar profissionais', icon: 'user', onPress: () => abrir('Profissionais') },
+          { label: 'Gerenciar pacientes', icon: 'users', onPress: () => abrir('Pacientes') },
+          {
+            label: 'Definir senha de outra conta',
+            icon: 'lock',
+            onPress: () => abrir('CriacaoSenha'),
+          },
+        ]}
+        onClose={() => setAberto(false)}
+        onLogout={() => void logout()}
+      />
+    </>
+  );
+}
+
+export function AdminNavigator() {
   return (
     <AdminOnly>
       <Stack.Navigator
-        screenOptions={{
+        screenOptions={({ route, navigation }) => ({
           headerTintColor: colors.text,
           headerTitleStyle: { fontFamily: fonts.bold },
           headerStyle: { backgroundColor: colors.surface },
-        }}
+          ...((route.name === 'Profissionais' || route.name === 'Pacientes') && {
+            headerRight: () => (
+              <MenuAdmin
+                abrir={(destino) => {
+                  if (destino === route.name) {
+                    return;
+                  }
+                  if (destino === 'Profissionais') {
+                    navigation.popTo('Profissionais');
+                    return;
+                  }
+                  navigation.navigate(destino);
+                }}
+              />
+            ),
+          }),
+        })}
       >
         <Stack.Screen
           name="Profissionais"
           component={ProfissionalListScreen}
-          options={({ navigation }) => ({
-            title: 'Administração',
-            headerRight: () => (
-              <View style={styles.actions}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Administrar pacientes"
-                  testID="admin-abrir-pacientes"
-                  onPress={() => navigation.navigate('Pacientes')}
-                  style={styles.logout}
-                >
-                  <Text style={styles.logoutText}>Pacientes</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Sair"
-                  testID="admin-sair"
-                  onPress={() => void logout()}
-                  style={styles.logout}
-                >
-                  <Text style={styles.logoutText}>Sair</Text>
-                </Pressable>
-              </View>
-            ),
-          })}
+          options={{ title: 'Administração' }}
         />
         <Stack.Screen
           name="Pacientes"
@@ -86,7 +115,6 @@ export function AdminNavigator() {
 }
 
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  logout: { padding: spacing.sm },
-  logoutText: { color: colors.primaryDark, fontFamily: fonts.semibold },
+  trigger: { padding: spacing.sm },
+  label: { color: colors.primaryDark, fontFamily: fonts.semibold },
 });

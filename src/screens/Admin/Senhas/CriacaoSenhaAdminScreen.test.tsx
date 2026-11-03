@@ -73,7 +73,8 @@ function conteudo(role = 'ROLE_ADMIN') {
 
 async function abrir(tipo: 'paciente' | 'profissional' = 'paciente') {
   const view = await render(conteudo());
-  await fireEvent.press(screen.getByTestId('admin-abrir-criacao-senha'));
+  await fireEvent.press(screen.getByTestId('admin-menu'));
+  await fireEvent.press(screen.getByText('Definir senha de outra conta'));
   if (tipo === 'profissional') {
     await fireEvent.press(screen.getByTestId('admin-senha-tipo-profissional'));
   }

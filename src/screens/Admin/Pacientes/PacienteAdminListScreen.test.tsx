@@ -49,7 +49,8 @@ function conteudo(role = 'ROLE_ADMIN') {
 
 async function abrirLista() {
   const view = await render(conteudo());
-  await fireEvent.press(screen.getByTestId('admin-abrir-pacientes'));
+  await fireEvent.press(screen.getByTestId('admin-menu'));
+  await fireEvent.press(screen.getByText('Gerenciar pacientes'));
   return view;
 }
 

@@ -81,7 +81,8 @@ function conteudo(role = 'ROLE_ADMIN') {
 
 async function abrirEdicao() {
   const view = await render(conteudo());
-  await fireEvent.press(screen.getByTestId('admin-abrir-pacientes'));
+  await fireEvent.press(screen.getByTestId('admin-menu'));
+  await fireEvent.press(screen.getByText('Gerenciar pacientes'));
   await fireEvent.press(await screen.findByTestId('admin-paciente-12'));
   await screen.findByTestId('admin-paciente-salvar');
   return view;
@@ -217,7 +218,8 @@ describe('Admin - Editar Paciente', () => {
   it('oferece nova tentativa ao carregar e oculta formulário quando o servidor nega acesso', async () => {
     service.buscarPorId.mockRejectedValueOnce(networkError()).mockRejectedValueOnce(httpError(403));
     await render(conteudo());
-    await fireEvent.press(screen.getByTestId('admin-abrir-pacientes'));
+    await fireEvent.press(screen.getByTestId('admin-menu'));
+    await fireEvent.press(screen.getByText('Gerenciar pacientes'));
     await fireEvent.press(await screen.findByTestId('admin-paciente-12'));
     await fireEvent.press(await screen.findByText('Tentar novamente'));
     await screen.findByText('Você não tem permissão para administrar pacientes.');
@@ -230,7 +232,8 @@ describe('Admin - Editar Paciente', () => {
       .mockRejectedValueOnce(networkError());
     await render(conteudo());
     await screen.findByText('Dra. Ana');
-    await fireEvent.press(screen.getByTestId('admin-abrir-pacientes'));
+    await fireEvent.press(screen.getByTestId('admin-menu'));
+    await fireEvent.press(screen.getByText('Gerenciar pacientes'));
     await fireEvent.press(await screen.findByTestId('admin-paciente-12'));
     await screen.findByText('Não foi possível carregar os profissionais responsáveis.');
     expect(screen.queryByTestId('admin-paciente-salvar')).toBeNull();
