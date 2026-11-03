@@ -32,6 +32,7 @@ export type ProfissionalStackParamList = {
 
 /** Área do paciente disponível nesta entrega. */
 export type PacienteStackParamList = {
+  AlterarSenha: undefined;
   Mensagens: undefined;
   MensagemThread: { profissionalId: number; nome?: string };
 };
