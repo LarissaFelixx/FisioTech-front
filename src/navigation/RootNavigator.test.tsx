@@ -60,6 +60,7 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     await renderRoot({ status: 'signedIn', user: usuarioProfissional });
 
     expect(await screen.findByText('Bem-vindo(a),')).toBeOnTheScreen();
+    expect(screen.queryByTestId('paciente-menu')).toBeNull();
     expect(consultaService.listarTodos).toHaveBeenCalled();
     expect(pacienteService.listarTodos).toHaveBeenCalled();
   });
@@ -72,7 +73,11 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     });
     expect(await screen.findByTestId('chat-inbox')).toBeOnTheScreen();
     await waitFor(() => expect(meService.minhasConversas).toHaveBeenCalled());
-    await fireEvent.press(screen.getByTestId('paciente-sair'));
+    await fireEvent.press(screen.getByTestId('paciente-menu'));
+    await fireEvent.press(screen.getByTestId('profile-menu-overlay'));
+    expect(value.logout).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getByTestId('paciente-menu'));
+    await fireEvent.press(screen.getByTestId('menu-sair'));
     expect(value.logout).toHaveBeenCalled();
   });
 

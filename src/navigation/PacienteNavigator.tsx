@@ -1,17 +1,50 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { ProfileMenu } from '../components/ProfileMenu/ProfileMenu';
 import { useAuth } from '../hooks/useAuth';
 import { PacienteChatScreen } from '../screens/Chat/PacienteChatScreen';
 import { PacienteInboxScreen } from '../screens/Chat/PacienteInboxScreen';
 import { colors, fonts, spacing } from '../theme';
+import { ROLES } from '../types/auth';
 import type { PacienteStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<PacienteStackParamList>();
 
-/** Primeira área do paciente: caixa de entrada e conversas HTTP. */
+function MenuPaciente() {
+  const { status, user, logout } = useAuth();
+  const [aberto, setAberto] = useState(false);
+
+  if (status !== 'signedIn' || user?.role !== ROLES.paciente) {
+    return null;
+  }
+
+  return (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Abrir menu do paciente"
+        accessibilityState={{ expanded: aberto }}
+        testID="paciente-menu"
+        onPress={() => setAberto(true)}
+        style={styles.trigger}
+      >
+        <Text style={styles.label}>Menu</Text>
+      </Pressable>
+      <ProfileMenu
+        visible={aberto}
+        nome={user.nome}
+        items={[]}
+        onClose={() => setAberto(false)}
+        onLogout={() => void logout()}
+      />
+    </>
+  );
+}
+
+/** Área do paciente: caixa de entrada e conversas HTTP. */
 export function PacienteNavigator() {
-  const { logout } = useAuth();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -25,17 +58,7 @@ export function PacienteNavigator() {
         component={PacienteInboxScreen}
         options={{
           title: 'Mensagens',
-          headerRight: () => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Sair"
-              testID="paciente-sair"
-              onPress={() => void logout()}
-              style={styles.logout}
-            >
-              <Text style={styles.label}>Sair</Text>
-            </Pressable>
-          ),
+          headerRight: () => <MenuPaciente />,
         }}
       />
       <Stack.Screen
@@ -48,6 +71,6 @@ export function PacienteNavigator() {
 }
 
 const styles = StyleSheet.create({
-  logout: { padding: spacing.sm },
+  trigger: { padding: spacing.sm },
   label: { color: colors.primaryDark, fontFamily: fonts.semibold },
 });
