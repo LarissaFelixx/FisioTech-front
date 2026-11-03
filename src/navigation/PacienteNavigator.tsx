@@ -9,6 +9,7 @@ import { colors, fonts, spacing } from '../theme';
 import type { PacienteStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<PacienteStackParamList>();
+const senhaTriggerStyle = { padding: spacing.sm, marginRight: spacing.sm };
 
 /** Primeira área do paciente: caixa de entrada e conversas HTTP. */
 export function PacienteNavigator() {
@@ -26,7 +27,7 @@ export function PacienteNavigator() {
               accessibilityLabel="Alterar minha senha"
               testID="paciente-abrir-senha"
               onPress={() => navigation.navigate('AlterarSenha')}
-              style={styles.senha}
+              style={senhaTriggerStyle}
             >
               <Text style={styles.label}>Senha</Text>
             </Pressable>
@@ -67,7 +68,6 @@ export function PacienteNavigator() {
 }
 
 const styles = StyleSheet.create({
-  senha: { padding: spacing.sm, marginRight: spacing.sm },
   logout: { padding: spacing.sm },
   label: { color: colors.primaryDark, fontFamily: fonts.semibold },
 });
