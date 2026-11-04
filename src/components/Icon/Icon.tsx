@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 
-/** Ícones de `core/ui/icon/icon.ts` do Angular (mesmos paths SVG, 24×24, traço). */
+/**
+ * Ícones de `core/ui/icon/icon.ts` do Angular (mesmos paths SVG, 24×24, traço), mais os que as
+ * telas do paciente do Figma pedem (`log-out`, `clock`, `map-pin` e `monitor`, no estilo Feather).
+ */
 export type IconName =
   | 'home'
   | 'users'
@@ -23,7 +26,11 @@ export type IconName =
   | 'chevron-right'
   | 'x'
   | 'heart'
-  | 'credit-card';
+  | 'credit-card'
+  | 'log-out'
+  | 'clock'
+  | 'map-pin'
+  | 'monitor';
 
 const ICONS: Record<IconName, { strokeWidth: number; body: ReactNode }> = {
   home: {
@@ -224,6 +231,44 @@ const ICONS: Record<IconName, { strokeWidth: number; body: ReactNode }> = {
       <>
         <Rect x="2" y="5" width="20" height="14" rx="2" />
         <Line x1="2" y1="10" x2="22" y2="10" />
+      </>
+    ),
+  },
+  'log-out': {
+    strokeWidth: 2,
+    body: (
+      <>
+        <Path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <Polyline points="16 17 21 12 16 7" />
+        <Line x1="21" y1="12" x2="9" y2="12" />
+      </>
+    ),
+  },
+  clock: {
+    strokeWidth: 2,
+    body: (
+      <>
+        <Circle cx="12" cy="12" r="10" />
+        <Polyline points="12 6 12 12 16 14" />
+      </>
+    ),
+  },
+  'map-pin': {
+    strokeWidth: 2,
+    body: (
+      <>
+        <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <Circle cx="12" cy="10" r="3" />
+      </>
+    ),
+  },
+  monitor: {
+    strokeWidth: 2,
+    body: (
+      <>
+        <Rect x="2" y="3" width="20" height="14" rx="2" />
+        <Line x1="8" y1="21" x2="16" y2="21" />
+        <Line x1="12" y1="17" x2="12" y2="21" />
       </>
     ),
   },
