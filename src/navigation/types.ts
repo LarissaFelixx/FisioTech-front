@@ -54,6 +54,7 @@ export type PacienteTabsParamList = {
 export type PacienteStackParamList = {
   Tabs: NavigatorScreenParams<PacienteTabsParamList>;
   MensagemThread: { profissionalId: number; nome?: string };
+  AlterarSenha: undefined;
   ConsultaDetalhe: { id: number };
   MeuTratamento: undefined;
   MarcarConsulta: undefined;
