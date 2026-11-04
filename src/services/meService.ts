@@ -9,6 +9,7 @@ import type {
 } from '../types/consultaBooking';
 import type { Mensagem, MinhaConversaItem } from '../types/mensagem';
 import type { MePerfilUpdateRequest, Paciente } from '../types/paciente';
+import type { EvolucaoClinica, PlanoTerapeutico } from '../types/prontuario';
 
 /** Origem: `core/me/me.service.ts`: autoatendimento do paciente logado (`/me/**`). */
 export const meService = {
@@ -108,6 +109,18 @@ export const meService = {
       { params: { data } },
     );
     return resposta.data;
+  },
+
+  /** `GET /me/prontuario/planos`: revisões visíveis ao paciente, da mais nova para a mais antiga */
+  async meusPlanos(): Promise<PlanoTerapeutico[]> {
+    const { data } = await api.get<PlanoTerapeutico[]>('/me/prontuario/planos');
+    return data;
+  },
+
+  /** `GET /me/prontuario/evolucoes`: evoluções visíveis ao paciente, mais recentes primeiro */
+  async minhasEvolucoes(): Promise<EvolucaoClinica[]> {
+    const { data } = await api.get<EvolucaoClinica[]>('/me/prontuario/evolucoes');
+    return data;
   },
 
   /** `POST /me/consultas` (409 se o horário não estiver mais disponível) */

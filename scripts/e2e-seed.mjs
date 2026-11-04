@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Prepara dados para os testes e2e (Maestro) num backend FisioTech de DESENVOLVIMENTO:
- * cria um profissional, dois pacientes dele, consultas para hoje e uma consulta já realizada.
+ * cria um profissional, dois pacientes dele, consultas para hoje, uma consulta já realizada e o
+ * plano terapêutico e a evolução compartilhados com a primeira paciente.
  *
  * Nada de credencial fica no repositório. Tudo vem de variáveis de ambiente:
  *   E2E_API_URL        URL do backend visto do PC (padrão: http://localhost:8080)
@@ -163,6 +164,27 @@ await chamar('PUT', `/consultas/${realizadaId}`, {
     valor: null,
     quadroClinico: { queixaPrincipal: 'Dor no ombro direito ao elevar o braço.' },
     diagnostico: { planoTratamento: 'Fortalecimento de manguito rotador, 2x/semana.' },
+  },
+});
+
+// Prontuário compartilhado com a primeira paciente (tela #47, Meu Tratamento).
+const dataLocal = (d) => localDateTime(d).slice(0, 10);
+await chamar('POST', `/prontuario/pacientes/${porNome[nomes[0]]}/planos`, {
+  token: profToken,
+  body: {
+    objetivos: 'Reduzir a dor e recuperar a amplitude completa do ombro.',
+    condutas: 'Fortalecimento de manguito rotador, 2x/semana.',
+    dataInicio: dataLocal(realizadaEm),
+    dataFimPrevista: dataLocal(new Date(realizadaEm.getTime() + 45 * 24 * 60 * 60_000)),
+    visivelPaciente: true,
+  },
+});
+await chamar('POST', `/prontuario/pacientes/${porNome[nomes[0]]}/evolucoes`, {
+  token: profToken,
+  body: {
+    consultaId: realizadaId,
+    observacoes: 'Melhora da dor ao elevar o braço. Mantidos exercícios isométricos.',
+    visivelPaciente: true,
   },
 });
 

@@ -193,6 +193,14 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     e cadastro rápido), prontuário e exclusão.
   - `registro-clinico.yaml`: registro clínico da consulta nova em 4 etapas, saída no meio e
     retomada pelo prontuário, voltar com os dados mantidos, finalização e prontuário realizado.
+  - Área do paciente (atividades #41 a #47), com a paciente e os dados criados pelo seed:
+    - `paciente-menu.yaml`: abas, menu pelo avatar (Editar Perfil, Alterar Senha) e Sair (#46).
+    - `paciente-perfil.yaml`: edita e salva o Meu Perfil e confere ao entrar de novo (#44).
+    - `paciente-senha.yaml`: troca a senha, entra com a nova e volta para a original (#45).
+    - `paciente-consulta-detalhe.yaml`: detalhe da consulta, remarcar e cancelar (#41).
+    - `paciente-consulta-realizada.yaml`: consulta realizada com o convite para avaliar (#42).
+    - `paciente-avaliar.yaml`: avalia a consulta realizada; roda depois do anterior (#43).
+    - `paciente-tratamento.yaml`: plano terapêutico e evoluções compartilhados (#47).
   - Para rodar só alguns fluxos: `npm run test:e2e -- .maestro/profissional-consultas.yaml`.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).

@@ -32,6 +32,8 @@ beforeEach(() => {
     ]);
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
   jest.mocked(meService.minhaConsulta).mockResolvedValue(consulta({ id: 1 }));
+  jest.mocked(meService.meusPlanos).mockResolvedValue([]);
+  jest.mocked(meService.minhasEvolucoes).mockResolvedValue([]);
   jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
   jest.mocked(meService.buscarProfissionais).mockResolvedValue([]);
 });
@@ -141,9 +143,7 @@ describe('Home do paciente (#38)', () => {
 
     await fireEvent.press(screen.getByTestId('tab-home'));
     await fireEvent.press(screen.getByTestId('home-meu-tratamento'));
-    expect(
-      await screen.findByText('O seu tratamento chega com a atividade #47.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Meu tratamento' })).toBeOnTheScreen();
   });
 
   it('o avatar abre o menu, que encerra a sessão em "Sair"', async () => {

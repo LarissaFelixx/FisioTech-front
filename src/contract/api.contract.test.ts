@@ -450,6 +450,41 @@ describe('contrato com o backend real', () => {
         comentario: 'Ótimo atendimento',
       });
     });
+    it('meu tratamento: vê só o plano e as evoluções que o profissional compartilhou', async () => {
+      await entrarComo(prof.email, prof.senha);
+      await api.post(`/prontuario/pacientes/${paciente2Id}/planos`, {
+        objetivos: 'Reduzir a dor',
+        condutas: 'Fortalecimento 2x/semana',
+        dataInicio: '2026-08-12',
+        dataFimPrevista: '2026-09-30',
+        visivelPaciente: true,
+      });
+      await api.post(`/prontuario/pacientes/${paciente2Id}/evolucoes`, {
+        observacoes: 'Melhora da dor',
+        conduta: 'Manter protocolo',
+        visivelPaciente: true,
+      });
+      await api.post(`/prontuario/pacientes/${paciente2Id}/evolucoes`, {
+        observacoes: 'Anotação interna',
+        visivelPaciente: false,
+      });
+
+      await entrarComo(paciente2.email, paciente2.senha);
+      const planos = await meService.meusPlanos();
+      expect(planos).toHaveLength(1);
+      expect(planos[0]).toMatchObject({
+        profissionalId: profId,
+        revisao: 1,
+        objetivos: 'Reduzir a dor',
+        dataInicio: '2026-08-12',
+        dataFimPrevista: '2026-09-30',
+        status: 'ATIVO',
+      });
+      const evolucoes = await meService.minhasEvolucoes();
+      expect(evolucoes.map((e) => e.observacoes)).toEqual(['Melhora da dor']);
+      expect(evolucoes[0]).toMatchObject({ conduta: 'Manter protocolo', profissionalId: profId });
+      expect(evolucoes[0].dataRegistro).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+    });
   });
 
   describe('admin: pacientes', () => {

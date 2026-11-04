@@ -39,6 +39,8 @@ export const queryKeys = {
   me: {
     todos: ['me'] as const,
     perfil: () => ['me', 'perfil'] as const,
+    planos: () => ['me', 'prontuario', 'planos'] as const,
+    evolucoes: () => ['me', 'prontuario', 'evolucoes'] as const,
     consultas: () => ['me', 'consultas'] as const,
     consulta: (id: number) => ['me', 'consultas', id] as const,
     conversas: () => ['me', 'conversas'] as const,
