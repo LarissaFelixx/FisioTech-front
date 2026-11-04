@@ -1,0 +1,34 @@
+# Minhas Consultas (#39) contra o backend REAL: a consulta online com Unimed que o seed marca
+# para daqui a uma hora aparece na lista, abre o detalhe, e "Marcar Consulta" abre a marcação.
+appId: host.exp.exponent
+name: Paciente — minhas consultas
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-consultas'
+- extendedWaitUntil:
+    visible:
+      id: 'consultas-lista'
+    timeout: 15000
+- assertVisible: 'Minhas Consultas'
+- assertVisible: '\d{2}/\d{2}/\d{4} \d{2}:\d{2} · Online'
+- assertVisible: 'Unimed'
+- assertVisible: 'Agendada'
+
+# A consulta abre o detalhe.
+- tapOn: '\d{2}/\d{2}/\d{4} \d{2}:\d{2} · Online'
+- extendedWaitUntil:
+    visible: 'O detalhe da consulta chega com a atividade #41.'
+    timeout: 10000
+- back
+
+# "Marcar Consulta" abre a marcação.
+- tapOn:
+    id: 'consultas-marcar'
+- extendedWaitUntil:
+    visible: 'Marcar consulta'
+    timeout: 10000
