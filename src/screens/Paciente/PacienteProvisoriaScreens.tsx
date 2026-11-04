@@ -36,10 +36,6 @@ function Provisoria({
   );
 }
 
-export function PerfilProvisoriaScreen() {
-  return <Provisoria titulo="Meu Perfil" aviso="O seu perfil chega com a atividade #44." />;
-}
-
 export function AlterarSenhaProvisoriaScreen() {
   return <Provisoria abaixoDoHeader aviso="A troca de senha chega com a atividade #45." />;
 }

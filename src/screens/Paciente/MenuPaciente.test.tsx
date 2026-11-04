@@ -15,6 +15,21 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
   jest.mocked(meService.minhasConsultas).mockResolvedValue([]);
+  jest.mocked(meService.perfil).mockResolvedValue({
+    id: 5,
+    nome: 'Marcos Coelho',
+    email: 'marcos@x.com',
+    profissionalId: null,
+    profissionalNome: null,
+    dataNascimento: null,
+    sexo: null,
+    profissao: null,
+    telefone: null,
+    endereco: null,
+    bairro: null,
+    foto: null,
+    dataCriacao: '2025-03-12T10:00:00',
+  });
 });
 
 async function montar() {
@@ -77,7 +92,7 @@ describe('Navegação do paciente', () => {
     expect(screen.getByTestId('menu-lateral')).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByTestId('menu-editar-perfil'));
-    expect(await screen.findByText('O seu perfil chega com a atividade #44.')).toBeOnTheScreen();
+    expect(await screen.findByText('Cadastrado em 12/03/2025')).toBeOnTheScreen();
     expect(screen.queryByTestId('menu-lateral')).not.toBeOnTheScreen();
   });
 

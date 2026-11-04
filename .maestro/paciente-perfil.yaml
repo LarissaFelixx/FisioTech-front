@@ -1,0 +1,55 @@
+# Atividade #44: Meu Perfil contra o backend REAL.
+# Aba Perfil → edita nascimento, sexo e telefone → salva → entra de novo: dados persistidos.
+appId: host.exp.exponent
+name: Paciente — meu perfil
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- evalScript: ${output.telefone = '8599' + String(Date.now()).slice(-7)}
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-perfil'
+- extendedWaitUntil:
+    visible: 'Cadastrado em .*'
+    timeout: 20000
+- assertVisible: 'Meu Perfil'
+- assertVisible: 'Maria Paciente E2E'
+
+- tapOn:
+    id: 'perfil-dataNascimento'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- eraseText: 12
+- inputText: '14051990'
+# Fecha o teclado antes de seguir: com ele aberto o layout se desloca e o próximo toque pode não
+# mudar o foco de campo.
+- hideKeyboard
+- tapOn:
+    id: 'perfil-sexo-Feminino'
+- scrollUntilVisible:
+    element:
+      id: 'perfil-telefone'
+    direction: DOWN
+- tapOn:
+    id: 'perfil-telefone'
+- eraseText: 20
+- inputText: ${output.telefone}
+- hideKeyboard
+- takeScreenshot: paciente-perfil
+- tapOn:
+    id: 'perfil-salvar'
+- extendedWaitUntil:
+    visible: 'Perfil atualizado com sucesso.'
+    timeout: 20000
+
+# Entra de novo do zero: o perfil é relido do backend.
+- runFlow: subflows/login-paciente.yaml
+- tapOn:
+    id: 'tab-perfil'
+- extendedWaitUntil:
+    visible: '14/05/1990'
+    timeout: 20000
+- scrollUntilVisible:
+    element: ${output.telefone}
+    direction: DOWN
