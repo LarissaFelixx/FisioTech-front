@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react-native';
 
+import { ConfirmDialogProvider } from '../../../components/ConfirmDialog/ConfirmDialog';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
 import { meService } from '../../../services/meService';
@@ -40,6 +41,7 @@ describe('regras de Minhas Consultas', () => {
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
+  jest.mocked(meService.minhaConsulta).mockResolvedValue(consulta({ id: 2 }));
   jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
   jest.mocked(meService.buscarProfissionais).mockResolvedValue([]);
   jest.mocked(meService.minhasConsultas).mockResolvedValue([
@@ -59,7 +61,9 @@ async function montarNaAba() {
   await render(
     <Providers navigation>
       <AuthContext.Provider value={authValue({ user: paciente })}>
-        <PacienteNavigator />
+        <ConfirmDialogProvider>
+          <PacienteNavigator />
+        </ConfirmDialogProvider>
       </AuthContext.Provider>
     </Providers>,
   );
@@ -105,9 +109,7 @@ describe('Minhas Consultas (#39)', () => {
     await montarNaAba();
 
     await fireEvent.press(await screen.findByTestId('minha-consulta-2'));
-    expect(
-      await screen.findByText('O detalhe da consulta chega com a atividade #41.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByTestId('consulta-paciente')).toBeOnTheScreen();
   });
 
   it('"Marcar Consulta" abre a marcação', async () => {

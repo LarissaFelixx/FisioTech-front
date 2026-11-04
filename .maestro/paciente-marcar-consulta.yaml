@@ -47,7 +47,8 @@ env:
 - tapOn:
     id: 'confirm-confirmar'
 - extendedWaitUntil:
-    visible: 'O detalhe da consulta chega com a atividade #41.'
+    visible:
+      id: 'consulta-paciente'
     timeout: 15000
 - back
 

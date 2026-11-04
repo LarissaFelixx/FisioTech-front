@@ -49,6 +49,7 @@ beforeEach(() => {
     .mocked(meService.buscarDisponibilidade)
     .mockImplementation(async (_id, data) => grade(data, ['10:00:00']));
   jest.mocked(meService.marcarConsulta).mockResolvedValue(consulta({ id: 77 }));
+  jest.mocked(meService.minhaConsulta).mockResolvedValue(consulta({ id: 77 }));
 });
 
 /** Abre a marcação como o paciente faz: aba Consultas → "Marcar Consulta". */
@@ -108,9 +109,7 @@ describe('Marcar consulta (#40), paciente com profissional', () => {
         convenio: null,
       }),
     );
-    expect(
-      await screen.findByText('O detalhe da consulta chega com a atividade #41.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByTestId('consulta-paciente')).toBeOnTheScreen();
   });
 
   it('"Não" na confirmação não marca nada', async () => {

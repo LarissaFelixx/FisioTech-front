@@ -36,10 +36,6 @@ function Provisoria({
   );
 }
 
-export function ConsultaDetalheProvisoriaScreen() {
-  return <Provisoria abaixoDoHeader aviso="O detalhe da consulta chega com a atividade #41." />;
-}
-
 export function MeuTratamentoProvisoriaScreen() {
   return <Provisoria abaixoDoHeader aviso="O seu tratamento chega com a atividade #47." />;
 }
