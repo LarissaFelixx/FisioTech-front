@@ -22,7 +22,8 @@ env:
 - tapOn:
     id: 'home-ver-detalhes'
 - extendedWaitUntil:
-    visible: 'O detalhe da consulta chega com a atividade #41.'
+    visible:
+      id: 'consulta-paciente'
     timeout: 10000
 - back
 

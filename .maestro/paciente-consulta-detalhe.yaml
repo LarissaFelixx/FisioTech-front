@@ -1,5 +1,5 @@
 # Atividade #41: Consulta Detalhe do Paciente contra o backend REAL.
-# Abre a consulta do seed (online, Unimed) pela aba Consultas → remarca para amanhã às 14:00 →
+# Abre a consulta do seed (online, Unimed) pela aba Consultas → remarca para amanhã às 15:00 →
 # cancela com confirmação.
 appId: host.exp.exponent
 name: Paciente — detalhe da consulta (remarcar e cancelar)
@@ -34,7 +34,7 @@ env:
 - assertVisible: 'Unimed'
 - takeScreenshot: paciente-consulta-detalhe
 
-# Remarcar para amanhã às 14:00.
+# Remarcar para amanhã às 15:00 (às 14:00 já está ocupado por paciente-marcar-consulta.yaml).
 - tapOn:
     id: 'consulta-remarcar'
 - scrollUntilVisible:
@@ -45,22 +45,22 @@ env:
     id: 'dia-${output.amanhaIso}'
 - scrollUntilVisible:
     element:
-      id: 'horario-14:00'
+      id: 'horario-15:00'
     direction: DOWN
 - tapOn:
-    id: 'horario-14:00'
+    id: 'horario-15:00'
 - scrollUntilVisible:
     element:
       id: 'consulta-remarcar-confirmar'
     direction: DOWN
-- assertVisible: 'Confirmar .*, 14:00'
+- assertVisible: 'Confirmar .*, 15:00'
 - takeScreenshot: paciente-consulta-remarcar
 - tapOn:
     id: 'consulta-remarcar-confirmar'
 - scrollUntilVisible:
     element: ${output.amanhaBr}
     direction: UP
-- assertVisible: '14:00'
+- assertVisible: '15:00'
 
 # Cancelar com confirmação.
 - scrollUntilVisible:
