@@ -1,0 +1,56 @@
+# Home do paciente (#38) contra o backend REAL: o seed marca uma consulta online para daqui a
+# uma hora com o profissional do seed, que vira o destaque. Confere os atalhos e sai pelo menu.
+appId: host.exp.exponent
+name: Paciente — home
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+  PROF_NOME: Dra. Teste E2E
+---
+- runFlow: subflows/login-paciente.yaml
+- assertVisible: 'Maria Paciente E2E'
+
+# Destaque da próxima consulta.
+- extendedWaitUntil:
+    visible:
+      id: 'home-proxima-consulta'
+    timeout: 15000
+- assertVisible: 'Sua próxima consulta'
+- assertVisible: '${PROF_NOME} · Online'
+- assertVisible: '.*consultas? · .*agendadas?'
+- tapOn:
+    id: 'home-ver-detalhes'
+- extendedWaitUntil:
+    visible: 'O detalhe da consulta chega com a atividade #41.'
+    timeout: 10000
+- back
+
+# Atalhos.
+- tapOn:
+    id: 'home-mensagens'
+- extendedWaitUntil:
+    visible: 'Conversas'
+    timeout: 15000
+- tapOn:
+    id: 'tab-home'
+- tapOn:
+    id: 'home-minhas-consultas'
+- extendedWaitUntil:
+    visible: 'Minhas Consultas'
+    timeout: 10000
+- tapOn:
+    id: 'tab-home'
+
+# Menu pelo avatar.
+- tapOn:
+    id: 'paciente-avatar'
+- extendedWaitUntil:
+    visible:
+      id: 'menu-lateral'
+    timeout: 10000
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
