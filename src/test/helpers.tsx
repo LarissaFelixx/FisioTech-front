@@ -12,6 +12,7 @@ import type { ReactNode } from 'react';
 
 import type { TokenStorage } from '../services/tokenStorage';
 import type { Consulta } from '../types/consulta';
+import type { Paciente } from '../types/paciente';
 
 /** Erro HTTP do axios com o status informado. */
 export function httpError(status: number, config?: InternalAxiosRequestConfig): AxiosError {
@@ -130,6 +131,26 @@ export function consulta(parcial: Partial<Consulta> = {}): Consulta {
     exameFisico: { postura: null, amplitudeMovimento: null, palpacao: null, forcaMuscular: null },
     diagnostico: { planoTratamento: null, objetivosTratamento: null },
     dataCriacao: '2026-09-01T10:00:00',
+    ...parcial,
+  };
+}
+
+/** Paciente como o `GET /me` devolve, com valores padrão. */
+export function paciente(parcial: Partial<Paciente> = {}): Paciente {
+  return {
+    id: 5,
+    nome: 'Marcos Coelho',
+    email: 'marcos@x.com',
+    profissionalId: null,
+    profissionalNome: null,
+    dataNascimento: null,
+    sexo: null,
+    profissao: null,
+    telefone: null,
+    endereco: null,
+    bairro: null,
+    foto: null,
+    dataCriacao: '2025-03-12T10:00:00',
     ...parcial,
   };
 }
