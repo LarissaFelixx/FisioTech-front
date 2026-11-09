@@ -4,16 +4,16 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BackLink } from '../../components/BackLink/BackLink';
 import { Button } from '../../components/Button/Button';
 import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 import { SwitchCard } from '../../components/SwitchCard/SwitchCard';
 import { TextField } from '../../components/TextField/TextField';
+import { VoltarLink } from '../../components/VoltarLink/VoltarLink';
 import { usePlanos, useRevisarPlano } from '../../hooks/usePlanos';
 import type { ProfissionalStackParamList } from '../../navigation/types';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
-import type { PlanoTerapeutico } from '../../types/plano';
+import type { PlanoTerapeutico } from '../../types/prontuario';
 import { clock } from '../../utils/clock';
 import { mascararData } from '../../utils/date';
 import {
@@ -39,7 +39,9 @@ export function RevisarPlanoScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
-      <BackLink label="Prontuário" onPress={() => navigation.goBack()} testID="plano-voltar" />
+      <View style={styles.voltar}>
+        <VoltarLink label="Prontuário" onPress={() => navigation.goBack()} testID="plano-voltar" />
+      </View>
       {planos.isPending ? (
         <View style={styles.centro}>
           <Skeleton variant="form" count={4} />
@@ -53,13 +55,22 @@ export function RevisarPlanoScreen() {
           />
         </View>
       ) : (
-        <Formulario pacienteId={params.pacienteId} atual={planoParaPreencher(planos.data)} />
+        <Formulario
+          pacienteId={params.pacienteId}
+          consultaId={params.consultaId}
+          atual={planoParaPreencher(planos.data)}
+        />
       )}
     </SafeAreaView>
   );
 }
 
-function Formulario({ pacienteId, atual }: { pacienteId: number; atual: PlanoTerapeutico | null }) {
+function Formulario(props: {
+  pacienteId: number;
+  consultaId: number;
+  atual: PlanoTerapeutico | null;
+}) {
+  const { pacienteId, consultaId, atual } = props;
   const navigation = useNavigation<Navigation>();
   const revisar = useRevisarPlano();
   // Parte do plano lido ao abrir; não é refeito quando a lista é recarregada.
@@ -81,7 +92,7 @@ function Formulario({ pacienteId, atual }: { pacienteId: number; atual: PlanoTer
     }
     try {
       await revisar.mutateAsync({ pacienteId, request: montarPlano(form) });
-      navigation.goBack();
+      navigation.popTo('Prontuario', { id: consultaId, aviso: 'plano' });
     } catch (e) {
       setErro(mensagemErroSalvar(e));
     }
@@ -179,6 +190,7 @@ function Formulario({ pacienteId, atual }: { pacienteId: number; atual: PlanoTer
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
+  voltar: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
   centro: { flex: 1, padding: spacing.xl },
   content: { padding: spacing.xl, paddingTop: spacing.sm, gap: spacing.lg },
   cabecalho: { gap: spacing.xxs },

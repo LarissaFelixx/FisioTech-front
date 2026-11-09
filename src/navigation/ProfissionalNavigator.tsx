@@ -14,6 +14,7 @@ import { PacienteListScreen } from '../screens/Pacientes/PacienteListScreen';
 import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { RevisarPlanoScreen } from '../screens/Plano/RevisarPlanoScreen';
 import { ProfissionalHomeScreen } from '../screens/ProfissionalHome/ProfissionalHomeScreen';
+import { ProntuarioScreen } from '../screens/Prontuario/ProntuarioScreen';
 import { colors, fonts } from '../theme';
 import type { ProfissionalStackParamList, ProfissionalTabsParamList } from './types';
 
@@ -90,6 +91,11 @@ export function ProfissionalNavigator() {
         name="ConsultaWizard"
         component={ConsultaWizardScreen}
         options={{ title: 'Registro Clínico' }}
+      />
+      <Stack.Screen
+        name="Prontuario"
+        component={ProntuarioScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="NovaEvolucao"

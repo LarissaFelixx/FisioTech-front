@@ -1,4 +1,4 @@
-import type { PlanoCreateRequest, PlanoTerapeutico } from '../../types/plano';
+import type { PlanoCreateRequest, PlanoTerapeutico } from '../../types/prontuario';
 import { dataBrParaIso, formatDataBr, isoParaDataBr } from '../../utils/date';
 import { mensagemDeErro } from '../../utils/mensagensErro';
 import {

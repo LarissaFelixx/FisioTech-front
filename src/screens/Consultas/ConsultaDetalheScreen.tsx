@@ -128,18 +128,11 @@ function Prontuario(props: { consulta: Consulta; atualizando: boolean; onAtualiz
           testID="consulta-continuar-registro"
         />
       ) : (
-        <>
-          <Button
-            label="Nova evolução"
-            onPress={() => navigation.navigate('NovaEvolucao', { id: c.id })}
-            testID="consulta-nova-evolucao"
-          />
-          <Button
-            label="Revisar plano"
-            onPress={() => navigation.navigate('RevisarPlano', { pacienteId: c.pacienteId })}
-            testID="consulta-revisar-plano"
-          />
-        </>
+        <Button
+          label="Prontuário do paciente"
+          onPress={() => navigation.navigate('Prontuario', { id: c.id })}
+          testID="consulta-prontuario"
+        />
       )}
 
       {secoesProntuario(c).map((secao) => (

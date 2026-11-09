@@ -1,12 +1,34 @@
 import { api } from '../api/client';
-import type { EvolucaoCreateRequest } from '../types/evolucao';
-import type { PlanoCreateRequest, PlanoTerapeutico } from '../types/plano';
+import type {
+  EvolucaoClinica,
+  EvolucaoCreateRequest,
+  PlanoCreateRequest,
+  PlanoTerapeutico,
+} from '../types/prontuario';
 
-/** Prontuário do paciente mantido pelo profissional (`/prontuario/**`). */
+/**
+ * Prontuário do paciente mantido pelo profissional (`/prontuario/**`). O backend só devolve os
+ * registros do profissional logado e responde 404 para paciente de outro profissional.
+ */
 export const prontuarioService = {
+  /** `GET /prontuario/pacientes/{pacienteId}/evolucoes`: histórico, mais recentes primeiro */
+  async listarEvolucoes(pacienteId: number): Promise<EvolucaoClinica[]> {
+    const { data } = await api.get<EvolucaoClinica[]>(
+      `/prontuario/pacientes/${pacienteId}/evolucoes`,
+    );
+    return data;
+  },
+
   /** `POST /prontuario/pacientes/{pacienteId}/evolucoes` */
-  async criarEvolucao(pacienteId: number, request: EvolucaoCreateRequest): Promise<void> {
-    await api.post(`/prontuario/pacientes/${pacienteId}/evolucoes`, request);
+  async criarEvolucao(
+    pacienteId: number,
+    request: EvolucaoCreateRequest,
+  ): Promise<EvolucaoClinica> {
+    const { data } = await api.post<EvolucaoClinica>(
+      `/prontuario/pacientes/${pacienteId}/evolucoes`,
+      request,
+    );
+    return data;
   },
 
   /** `GET /prontuario/pacientes/{pacienteId}/planos`: revisões, da mais nova para a mais antiga */

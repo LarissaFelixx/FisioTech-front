@@ -1,5 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+import type { AvisoProntuario } from '../screens/Prontuario/prontuarioLogic';
+
 /** Rotas do fluxo não autenticado. */
 export type AuthStackParamList = {
   Login: undefined;
@@ -39,9 +41,12 @@ export type ProfissionalStackParamList = {
   MensagemThread: { pacienteId: number; nome?: string };
   ConsultaDetalhe: { id: number };
   ConsultaWizard: { id: number };
+  /** Prontuário do paciente da consulta `id`; `aviso` vem de Nova Evolução ou Revisar Plano. */
+  Prontuario: { id: number; aviso?: AvisoProntuario };
   /** `id` da consulta em que a evolução é registrada. */
   NovaEvolucao: { id: number };
-  RevisarPlano: { pacienteId: number };
+  /** `consultaId`: consulta do prontuário para onde a tela volta ao salvar. */
+  RevisarPlano: { pacienteId: number; consultaId: number };
   AlterarSenha: undefined;
 };
 
