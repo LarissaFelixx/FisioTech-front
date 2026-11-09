@@ -116,8 +116,13 @@ export function mensagemErroCadastroRapido(error: unknown): string {
 
 // ---------- Detalhe (prontuário) ----------
 
+/** 409: o backend recusa excluir consulta que tem evolução ou avaliação ligada a ela. */
 export function mensagemErroExcluirConsulta(error: unknown): string {
-  return mensagemDeErro(error, {}, 'Não foi possível excluir a consulta.');
+  return mensagemDeErro(
+    error,
+    { 409: 'Esta consulta tem evolução ou avaliação registrada e não pode ser excluída.' },
+    'Não foi possível excluir a consulta.',
+  );
 }
 
 export interface SecaoProntuario {
