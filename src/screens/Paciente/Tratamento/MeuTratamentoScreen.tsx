@@ -17,10 +17,12 @@ import {
   periodoPlano,
   planosAtuais,
 } from './tratamentoLogic';
+import { useRotuloVoltar } from '../rotuloVoltar';
 
 /** Meu Tratamento (#47, Figma "T1 Meu Tratamento"): plano terapêutico e evoluções. */
 export function MeuTratamentoScreen() {
   const navigation = useNavigation();
+  const voltarPara = useRotuloVoltar('Home');
   const planos = useMeusPlanos();
   const evolucoes = useMinhasEvolucoes();
   const atualizar = () => {
@@ -44,7 +46,9 @@ export function MeuTratamentoScreen() {
     const atuais = planosAtuais(planos.data);
     conteudo =
       atuais.length === 0 && evolucoes.data.length === 0 ? (
-        <Text style={styles.vazio}>{MENSAGEM_SEM_REGISTROS}</Text>
+        <Text style={styles.vazio} testID="tratamento-vazio">
+          {MENSAGEM_SEM_REGISTROS}
+        </Text>
       ) : (
         <>
           {atuais.map((p) => (
@@ -74,7 +78,7 @@ export function MeuTratamentoScreen() {
           />
         }
       >
-        <VoltarLink label="Home" onPress={() => navigation.goBack()} />
+        <VoltarLink label={voltarPara} onPress={() => navigation.goBack()} />
         <View>
           <Text style={styles.titulo} accessibilityRole="header">
             Meu tratamento

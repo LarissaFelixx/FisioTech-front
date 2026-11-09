@@ -17,7 +17,6 @@ import {
   podeAlterar,
   proximosDias,
   rotuloConfirmar,
-  rotuloVoltar,
   secoesClinicas,
   slotEscolhivel,
 } from './consultaPacienteLogic';
@@ -134,19 +133,6 @@ describe('consultaPacienteLogic', () => {
     expect(consultaNaoEncontrada(httpError(404))).toBe(true);
     expect(consultaNaoEncontrada(httpError(500))).toBe(false);
     expect(consultaNaoEncontrada(new Error('x'))).toBe(false);
-  });
-
-  it('rótulo do voltar segue a aba de onde o detalhe foi aberto', () => {
-    const tabs = (aba: string, index = 0) => ({
-      name: 'Tabs',
-      state: { index, routes: [{ name: aba }] },
-    });
-    expect(rotuloVoltar(tabs('Consultas'))).toBe('Minhas Consultas');
-    expect(rotuloVoltar(tabs('Home'))).toBe('Home');
-    expect(rotuloVoltar({ name: 'Tabs' })).toBe('Home');
-    expect(rotuloVoltar(tabs('Mensagens'))).toBe('Minhas Consultas');
-    expect(rotuloVoltar({ name: 'MarcarConsulta' })).toBe('Minhas Consultas');
-    expect(rotuloVoltar(undefined)).toBe('Minhas Consultas');
   });
 });
 
