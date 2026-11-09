@@ -31,6 +31,12 @@ export const queryKeys = {
     caixaEntrada: () => ['mensagens', 'caixa-entrada'] as const,
     conversa: (pacienteId: number) => ['mensagens', 'conversa', pacienteId] as const,
   },
+  /** Prontuário mantido pelo profissional (`/prontuario/**`). */
+  prontuario: {
+    todos: ['prontuario'] as const,
+    evolucoes: (pacienteId: number) => ['prontuario', 'evolucoes', pacienteId] as const,
+    planos: (pacienteId: number) => ['prontuario', 'planos', pacienteId] as const,
+  },
   avaliacoes: {
     todas: ['avaliacoes'] as const,
     daConsulta: (consultaId: number) => ['avaliacoes', 'consulta', consultaId] as const,

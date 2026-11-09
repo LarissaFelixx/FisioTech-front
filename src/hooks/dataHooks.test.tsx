@@ -8,6 +8,7 @@ import { mensagemService } from '../services/mensagemService';
 import { meService } from '../services/meService';
 import { pacienteAdminService, pacienteService } from '../services/pacienteService';
 import { profissionalService } from '../services/profissionalService';
+import { prontuarioService } from '../services/prontuarioService';
 import {
   consulta,
   createTestQueryClient,
@@ -24,6 +25,7 @@ import {
   useCriarConsulta,
   useDeletarConsulta,
 } from './useConsultas';
+import { useCriarEvolucao, useEvolucoes } from './useEvolucoes';
 import { useCaixaEntrada, useConversaComPaciente, useEnviarMensagem } from './useMensagens';
 import {
   useAtualizarMeuPerfil,
@@ -46,6 +48,7 @@ import {
   usePacientes,
   usePacientesAdmin,
 } from './usePacientes';
+import { usePlanos, useRevisarPlano } from './usePlanos';
 import {
   useAtualizarProfissional,
   useCriarProfissional,
@@ -59,6 +62,7 @@ jest.mock('../services/profissionalService');
 jest.mock('../services/mensagemService');
 jest.mock('../services/avaliacaoService');
 jest.mock('../services/meService');
+jest.mock('../services/prontuarioService');
 
 let queryClient: QueryClient;
 let invalidadas: unknown[][];
@@ -107,6 +111,8 @@ describe('queries chamam o service certo', () => {
       [5],
     ],
     ['useMinhasConsultas', () => useMinhasConsultas(), meService.minhasConsultas, []],
+    ['useEvolucoes(12)', () => useEvolucoes(12), prontuarioService.listarEvolucoes, [12]],
+    ['usePlanos(12)', () => usePlanos(12), prontuarioService.listarPlanos, [12]],
     [
       'useBuscarProfissionais',
       () => useBuscarProfissionais('Bia', 'Orto'),
@@ -221,6 +227,22 @@ describe('mutations chamam o service e invalidam o cache certo', () => {
       consultaService.deletar,
       [8],
       [queryKeys.consultas.todas],
+    ],
+    [
+      'useCriarEvolucao',
+      () => useCriarEvolucao(),
+      { pacienteId: 12, request: {} },
+      prontuarioService.criarEvolucao,
+      [12, {}],
+      [queryKeys.prontuario.evolucoes(12)],
+    ],
+    [
+      'useRevisarPlano',
+      () => useRevisarPlano(),
+      { pacienteId: 12, request: {} },
+      prontuarioService.revisarPlano,
+      [12, {}],
+      [queryKeys.prontuario.planos(12)],
     ],
     [
       'useCriarPaciente',
