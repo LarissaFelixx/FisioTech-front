@@ -22,8 +22,10 @@ import { mensagemService } from '../services/mensagemService';
 import { meService } from '../services/meService';
 import { pacienteAdminService, pacienteService } from '../services/pacienteService';
 import { adminService, profissionalService } from '../services/profissionalService';
+import { prontuarioService } from '../services/prontuarioService';
 import type { TokenStorage } from '../services/tokenStorage';
 import type { Consulta } from '../types/consulta';
+import type { PlanoCreateRequest } from '../types/prontuario';
 
 jest.mock('../api/client', () => {
   const { createApiClient } = jest.requireActual('../api/client');
@@ -111,6 +113,7 @@ let paciente1Id: number;
 let paciente2Id: number;
 let consultaDoProfId: number;
 let consultaMarcada: Consulta;
+let consultaComEvolucaoId: number;
 
 describe('contrato com o backend real', () => {
   describe('admin', () => {
@@ -505,6 +508,281 @@ describe('contrato com o backend real', () => {
         profissionalId: profId,
         profissionalNome: prof.nome,
       });
+    });
+  });
+
+  describe('prontuário do profissional (S5-07)', () => {
+    const plano: PlanoCreateRequest = {
+      objetivos: 'Recuperar a amplitude do ombro',
+      condutas: 'Fortalecimento 2x/semana',
+      dataInicio: '2026-08-12',
+      dataFimPrevista: '2026-09-30',
+      visivelPaciente: true,
+    };
+
+    it('evoluções: cria ligada à consulta e lista da mais recente para a mais antiga', async () => {
+      await entrarComo(prof.email, prof.senha);
+      const quando = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+      quando.setHours(10, 0, 0, 0);
+      consultaComEvolucaoId = await consultaService.criar({
+        pacienteId: paciente1Id,
+        dataHora: localDateTime(quando),
+        tipo: 'PRESENCIAL',
+        convenio: null,
+        valor: 150,
+      });
+      const primeira = await prontuarioService.criarEvolucao(paciente1Id, {
+        consultaId: consultaComEvolucaoId,
+        observacoes: 'Dor 6/10 na abdução',
+        procedimentos: null,
+        respostaPaciente: null,
+        conduta: null,
+        visivelPaciente: false,
+      });
+      expect(primeira).toMatchObject({
+        pacienteId: paciente1Id,
+        profissionalId: profId,
+        consultaId: consultaComEvolucaoId,
+        visivelPaciente: false,
+      });
+      expect(primeira.dataRegistro).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+
+      const segunda = await prontuarioService.criarEvolucao(paciente1Id, {
+        consultaId: null,
+        observacoes: 'Melhora da dor',
+        procedimentos: 'Isometria',
+        respostaPaciente: 'Boa',
+        conduta: 'Manter',
+        visivelPaciente: true,
+      });
+
+      const lista = await prontuarioService.listarEvolucoes(paciente1Id);
+      expect(lista.map((e) => e.id)).toEqual([segunda.id, primeira.id]);
+      expect(lista[0]).toMatchObject({ consultaId: null, procedimentos: 'Isometria' });
+    });
+
+    it('planos: cada revisão vira a ativa e a anterior fica SUBSTITUIDO (versões)', async () => {
+      const v1 = await prontuarioService.revisarPlano(paciente1Id, plano);
+      expect(v1).toMatchObject({ revisao: 1, status: 'ATIVO', dataInicio: '2026-08-12' });
+
+      const v2 = await prontuarioService.revisarPlano(paciente1Id, {
+        ...plano,
+        condutas: 'Fortalecimento 3x/semana',
+        dataFimPrevista: null,
+      });
+      expect(v2).toMatchObject({ revisao: 2, status: 'ATIVO', dataFimPrevista: null });
+
+      const versoes = await prontuarioService.listarPlanos(paciente1Id);
+      expect(versoes.map((p) => [p.revisao, p.status])).toEqual([
+        [2, 'ATIVO'],
+        [1, 'SUBSTITUIDO'],
+      ]);
+    });
+
+    it('consulta com evolução não pode ser excluída (409)', async () => {
+      await expect(consultaService.deletar(consultaComEvolucaoId)).rejects.toMatchObject({
+        response: { status: 409 },
+      });
+    });
+
+    it('término antes do início e campos obrigatórios respondem 400', async () => {
+      await expect(
+        prontuarioService.revisarPlano(paciente1Id, {
+          ...plano,
+          dataInicio: '2026-09-30',
+          dataFimPrevista: '2026-08-12',
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: { message: 'A data final não pode ser anterior à data inicial.' },
+        },
+      });
+      await expect(
+        prontuarioService.criarEvolucao(paciente1Id, {
+          consultaId: null,
+          observacoes: '  ',
+          procedimentos: null,
+          respostaPaciente: null,
+          conduta: null,
+          visivelPaciente: true,
+        }),
+      ).rejects.toMatchObject({ response: { status: 400 } });
+    });
+
+    it('paciente ou consulta de outro profissional respondem 404', async () => {
+      await entrarComo(adminEmail, adminSenha);
+      const outro = {
+        nome: `Dr. Outro ${sufixo}`,
+        email: `contrato.outro.${sufixo}@fisiotech.test`,
+        senha: `senha-${sufixo}`,
+      };
+      await profissionalService.criar({
+        ...outro,
+        registroProfissional: `O-${sufixo % 1e9}`,
+        especialidade: 'Outra',
+        valorConsultaParticular: null,
+        conveniosAceitos: [],
+        foto: null,
+        dataNascimento: null,
+        sexo: null,
+        telefone: null,
+      });
+
+      await entrarComo(outro.email, outro.senha);
+      for (const chamada of [
+        () => prontuarioService.listarPlanos(paciente1Id),
+        () => prontuarioService.listarEvolucoes(paciente1Id),
+        () => prontuarioService.revisarPlano(paciente1Id, plano),
+      ]) {
+        await expect(chamada()).rejects.toMatchObject({ response: { status: 404 } });
+      }
+
+      // A consulta precisa ser do mesmo paciente e do profissional logado.
+      await entrarComo(prof.email, prof.senha);
+      await expect(
+        prontuarioService.criarEvolucao(paciente2Id, {
+          consultaId: consultaDoProfId,
+          observacoes: 'Consulta de outro paciente',
+          procedimentos: null,
+          respostaPaciente: null,
+          conduta: null,
+          visivelPaciente: true,
+        }),
+      ).rejects.toMatchObject({
+        response: { status: 404, data: { message: 'Consulta não encontrada.' } },
+      });
+    });
+  });
+
+  describe('autenticação, permissões dos três perfis e respostas de erro (S5-09)', () => {
+    type Metodo = 'GET' | 'POST' | 'PUT' | 'DELETE';
+    const tokens: Record<'admin' | 'profissional' | 'paciente', string> = {
+      admin: '',
+      profissional: '',
+      paciente: '',
+    };
+
+    /** Chamada crua (sem os interceptors do app), para ver o status e o corpo do backend. */
+    async function chamar(metodo: Metodo, url: string, token?: string, data?: unknown) {
+      const r = await publicApi.request({
+        method: metodo,
+        url,
+        data,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        validateStatus: () => true,
+      });
+      return { status: r.status, data: r.data as Record<string, unknown> };
+    }
+
+    it('cada perfil entra e /auth/me devolve o papel certo', async () => {
+      for (const [perfil, email, senha, role] of [
+        ['admin', adminEmail, adminSenha, 'ROLE_ADMIN'],
+        ['profissional', prof.email, prof.senha, 'ROLE_PROFISSIONAL'],
+        ['paciente', paciente2.email, paciente2.senha, 'ROLE_PACIENTE'],
+      ] as const) {
+        const sessao = await entrarComo(email, senha);
+        tokens[perfil] = sessao.getAccessToken()!;
+        const me = await chamar('GET', '/auth/me', tokens[perfil]);
+        expect(me).toMatchObject({ status: 200, data: { email, role } });
+      }
+    });
+
+    it('sem token ou com token inválido: 401 com o corpo de erro padrão', async () => {
+      const semToken = await chamar('GET', '/consultas');
+      expect(semToken).toMatchObject({
+        status: 401,
+        data: { status: 401, error: 'Unauthorized', message: expect.any(String) },
+      });
+      const invalido = await chamar('GET', '/consultas', 'nao-e-um-jwt');
+      expect(invalido).toMatchObject({
+        status: 401,
+        data: { status: 401, error: 'Unauthorized', message: 'Token inválido ou expirado.' },
+      });
+    });
+
+    it('login com senha errada é 401 e não revela se o email existe', async () => {
+      const errada = await chamar('POST', '/auth/login', undefined, {
+        email: prof.email,
+        senha: 'senha-errada-123',
+      });
+      const inexistente = await chamar('POST', '/auth/login', undefined, {
+        email: `ninguem.${sufixo}@fisiotech.test`,
+        senha: 'senha-errada-123',
+      });
+      expect(errada.status).toBe(401);
+      expect(inexistente.status).toBe(401);
+      expect(inexistente.data.message).toBe(errada.data.message);
+    });
+
+    // Um endpoint representativo de cada área; o perfil dono da área não aparece na linha.
+    const proibidos: [Metodo, string, ('admin' | 'profissional' | 'paciente')[]][] = [
+      ['GET', '/profissionais', ['profissional', 'paciente']],
+      ['GET', '/admin/pacientes', ['profissional', 'paciente']],
+      ['PUT', '/admin/me/senha', ['profissional', 'paciente']],
+      ['GET', '/pacientes', ['admin', 'paciente']],
+      ['GET', '/consultas', ['admin', 'paciente']],
+      ['GET', '/mensagens/caixa-entrada', ['admin', 'paciente']],
+      ['GET', '/agenda', ['admin', 'paciente']],
+      ['GET', '/prontuario/pacientes/1/planos', ['admin', 'paciente']],
+      ['PUT', '/profissionais/me/senha', ['admin', 'paciente']],
+      ['GET', '/me', ['admin', 'profissional']],
+      ['GET', '/me/consultas', ['admin', 'profissional']],
+      ['GET', '/me/prontuario/planos', ['admin', 'profissional']],
+      ['PUT', '/me/senha', ['admin', 'profissional']],
+    ];
+
+    it.each(proibidos)('%s %s: 403 "Acesso negado." para %j', async (metodo, url, perfis) => {
+      for (const perfil of perfis) {
+        const r = await chamar(metodo, url, tokens[perfil], metodo === 'PUT' ? {} : undefined);
+        expect({ perfil, ...r }).toMatchObject({
+          perfil,
+          status: 403,
+          data: { status: 403, error: 'Forbidden', message: 'Acesso negado.' },
+        });
+      }
+    });
+
+    it('o paciente não lê consulta de outro paciente pelo /me (404)', async () => {
+      const r = await chamar('GET', `/me/consultas/${consultaDoProfId}`, tokens.paciente);
+      expect(r).toMatchObject({ status: 404, data: { status: 404, error: 'Not Found' } });
+    });
+
+    it('corpo inválido: 400 com o corpo de erro padrão', async () => {
+      const r = await chamar('POST', '/consultas', tokens.profissional, { tipo: 'PRESENCIAL' });
+      expect(r).toMatchObject({
+        status: 400,
+        data: {
+          status: 400,
+          error: 'Bad Request',
+          message: 'Dados da requisição inválidos.',
+          timestamp: expect.any(String),
+        },
+      });
+    });
+
+    it('recurso inexistente: 404 com a mensagem do backend', async () => {
+      const r = await chamar('GET', '/consultas/999999999', tokens.profissional);
+      expect(r).toMatchObject({
+        status: 404,
+        data: { status: 404, error: 'Not Found', message: expect.any(String) },
+      });
+    });
+
+    it('email já cadastrado: 409', async () => {
+      const r = await chamar('POST', '/pacientes/cadastro', undefined, paciente2);
+      expect(r).toMatchObject({ status: 409, data: { status: 409, error: 'Conflict' } });
+    });
+
+    it('logout revoga a sessão: o access token e o refresh token param de valer', async () => {
+      const sessao = await entrarComo(paciente2.email, paciente2.senha);
+      const token = sessao.getAccessToken()!;
+      expect((await chamar('GET', '/me', token)).status).toBe(200);
+
+      await sessao.logout();
+
+      expect((await chamar('GET', '/me', token)).status).toBe(401);
+      await expect(sessao.refresh()).rejects.toThrow(/Sessão expirada/);
     });
   });
 
