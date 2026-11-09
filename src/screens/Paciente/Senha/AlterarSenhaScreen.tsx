@@ -16,6 +16,7 @@ import {
   validarSenha,
   type SenhaCampos,
 } from './senhaLogic';
+import { useRotuloVoltar } from '../rotuloVoltar';
 
 /**
  * Alterar Senha do paciente (#45, Figma "24 Alterar Senha (Pac.)"). O backend encerra todas as
@@ -24,6 +25,7 @@ import {
  */
 export function AlterarSenhaScreen() {
   const navigation = useNavigation();
+  const voltarPara = useRotuloVoltar('Home');
   const { user } = useAuth();
   const alterar = useAlterarSenha();
   const [valores, setValores] = useState(SENHA_VAZIA);
@@ -76,7 +78,7 @@ export function AlterarSenhaScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <VoltarLink label="Home" onPress={() => navigation.goBack()} />
+          <VoltarLink label={voltarPara} onPress={() => navigation.goBack()} />
           <View>
             <Text style={styles.titulo} accessibilityRole="header">
               Alterar Senha

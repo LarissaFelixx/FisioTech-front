@@ -1,9 +1,4 @@
-import {
-  useNavigation,
-  useNavigationState,
-  useRoute,
-  type RouteProp,
-} from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -45,10 +40,10 @@ import {
   podeAlterar,
   proximosDias,
   rotuloConfirmar,
-  rotuloVoltar,
   secoesClinicas,
   slotEscolhivel,
 } from './consultaPacienteLogic';
+import { useRotuloVoltar } from '../rotuloVoltar';
 
 type Rota = RouteProp<PacienteStackParamList, 'ConsultaDetalhe'>;
 
@@ -58,7 +53,7 @@ export function ConsultaDetalhePacienteScreen() {
   const navigation = useNavigation();
   const consulta = useMinhaConsulta(params.id);
   useRefetchOnFocus(consulta.refetch);
-  const voltarPara = useNavigationState((state) => rotuloVoltar(state.routes[state.index - 1]));
+  const voltarPara = useRotuloVoltar('Minhas Consultas');
 
   let conteudo;
   if (consulta.data) {

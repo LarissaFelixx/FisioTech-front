@@ -148,26 +148,6 @@ export function mensagemRemarcada(c: Consulta): string {
   return `Consulta remarcada para ${formatDataBr(quando)} às ${formatHora(quando)}.`;
 }
 
-/** Rota de onde o detalhe foi aberto, no formato do estado do React Navigation. */
-interface RotaAnterior {
-  name: string;
-  state?: { index?: number; routes: { name: string }[] };
-}
-
-const ROTULO_ABA: Record<string, string> = { Home: 'Home', Consultas: 'Minhas Consultas' };
-
-/**
- * Rótulo do "‹ Voltar": a aba de onde o paciente veio (Home ou Minhas Consultas). Sem estado
- * aninhado, as abas ainda estão na inicial (Home).
- */
-export function rotuloVoltar(anterior: RotaAnterior | undefined): string {
-  if (anterior?.name !== 'Tabs') {
-    return 'Minhas Consultas';
-  }
-  const aba = anterior.state ? anterior.state.routes[anterior.state.index ?? 0]?.name : 'Home';
-  return ROTULO_ABA[aba ?? ''] ?? 'Minhas Consultas';
-}
-
 export function mensagemErroCancelar(error: unknown): string {
   return mensagemDeErro(error, {}, 'Não foi possível cancelar a consulta.');
 }

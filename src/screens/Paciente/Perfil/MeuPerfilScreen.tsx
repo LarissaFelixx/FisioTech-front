@@ -1,7 +1,16 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Avatar } from '../../../components/Avatar/Avatar';
 import { Button } from '../../../components/Button/Button';
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
 import { OptionChips } from '../../../components/OptionChips/OptionChips';
@@ -23,10 +32,16 @@ import {
   valoresDoPerfil,
   type PerfilCampos,
 } from './perfilLogic';
+import { useMenuPaciente } from '../useMenuPaciente';
 
-/** Meu Perfil (#44, Figma "23 Meu Perfil"): aba Perfil do paciente. */
+/**
+ * Meu Perfil (#44, Figma "23 Meu Perfil"): aba Perfil do paciente. O avatar no topo abre o menu do
+ * paciente, como na Home (S5-06).
+ */
 export function MeuPerfilScreen() {
   const perfil = useMeuPerfil();
+  const { user } = useAuth();
+  const { menu, abrirMenu } = useMenuPaciente();
 
   let conteudo;
   if (perfil.data) {
@@ -51,7 +66,19 @@ export function MeuPerfilScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <View style={styles.topo}>
+        <Pressable
+          onPress={abrirMenu}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir menu"
+          hitSlop={8}
+          testID="perfil-avatar"
+        >
+          <Avatar nome={user?.nome ?? ''} size={40} shape="circle" />
+        </Pressable>
+      </View>
       {conteudo}
+      {menu}
     </SafeAreaView>
   );
 }
@@ -164,6 +191,7 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
+  topo: { alignItems: 'flex-end', paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
   centro: { flex: 1, padding: spacing.xl },
   content: { padding: spacing.xl, gap: spacing.lg },
   titulo: {
