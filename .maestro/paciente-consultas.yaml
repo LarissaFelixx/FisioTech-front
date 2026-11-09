@@ -1,5 +1,6 @@
 # Minhas Consultas (#39) contra o backend REAL: a consulta online com Unimed que o seed marca
 # para daqui a uma hora aparece na lista, abre o detalhe, e "Marcar Consulta" abre a marcação.
+# O filtro (S5-04) separa as próximas da consulta realizada do seed.
 appId: host.exp.exponent
 name: Paciente — minhas consultas
 tags:
@@ -18,6 +19,18 @@ env:
 - assertVisible: '\d{2}/\d{2}/\d{4} \d{2}:\d{2} · Online'
 - assertVisible: 'Unimed'
 - assertVisible: 'Agendada'
+
+# Filtro: "Realizadas" só tem a realizada do seed; "Próximas" só as agendadas/confirmadas.
+- tapOn:
+    id: 'consultas-filtro-realizadas'
+- assertVisible: 'Realizada'
+- assertNotVisible: 'Agendada'
+- tapOn:
+    id: 'consultas-filtro-proximas'
+- assertVisible: 'Agendada'
+- assertNotVisible: 'Realizada'
+- tapOn:
+    id: 'consultas-filtro-todas'
 
 # A consulta abre o detalhe.
 - tapOn: '\d{2}/\d{2}/\d{4} \d{2}:\d{2} · Online'
