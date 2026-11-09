@@ -104,6 +104,35 @@ describe('Navegação do paciente', () => {
     expect(screen.getByText('Marcos Coelho · Paciente')).toBeOnTheScreen();
   });
 
+  it('"Alterar Senha" aberto pela Home volta para a Home', async () => {
+    await montar();
+    await fireEvent.press(await screen.findByTestId('paciente-avatar'));
+    await fireEvent.press(screen.getByTestId('menu-alterar-senha'));
+    expect(await screen.findByLabelText('Voltar para Home')).toBeOnTheScreen();
+  });
+
+  it('"Meu Tratamento" abre o tratamento (S5-06)', async () => {
+    jest.mocked(meService.meusPlanos).mockResolvedValue([]);
+    jest.mocked(meService.minhasEvolucoes).mockResolvedValue([]);
+    await montar();
+    await fireEvent.press(await screen.findByTestId('paciente-avatar'));
+    await fireEvent.press(screen.getByTestId('menu-meu-tratamento'));
+    expect(await screen.findByRole('header', { name: 'Meu tratamento' })).toBeOnTheScreen();
+    expect(screen.getByLabelText('Voltar para Home')).toBeOnTheScreen();
+  });
+
+  it('o avatar do Meu Perfil também abre o menu; a senha aberta dali volta para o perfil', async () => {
+    await montar();
+    await fireEvent.press(screen.getByTestId('tab-perfil'));
+    await fireEvent.press(await screen.findByTestId('perfil-avatar'));
+    expect(screen.getByTestId('menu-lateral')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByTestId('menu-alterar-senha'));
+    expect(await screen.findByRole('header', { name: 'Alterar Senha' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByLabelText('Voltar para Meu Perfil'));
+    expect(await screen.findByText('Cadastrado em 12/03/2025')).toBeOnTheScreen();
+  });
+
   it('"Sair" desloga', async () => {
     const value = await montar();
     await fireEvent.press(await screen.findByTestId('paciente-avatar'));

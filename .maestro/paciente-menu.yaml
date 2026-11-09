@@ -1,5 +1,6 @@
 # Atividade #46: navegação e menu do paciente contra o backend REAL.
-# Home com saudação → abas → menu pelo avatar (Editar Perfil, Alterar Senha) → Sair.
+# Home com saudação → abas → menu pelo avatar (Editar Perfil, Meu Tratamento, Alterar Senha) →
+# menu pelo avatar do Meu Perfil (S5-06) → Sair.
 appId: host.exp.exponent
 name: Paciente — menu e navegação
 tags:
@@ -24,6 +25,7 @@ env:
     id: 'paciente-avatar'
 - assertVisible: 'Paciente'
 - assertVisible: 'Editar Perfil'
+- assertVisible: 'Meu Tratamento'
 - assertVisible: 'Alterar Senha'
 - takeScreenshot: paciente-menu
 - tapOn:
@@ -46,6 +48,44 @@ env:
 - extendedWaitUntil:
     visible: 'Bem-vindo,'
     timeout: 10000
+
+# "Meu Tratamento" pelo menu (S5-06).
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-meu-tratamento'
+- extendedWaitUntil:
+    visible: 'Meu tratamento'
+    timeout: 10000
+- tapOn:
+    id: 'voltar'
+- extendedWaitUntil:
+    visible: 'Bem-vindo,'
+    timeout: 10000
+
+# O avatar do Meu Perfil também abre o menu; a senha aberta dali volta para o perfil.
+- tapOn:
+    id: 'tab-perfil'
+- extendedWaitUntil:
+    visible:
+      id: 'perfil-avatar'
+    timeout: 10000
+- tapOn:
+    id: 'perfil-avatar'
+- assertVisible: 'Alterar Senha'
+- tapOn:
+    id: 'menu-alterar-senha'
+- extendedWaitUntil:
+    visible: 'Alterar Senha'
+    timeout: 10000
+- assertVisible: 'Meu Perfil'
+- tapOn:
+    id: 'voltar'
+- extendedWaitUntil:
+    visible: 'Cadastrado em .*'
+    timeout: 10000
+- tapOn:
+    id: 'tab-home'
 
 # Sair.
 - tapOn:
