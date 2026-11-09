@@ -53,6 +53,11 @@ export function createSession(client: AxiosInstance, storage: TokenStorage): Ses
       return data.accessToken;
     } catch (error) {
       if (isUnauthorized(error)) {
+        // Um login durante a renovação (ex.: o novo login depois da troca de senha, que revoga
+        // a sessão antiga) já salvou outra sessão: a recusa vale só para o token antigo.
+        if (accessToken && (await storage.getRefreshToken()) !== refreshToken) {
+          return accessToken;
+        }
         await clearLocal();
         throw new SessionExpiredError();
       }
