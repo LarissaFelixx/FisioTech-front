@@ -9,12 +9,15 @@ import { consulta, httpError, Providers } from '../../../test/helpers';
 import type { Consulta } from '../../../types/consulta';
 import { clock } from '../../../utils/clock';
 import {
+  consultaNaoEncontrada,
   mensagemErroRemarcar,
+  mensagemRemarcada,
   metaConsulta,
   novaDataHora,
   podeAlterar,
   proximosDias,
   rotuloConfirmar,
+  rotuloVoltar,
   secoesClinicas,
   slotEscolhivel,
 } from './consultaPacienteLogic';
@@ -120,6 +123,31 @@ describe('consultaPacienteLogic', () => {
     );
     expect(mensagemErroRemarcar(httpError(400))).toBe('Não foi possível remarcar a consulta.');
   });
+
+  it('aviso de remarcação com a nova data e hora', () => {
+    expect(mensagemRemarcada(consulta({ dataHora: '2025-08-25T09:00:00' }))).toBe(
+      'Consulta remarcada para 25/08/2025 às 09:00.',
+    );
+  });
+
+  it('só o 404 conta como consulta não encontrada', () => {
+    expect(consultaNaoEncontrada(httpError(404))).toBe(true);
+    expect(consultaNaoEncontrada(httpError(500))).toBe(false);
+    expect(consultaNaoEncontrada(new Error('x'))).toBe(false);
+  });
+
+  it('rótulo do voltar segue a aba de onde o detalhe foi aberto', () => {
+    const tabs = (aba: string, index = 0) => ({
+      name: 'Tabs',
+      state: { index, routes: [{ name: aba }] },
+    });
+    expect(rotuloVoltar(tabs('Consultas'))).toBe('Minhas Consultas');
+    expect(rotuloVoltar(tabs('Home'))).toBe('Home');
+    expect(rotuloVoltar({ name: 'Tabs' })).toBe('Home');
+    expect(rotuloVoltar(tabs('Mensagens'))).toBe('Minhas Consultas');
+    expect(rotuloVoltar({ name: 'MarcarConsulta' })).toBe('Minhas Consultas');
+    expect(rotuloVoltar(undefined)).toBe('Minhas Consultas');
+  });
 });
 
 describe('Consulta Detalhe do Paciente (tela)', () => {
@@ -188,6 +216,9 @@ describe('Consulta Detalhe do Paciente (tela)', () => {
 
     await waitFor(() => expect(meService.cancelarConsulta).toHaveBeenCalledWith(7));
     expect(await screen.findByText('Cancelada')).toBeOnTheScreen();
+    expect(screen.getByTestId('consulta-paciente-sucesso')).toHaveTextContent(
+      'Consulta cancelada.',
+    );
     expect(screen.queryByTestId('consulta-cancelar')).not.toBeOnTheScreen();
     expect(screen.queryByTestId('consulta-remarcar')).not.toBeOnTheScreen();
   });
@@ -234,6 +265,9 @@ describe('Consulta Detalhe do Paciente (tela)', () => {
     );
     expect(await screen.findByText('25/08/2025')).toBeOnTheScreen();
     expect(screen.queryByTestId('consulta-remarcar-painel')).not.toBeOnTheScreen();
+    expect(screen.getByTestId('consulta-paciente-sucesso')).toHaveTextContent(
+      'Consulta remarcada para 25/08/2025 às 09:00.',
+    );
   });
 
   it('horário tomado nesse meio-tempo (409): avisa e recarrega a grade', async () => {
@@ -280,8 +314,35 @@ describe('Consulta Detalhe do Paciente (tela)', () => {
     expect(await screen.findByTestId('consulta-paciente')).toBeOnTheScreen();
   });
 
+  it('Remarcar informa se o painel está aberto para leitores de tela', async () => {
+    await abrirDetalhe();
+    expect(screen.getByTestId('consulta-remarcar')).toBeCollapsed();
+    await fireEvent.press(screen.getByTestId('consulta-remarcar'));
+    expect(screen.getByTestId('consulta-remarcar')).toBeExpanded();
+  });
+
+  it('consulta não encontrada (404): avisa, sem "Tentar novamente"', async () => {
+    jest.mocked(meService.minhaConsulta).mockRejectedValue(httpError(404));
+    await render(
+      <Providers navigation>
+        <AuthContext.Provider
+          value={authValue({ user: { ...usuarioProfissional, role: 'ROLE_PACIENTE' } })}
+        >
+          <ConfirmDialogProvider>
+            <PacienteNavigator />
+          </ConfirmDialogProvider>
+        </AuthContext.Provider>
+      </Providers>,
+    );
+    await fireEvent.press(screen.getByTestId('tab-consultas'));
+    await fireEvent.press(await screen.findByTestId('minha-consulta-7'));
+    expect(await screen.findByText('Consulta não encontrada.')).toBeOnTheScreen();
+    expect(screen.queryByText('Tentar novamente')).not.toBeOnTheScreen();
+  });
+
   it('"‹ Minhas Consultas" volta para a lista', async () => {
     await abrirDetalhe();
+    expect(screen.getByLabelText('Voltar para Minhas Consultas')).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('voltar'));
     expect(await screen.findByRole('header', { name: 'Minhas Consultas' })).toBeOnTheScreen();
   });

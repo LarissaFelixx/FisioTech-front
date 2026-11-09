@@ -300,7 +300,8 @@ describe('mutations chamam o service e invalidam o cache certo', () => {
       2,
       meService.cancelarConsulta,
       [2],
-      [queryKeys.me.consultas()],
+      // O horário cancelado volta a ficar livre (S5-04).
+      [queryKeys.me.consultas(), ['me', 'disponibilidade']],
     ],
     [
       'useEnviarMinhaMensagem',

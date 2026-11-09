@@ -53,7 +53,12 @@ export function useCancelarConsulta() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => meService.cancelarConsulta(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.me.consultas() }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.me.consultas() }),
+        // O horário cancelado volta a ficar livre na agenda do profissional.
+        queryClient.invalidateQueries({ queryKey: ['me', 'disponibilidade'] }),
+      ]),
   });
 }
 
