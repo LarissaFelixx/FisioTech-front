@@ -107,14 +107,19 @@ describe('installAuthInterceptors', () => {
     expect(onExpired).not.toHaveBeenCalled();
   });
 
-  it('erros que não são 401 passam direto, sem renovar', async () => {
-    const client = fakeClient(() => ({ status: 500 }));
-    const session = fakeSession('abc', async () => 'novo');
-    installAuthInterceptors(client, session, jest.fn());
+  it.each([400, 403, 404, 409, 500, 503])(
+    'erro %i passa direto, sem renovar nem deslogar',
+    async (status) => {
+      const client = fakeClient(() => ({ status }));
+      const session = fakeSession('abc', async () => 'novo');
+      const onExpired = jest.fn();
+      installAuthInterceptors(client, session, onExpired);
 
-    await expect(client.get('/consultas')).rejects.toMatchObject({ response: { status: 500 } });
-    expect(session.refresh).not.toHaveBeenCalled();
-  });
+      await expect(client.get('/consultas')).rejects.toMatchObject({ response: { status } });
+      expect(session.refresh).not.toHaveBeenCalled();
+      expect(onExpired).not.toHaveBeenCalled();
+    },
+  );
 
   it('a função retornada remove os interceptors', async () => {
     const client = fakeClient(() => ({ status: 200 }));

@@ -18,7 +18,7 @@ import {
   rotuloDia,
 } from './date';
 import { formatMoeda, lerValor } from './moeda';
-import { MENSAGEM_SEM_CONEXAO, mensagemDeErro } from './mensagensErro';
+import { MENSAGEM_SEM_CONEXAO, MENSAGEM_SEM_PERMISSAO, mensagemDeErro } from './mensagensErro';
 import { iniciais } from './iniciais';
 import {
   MENSAGENS,
@@ -160,6 +160,13 @@ describe('mensagemDeErro', () => {
     expect(mensagemDeErro(httpError(500), { 409: 'duplicado' }, 'padrão')).toBe('padrão');
     expect(mensagemDeErro(networkError(), {}, 'padrão')).toBe(MENSAGEM_SEM_CONEXAO);
     expect(mensagemDeErro(new Error('x'), {}, 'padrão')).toBe('padrão');
+  });
+
+  it('403 sem mensagem própria vira "sem permissão"; a do status, se houver, vence', () => {
+    expect(mensagemDeErro(httpError(403), {}, 'padrão')).toBe(MENSAGEM_SEM_PERMISSAO);
+    expect(mensagemDeErro(httpError(403), { 403: 'Sem acesso à conversa.' }, 'padrão')).toBe(
+      'Sem acesso à conversa.',
+    );
   });
 });
 
