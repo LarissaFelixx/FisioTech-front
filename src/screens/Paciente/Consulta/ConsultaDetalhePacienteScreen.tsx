@@ -1,4 +1,9 @@
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import {
+  useNavigation,
+  useNavigationState,
+  useRoute,
+  type RouteProp,
+} from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -27,15 +32,20 @@ import { clock } from '../../../utils/clock';
 import { formatMoeda } from '../../../utils/moeda';
 import { estrelas } from '../../Consultas/consultaLogic';
 import {
+  MENSAGEM_CANCELADA,
   MENSAGEM_ERRO_CARREGAR,
+  MENSAGEM_NAO_ENCONTRADA,
+  consultaNaoEncontrada,
   horaCurta,
   mensagemErroCancelar,
   mensagemErroRemarcar,
+  mensagemRemarcada,
   metaConsulta,
   novaDataHora,
   podeAlterar,
   proximosDias,
   rotuloConfirmar,
+  rotuloVoltar,
   secoesClinicas,
   slotEscolhivel,
 } from './consultaPacienteLogic';
@@ -48,6 +58,7 @@ export function ConsultaDetalhePacienteScreen() {
   const navigation = useNavigation();
   const consulta = useMinhaConsulta(params.id);
   useRefetchOnFocus(consulta.refetch);
+  const voltarPara = useNavigationState((state) => rotuloVoltar(state.routes[state.index - 1]));
 
   let conteudo;
   if (consulta.data) {
@@ -59,11 +70,12 @@ export function ConsultaDetalhePacienteScreen() {
       />
     );
   } else if (consulta.isError) {
+    const naoEncontrada = consultaNaoEncontrada(consulta.error);
     conteudo = (
       <View style={styles.content}>
         <ErrorState
-          message={MENSAGEM_ERRO_CARREGAR}
-          onRetry={() => void consulta.refetch()}
+          message={naoEncontrada ? MENSAGEM_NAO_ENCONTRADA : MENSAGEM_ERRO_CARREGAR}
+          onRetry={naoEncontrada ? undefined : () => void consulta.refetch()}
           retrying={consulta.isRefetching}
         />
       </View>
@@ -79,7 +91,7 @@ export function ConsultaDetalhePacienteScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <View style={styles.topo}>
-        <VoltarLink label="Minhas Consultas" onPress={() => navigation.goBack()} />
+        <VoltarLink label={voltarPara} onPress={() => navigation.goBack()} />
       </View>
       {conteudo}
     </SafeAreaView>
@@ -91,6 +103,7 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
   const confirmar = useConfirm();
   const cancelar = useCancelarConsulta();
   const [erro, setErro] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState<string | null>(null);
   const [remarcando, setRemarcando] = useState(false);
   const meta = metaConsulta(c);
 
@@ -105,8 +118,10 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
       return;
     }
     setErro(null);
+    setSucesso(null);
     try {
       await cancelar.mutateAsync(c.id);
+      setSucesso(MENSAGEM_CANCELADA);
     } catch (e) {
       setErro(mensagemErroCancelar(e));
     }
@@ -169,9 +184,11 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
           <Pressable
             onPress={() => {
               setErro(null);
+              setSucesso(null);
               setRemarcando((r) => !r);
             }}
             accessibilityRole="button"
+            accessibilityState={{ expanded: remarcando }}
             style={({ pressed }) => [styles.acao, styles.remarcar, pressed && styles.pressed]}
             testID="consulta-remarcar"
           >
@@ -181,6 +198,7 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
             onPress={() => void cancelarConsulta()}
             disabled={cancelar.isPending}
             accessibilityRole="button"
+            accessibilityState={{ disabled: cancelar.isPending, busy: cancelar.isPending }}
             style={({ pressed }) => [styles.acao, styles.cancelar, pressed && styles.pressed]}
             testID="consulta-cancelar"
           >
@@ -192,10 +210,28 @@ function Detalhe(props: { consulta: Consulta; atualizando: boolean; onAtualizar:
       ) : null}
 
       {remarcando && podeAlterar(c) ? (
-        <Remarcar consulta={c} onFechar={() => setRemarcando(false)} onErro={setErro} />
+        <Remarcar
+          consulta={c}
+          onFechar={() => setRemarcando(false)}
+          onRemarcada={(remarcada) => {
+            setRemarcando(false);
+            setSucesso(mensagemRemarcada(remarcada));
+          }}
+          onErro={setErro}
+        />
       ) : null}
 
       {c.status === 'REALIZADA' ? <AvaliacaoDaConsulta consultaId={c.id} /> : null}
+
+      {sucesso ? (
+        <Text
+          style={styles.sucesso}
+          accessibilityLiveRegion="polite"
+          testID="consulta-paciente-sucesso"
+        >
+          {sucesso}
+        </Text>
+      ) : null}
 
       {erro ? (
         <Text style={styles.erro} accessibilityRole="alert" testID="consulta-paciente-erro">
@@ -262,6 +298,7 @@ function AvaliacaoDaConsulta({ consultaId }: { consultaId: number }) {
 function Remarcar(props: {
   consulta: Consulta;
   onFechar: () => void;
+  onRemarcada: (consulta: Consulta) => void;
   onErro: (mensagem: string | null) => void;
 }) {
   const { consulta: c } = props;
@@ -278,8 +315,11 @@ function Remarcar(props: {
     }
     props.onErro(null);
     try {
-      await remarcar.mutateAsync({ id: c.id, novaDataHora: novaDataHora(dia, horario) });
-      props.onFechar();
+      const remarcada = await remarcar.mutateAsync({
+        id: c.id,
+        novaDataHora: novaDataHora(dia, horario),
+      });
+      props.onRemarcada(remarcada);
     } catch (e) {
       props.onErro(mensagemErroRemarcar(e));
       setHorario(null);
@@ -361,6 +401,7 @@ const styles = StyleSheet.create({
   cancelar: { backgroundColor: statusColors.cancelada.bg },
   cancelarTexto: { fontFamily: fonts.bold, fontSize: fontSizes.md, color: colors.danger },
   erro: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.danger },
+  sucesso: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.success },
   link: { paddingVertical: spacing.md, alignItems: 'center' },
   linkTexto: { fontFamily: fonts.semibold, fontSize: fontSizes.md, color: colors.primary },
   pressed: { opacity: 0.7 },

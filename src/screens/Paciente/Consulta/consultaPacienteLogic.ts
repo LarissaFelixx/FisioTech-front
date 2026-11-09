@@ -1,3 +1,4 @@
+import { toApiError } from '../../../api/errors';
 import type { Consulta } from '../../../types/consulta';
 import type { SlotDisponibilidade } from '../../../types/consultaBooking';
 import { formatDataBr, formatHora, parseDataHora } from '../../../utils/date';
@@ -132,6 +133,40 @@ export function rotuloConfirmar(dia: string, horario: string): string {
 // ---------- Mensagens ----------
 
 export const MENSAGEM_ERRO_CARREGAR = 'Não foi possível carregar a consulta.';
+export const MENSAGEM_NAO_ENCONTRADA = 'Consulta não encontrada.';
+export const MENSAGEM_CANCELADA = 'Consulta cancelada.';
+
+/** 404 (removida ou de outro paciente): tentar de novo não adianta, então a tela não oferece. */
+export function consultaNaoEncontrada(error: unknown): boolean {
+  const erro = toApiError(error);
+  return erro.kind === 'http' && erro.status === 404;
+}
+
+/** "Consulta remarcada para 25/08/2025 às 09:00." */
+export function mensagemRemarcada(c: Consulta): string {
+  const quando = parseDataHora(c.dataHora);
+  return `Consulta remarcada para ${formatDataBr(quando)} às ${formatHora(quando)}.`;
+}
+
+/** Rota de onde o detalhe foi aberto, no formato do estado do React Navigation. */
+interface RotaAnterior {
+  name: string;
+  state?: { index?: number; routes: { name: string }[] };
+}
+
+const ROTULO_ABA: Record<string, string> = { Home: 'Home', Consultas: 'Minhas Consultas' };
+
+/**
+ * Rótulo do "‹ Voltar": a aba de onde o paciente veio (Home ou Minhas Consultas). Sem estado
+ * aninhado, as abas ainda estão na inicial (Home).
+ */
+export function rotuloVoltar(anterior: RotaAnterior | undefined): string {
+  if (anterior?.name !== 'Tabs') {
+    return 'Minhas Consultas';
+  }
+  const aba = anterior.state ? anterior.state.routes[anterior.state.index ?? 0]?.name : 'Home';
+  return ROTULO_ABA[aba ?? ''] ?? 'Minhas Consultas';
+}
 
 export function mensagemErroCancelar(error: unknown): string {
   return mensagemDeErro(error, {}, 'Não foi possível cancelar a consulta.');

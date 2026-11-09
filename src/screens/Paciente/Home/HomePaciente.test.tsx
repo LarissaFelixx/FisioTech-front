@@ -75,6 +75,8 @@ describe('Home do paciente (#38)', () => {
 
       await fireEvent.press(await screen.findByTestId(testID));
       expect(await screen.findByTestId('consulta-paciente')).toBeOnTheScreen();
+      // Aberto pela Home, o "‹" volta para a Home.
+      expect(screen.getByLabelText('Voltar para Home')).toBeOnTheScreen();
     },
   );
 
