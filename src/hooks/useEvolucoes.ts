@@ -1,8 +1,16 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { prontuarioService } from '../services/prontuarioService';
-import type { EvolucaoCreateRequest } from '../types/evolucao';
+import type { EvolucaoCreateRequest } from '../types/prontuario';
 import { queryKeys } from './queryKeys';
+
+/** Histórico de evoluções do paciente (`GET /prontuario/pacientes/{id}/evolucoes`). */
+export function useEvolucoes(pacienteId: number) {
+  return useQuery({
+    queryKey: queryKeys.prontuario.evolucoes(pacienteId),
+    queryFn: () => prontuarioService.listarEvolucoes(pacienteId),
+  });
+}
 
 /** Registra uma evolução no prontuário do paciente. */
 export function useCriarEvolucao() {

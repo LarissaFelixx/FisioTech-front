@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BackLink } from '../../components/BackLink/BackLink';
 import { Button } from '../../components/Button/Button';
 import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 import { SwitchCard } from '../../components/SwitchCard/SwitchCard';
 import { TextField } from '../../components/TextField/TextField';
+import { VoltarLink } from '../../components/VoltarLink/VoltarLink';
 import { useConsulta } from '../../hooks/useConsultas';
 import { useCriarEvolucao } from '../../hooks/useEvolucoes';
 import type { ProfissionalStackParamList } from '../../navigation/types';
@@ -36,7 +36,13 @@ export function NovaEvolucaoScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
-      <BackLink label="Prontuário" onPress={() => navigation.goBack()} testID="evolucao-voltar" />
+      <View style={styles.voltar}>
+        <VoltarLink
+          label="Prontuário"
+          onPress={() => navigation.goBack()}
+          testID="evolucao-voltar"
+        />
+      </View>
       {consulta.isPending ? (
         <View style={styles.centro}>
           <Skeleton variant="form" count={4} />
@@ -79,7 +85,7 @@ function Formulario({ consulta }: { consulta: Consulta }) {
         pacienteId: consulta.pacienteId,
         request: montarEvolucao(consulta.id, form),
       });
-      navigation.goBack();
+      navigation.popTo('Prontuario', { id: consulta.id, aviso: 'evolucao' });
     } catch (e) {
       setErro(mensagemErroRegistrar(e));
     }
@@ -176,6 +182,7 @@ function Formulario({ consulta }: { consulta: Consulta }) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
+  voltar: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
   centro: { flex: 1, padding: spacing.xl },
   content: { padding: spacing.xl, paddingTop: spacing.sm, gap: spacing.lg },
   cabecalho: { gap: spacing.xxs },
