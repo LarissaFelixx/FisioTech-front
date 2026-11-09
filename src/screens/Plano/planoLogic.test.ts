@@ -129,8 +129,8 @@ describe('requisição e erros', () => {
   it('mensagens de erro ao salvar', () => {
     expect(mensagemErroSalvar(httpError(400))).toBe('Verifique os dados do plano.');
     expect(mensagemErroSalvar(httpError(404))).toBe('Paciente não encontrado.');
-    expect(mensagemErroSalvar(httpError(409))).toBe(MENSAGEM_FIM_ANTES_INICIO);
-    expect(mensagemErroSalvar(httpError(422))).toBe(MENSAGEM_FIM_ANTES_INICIO);
+    // O backend não usa 409/422 aqui: caem na mensagem genérica.
+    expect(mensagemErroSalvar(httpError(409))).toBe(MENSAGEM_ERRO_SALVAR);
     expect(mensagemErroSalvar(httpError(500))).toBe(MENSAGEM_ERRO_SALVAR);
     expect(mensagemErroSalvar(networkError())).toBe(MENSAGEM_SEM_CONEXAO);
   });

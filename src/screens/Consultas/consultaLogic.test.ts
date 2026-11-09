@@ -9,6 +9,7 @@ import {
   filtrarPorNome,
   mensagemErroCadastroRapido,
   mensagemErroCriarConsulta,
+  mensagemErroExcluirConsulta,
   montarConsulta,
   schemaConsulta,
   secoesProntuario,
@@ -161,5 +162,16 @@ describe('prontuário', () => {
     expect(estrelas(4)).toBe('★★★★☆');
     expect(estrelas(5)).toBe('★★★★★');
     expect(estrelas(1)).toBe('★☆☆☆☆');
+  });
+});
+
+describe('excluir consulta', () => {
+  it('409: consulta com evolução ou avaliação registrada não pode ser excluída', () => {
+    expect(mensagemErroExcluirConsulta(httpError(409))).toBe(
+      'Esta consulta tem evolução ou avaliação registrada e não pode ser excluída.',
+    );
+    expect(mensagemErroExcluirConsulta(httpError(500))).toBe(
+      'Não foi possível excluir a consulta.',
+    );
   });
 });
