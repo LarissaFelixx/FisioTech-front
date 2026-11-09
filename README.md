@@ -201,6 +201,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     - `paciente-consulta-realizada.yaml`: consulta realizada com o convite para avaliar (#42).
     - `paciente-avaliar.yaml`: avalia a consulta realizada; roda depois do anterior (#43).
     - `paciente-tratamento.yaml`: plano terapêutico e evoluções compartilhados (#47).
+  - `profissional-prontuario.yaml`: prontuário da consulta realizada, nova evolução privada e
+    nova versão do plano com a anterior no histórico (S5-07); roda depois do Meu Tratamento.
   - Para rodar só alguns fluxos: `npm run test:e2e -- .maestro/profissional-consultas.yaml`.
   - `apk/profissional-apk.yaml`: o mesmo fluxo do profissional no **APK instalado**
     (`npm run test:e2e -- --apk`, depois de `adb install -r build/*.apk`).

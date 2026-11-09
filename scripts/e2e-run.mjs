@@ -104,6 +104,8 @@ process.exit(
             '.maestro/paciente-consulta-realizada.yaml',
             '.maestro/paciente-avaliar.yaml',
             '.maestro/paciente-tratamento.yaml',
+            // Depois do Meu Tratamento: revisa o plano que a paciente vê.
+            '.maestro/profissional-prontuario.yaml',
           ]),
   ]),
 );
