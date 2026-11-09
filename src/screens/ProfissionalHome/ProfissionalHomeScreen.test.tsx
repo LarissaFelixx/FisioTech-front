@@ -168,6 +168,6 @@ describe('Home do profissional', () => {
     await fireEvent.press(screen.getByTestId('home-perfil'));
     await fireEvent.press(await screen.findByText('Alterar Senha'));
 
-    expect(await screen.findByText('A troca de senha chega no Batch 7.')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Alterar Senha' })).toBeOnTheScreen();
   });
 });

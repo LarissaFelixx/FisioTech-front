@@ -1,0 +1,105 @@
+# S5-08: Alterar Senha do profissional contra o backend REAL.
+# Troca a senha → continua logado neste aparelho (o app reloga sozinho) → sai e entra com a nova
+# → senha antiga é recusada → volta para a senha original (os outros fluxos usam a mesma conta).
+appId: host.exp.exponent
+name: Profissional — alterar senha e sessão
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+  PROF_NOME: Dra. Teste E2E
+---
+- evalScript: ${output.novaSenha = PROF_SENHA + '-nova'}
+- runFlow: subflows/login-profissional.yaml
+- tapOn:
+    id: 'home-perfil'
+- tapOn: 'Alterar Senha'
+- extendedWaitUntil:
+    visible: '${PROF_NOME} · Profissional'
+    timeout: 10000
+
+# Senha atual errada: o backend responde 400 e a sessão continua.
+- tapOn:
+    id: 'senha-senhaAtual'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'senha-errada-123'
+- tapOn:
+    id: 'senha-novaSenha'
+- inputText: ${output.novaSenha}
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- inputText: ${output.novaSenha}
+- hideKeyboard
+- tapOn:
+    id: 'senha-enviar'
+- extendedWaitUntil:
+    visible: 'Senha atual incorreta.'
+    timeout: 20000
+
+# Agora certo: sucesso e o app continua logado na mesma tela.
+- tapOn:
+    id: 'senha-senhaAtual'
+- eraseText: 30
+- inputText: ${PROF_SENHA}
+- hideKeyboard
+- takeScreenshot: profissional-senha
+- tapOn:
+    id: 'senha-enviar'
+- extendedWaitUntil:
+    visible: 'Senha alterada com sucesso.'
+    timeout: 20000
+- tapOn:
+    id: 'voltar'
+- extendedWaitUntil:
+    visible: 'Bem-vindo\(a\),'
+    timeout: 10000
+# A Home carrega com a sessão nova (nenhuma chamada caiu no 401).
+- extendedWaitUntil:
+    visible: 'Maria Paciente E2E'
+    timeout: 20000
+
+# Sai; a senha antiga não entra mais e a nova entra.
+- tapOn:
+    id: 'home-perfil'
+- tapOn:
+    id: 'menu-sair'
+- extendedWaitUntil:
+    visible: 'Acesse sua conta'
+    timeout: 15000
+- tapOn:
+    id: 'login-email'
+- inputText: ${PROF_EMAIL}
+- pressKey: Enter
+- inputText: ${PROF_SENHA}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Usuário ou senha incorreta.'
+    timeout: 20000
+- tapOn:
+    id: 'login-senha'
+- eraseText: 60
+- inputText: ${output.novaSenha}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: 'Bem-vindo\(a\),'
+    timeout: 30000
+
+# Volta para a senha original.
+- tapOn:
+    id: 'home-perfil'
+- tapOn: 'Alterar Senha'
+- tapOn:
+    id: 'senha-senhaAtual'
+- inputText: ${output.novaSenha}
+- tapOn:
+    id: 'senha-novaSenha'
+- inputText: ${PROF_SENHA}
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- inputText: ${PROF_SENHA}
+- hideKeyboard
+- tapOn:
+    id: 'senha-enviar'
+- extendedWaitUntil:
+    visible: 'Senha alterada com sucesso.'
+    timeout: 20000

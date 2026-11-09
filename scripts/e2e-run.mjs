@@ -93,6 +93,7 @@ process.exit(
             '.maestro/chat-http.yaml',
             '.maestro/profissional-consultas.yaml',
             '.maestro/registro-clinico.yaml',
+            '.maestro/profissional-senha.yaml',
             '.maestro/admin-menu.yaml',
             '.maestro/paciente-home.yaml',
             '.maestro/paciente-consultas.yaml',
