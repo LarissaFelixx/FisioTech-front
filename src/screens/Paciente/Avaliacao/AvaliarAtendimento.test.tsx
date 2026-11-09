@@ -1,15 +1,20 @@
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 
 import { ConfirmDialogProvider } from '../../../components/ConfirmDialog/ConfirmDialog';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
+import type { PacienteStackParamList } from '../../../navigation/types';
 import { meService } from '../../../services/meService';
 import { authValue, usuarioProfissional } from '../../../test/authContextValue';
 import { consulta, httpError, Providers } from '../../../test/helpers';
 import type { Avaliacao } from '../../../types/avaliacao';
+import { AvaliarAtendimentoScreen } from './AvaliarAtendimentoScreen';
 import {
   mensagemErroAvaliar,
   montarAvaliacao,
+  situacaoAvaliacao,
+  statusErroAvaliar,
   subtituloAvaliacao,
   textoNota,
 } from './avaliacaoLogic';
@@ -50,6 +55,23 @@ describe('avaliacaoLogic', () => {
       'Só é possível avaliar consultas já realizadas.',
     );
     expect(mensagemErroAvaliar(httpError(500))).toBe('Não foi possível enviar a avaliação.');
+    expect(statusErroAvaliar(httpError(409))).toBe(409);
+    expect(statusErroAvaliar(new Error('x'))).toBeNull();
+  });
+
+  it('só libera consulta realizada e ainda sem avaliação (S5-05)', () => {
+    const avaliacao = {
+      id: 1,
+      consultaId: 8,
+      nota: 5,
+      comentario: null,
+      dataCriacao: '2025-08-16T10:00:00',
+    };
+    expect(situacaoAvaliacao(realizada, null)).toBe('liberada');
+    expect(situacaoAvaliacao(realizada, avaliacao)).toBe('ja-avaliada');
+    for (const status of ['AGENDADA', 'CONFIRMADA', 'CANCELADA'] as const) {
+      expect(situacaoAvaliacao({ ...realizada, status }, null)).toBe('nao-realizada');
+    }
   });
 });
 
@@ -127,15 +149,37 @@ describe('Avaliar Atendimento (tela)', () => {
     expect(screen.queryByTestId('consulta-convite-avaliar')).not.toBeOnTheScreen();
   });
 
-  it('consulta já avaliada (409) mostra a mensagem e fica na tela', async () => {
-    jest.mocked(meService.avaliar).mockRejectedValue(httpError(409));
+  it('já avaliada em outro aparelho (409): volta ao detalhe, que mostra a avaliação existente', async () => {
     await abrirAvaliacao();
+    jest.mocked(meService.avaliar).mockImplementation(async () => {
+      avaliacaoNoBackend = {
+        id: 2,
+        consultaId: 8,
+        nota: 3,
+        comentario: 'Avaliada no tablet',
+        dataCriacao: '2025-08-16T09:00:00',
+      };
+      throw httpError(409);
+    });
     await fireEvent.press(screen.getByTestId('estrela-5'));
     await fireEvent.press(screen.getByTestId('avaliacao-enviar'));
-    expect(await screen.findByTestId('avaliacao-erro')).toHaveTextContent(
-      'Esta consulta já foi avaliada.',
+
+    const resumo = await screen.findByTestId('consulta-minha-avaliacao');
+    expect(within(resumo).getByText('Avaliada no tablet')).toBeOnTheScreen();
+    expect(screen.queryByRole('header', { name: 'Avaliar atendimento' })).not.toBeOnTheScreen();
+  });
+
+  it('consulta deixou de estar realizada (400): mostra o erro e troca o formulário pelo aviso', async () => {
+    await abrirAvaliacao();
+    jest.mocked(meService.avaliar).mockRejectedValue(httpError(400));
+    jest.mocked(meService.minhaConsulta).mockResolvedValue({ ...realizada, status: 'CONFIRMADA' });
+    await fireEvent.press(screen.getByTestId('estrela-5'));
+    await fireEvent.press(screen.getByTestId('avaliacao-enviar'));
+
+    expect(await screen.findByTestId('avaliacao-indisponivel')).toHaveTextContent(
+      /Só é possível avaliar consultas já realizadas\./,
     );
-    expect(screen.getByRole('header', { name: 'Avaliar atendimento' })).toBeOnTheScreen();
+    expect(screen.queryByTestId('avaliacao-enviar')).not.toBeOnTheScreen();
   });
 
   it('"‹ Consulta" volta sem enviar', async () => {
@@ -143,5 +187,71 @@ describe('Avaliar Atendimento (tela)', () => {
     await fireEvent.press(screen.getByTestId('voltar'));
     expect(await screen.findByTestId('consulta-convite-avaliar')).toBeOnTheScreen();
     expect(meService.avaliar).not.toHaveBeenCalled();
+  });
+});
+
+describe('Avaliar Atendimento aberto direto (sem passar pelo convite)', () => {
+  const Stack = createNativeStackNavigator<PacienteStackParamList>();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(meService.minhaConsulta).mockResolvedValue(realizada);
+    jest.mocked(meService.minhaAvaliacao).mockRejectedValue(httpError(404));
+  });
+
+  async function abrirDireto() {
+    await render(
+      <Providers navigation>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="AvaliarConsulta"
+            component={AvaliarAtendimentoScreen}
+            initialParams={{ consultaId: 8 }}
+          />
+        </Stack.Navigator>
+      </Providers>,
+    );
+    await screen.findByRole('header', { name: 'Avaliar atendimento' });
+  }
+
+  it('consulta não realizada: aviso no lugar do formulário, sem buscar avaliação', async () => {
+    jest.mocked(meService.minhaConsulta).mockResolvedValue({ ...realizada, status: 'AGENDADA' });
+    await abrirDireto();
+
+    expect(await screen.findByTestId('avaliacao-indisponivel')).toHaveTextContent(
+      /Só é possível avaliar consultas já realizadas\./,
+    );
+    expect(screen.queryByTestId('estrela-1')).not.toBeOnTheScreen();
+    expect(screen.queryByTestId('avaliacao-enviar')).not.toBeOnTheScreen();
+    expect(meService.minhaAvaliacao).not.toHaveBeenCalled();
+  });
+
+  it('consulta já avaliada: avisa e não deixa avaliar de novo', async () => {
+    jest.mocked(meService.minhaAvaliacao).mockResolvedValue({
+      id: 1,
+      consultaId: 8,
+      nota: 4,
+      comentario: null,
+      dataCriacao: '2025-08-16T10:00:00',
+    });
+    await abrirDireto();
+
+    expect(await screen.findByTestId('avaliacao-indisponivel')).toHaveTextContent(
+      /Você já avaliou esta consulta\./,
+    );
+    expect(screen.queryByTestId('avaliacao-enviar')).not.toBeOnTheScreen();
+  });
+
+  it('erro ao carregar a consulta: "Tentar novamente" recarrega e libera o formulário', async () => {
+    jest.mocked(meService.minhaConsulta).mockRejectedValue(httpError(500));
+    await abrirDireto();
+
+    expect(await screen.findByText('Não foi possível carregar a consulta.')).toBeOnTheScreen();
+    expect(screen.queryByTestId('avaliacao-enviar')).not.toBeOnTheScreen();
+
+    jest.mocked(meService.minhaConsulta).mockResolvedValue(realizada);
+    await fireEvent.press(screen.getByText('Tentar novamente'));
+    expect(await screen.findByTestId('estrela-1')).toBeOnTheScreen();
+    expect(screen.getByTestId('avaliacao-enviar')).toBeDisabled();
   });
 });
