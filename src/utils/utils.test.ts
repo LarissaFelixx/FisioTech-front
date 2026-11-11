@@ -22,6 +22,7 @@ import { iniciais } from './iniciais';
 import {
   MENSAGENS,
   dataBr,
+  dataNascimentoBr,
   email,
   hora,
   maximo,
@@ -31,6 +32,22 @@ import {
   validarFormulario,
   valorEmReais,
 } from './validation';
+
+describe('data de nascimento', () => {
+  it('aceita vazio, passado e hoje, mas rejeita amanhã no calendário local', () => {
+    jest.useFakeTimers();
+    try {
+      jest.setSystemTime(new Date(2026, 10, 11, 23, 59));
+      expect(dataNascimentoBr('')).toBeNull();
+      expect(dataNascimentoBr('29/02/2000')).toBeNull();
+      expect(dataNascimentoBr('11/11/2026')).toBeNull();
+      expect(dataNascimentoBr('12/11/2026')).toBe(MENSAGENS.nascimentoFuturo);
+      expect(dataNascimentoBr('31/02/2000')).toBe(MENSAGENS.data);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+});
 
 describe('iniciais', () => {
   it('pega as iniciais das duas primeiras palavras, em maiúsculas', () => {

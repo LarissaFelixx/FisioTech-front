@@ -7,7 +7,7 @@ import { dataBrParaIso, isoParaDataBr } from '../../../utils/date';
 import { mensagemDeErro } from '../../../utils/mensagensErro';
 import { lerValor } from '../../../utils/moeda';
 import {
-  dataBr,
+  dataNascimentoBr,
   email,
   maximo,
   minimo,
@@ -60,7 +60,7 @@ export function schemaProfissional(editando: boolean): Partial<Schema<Profission
     registroProfissional: [obrigatorio, maximo(20)],
     especialidade: [obrigatorio, maximo(120)],
     valorConsultaParticular: [valorEmReais, valorFinito],
-    dataNascimento: [dataBr],
+    dataNascimento: [dataNascimentoBr],
   };
 }
 

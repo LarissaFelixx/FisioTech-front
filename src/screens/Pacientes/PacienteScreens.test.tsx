@@ -198,6 +198,15 @@ describe('Edição de paciente', () => {
     expect(svc.atualizar).not.toHaveBeenCalled();
   });
 
+  it('impede salvar uma data de nascimento futura', async () => {
+    await abrirEdicao();
+    await preencher('paciente-dataNascimento', '01012999');
+    await fireEvent.press(screen.getByTestId('paciente-salvar'));
+
+    expect(screen.getByText('A data de nascimento não pode estar no futuro.')).toBeOnTheScreen();
+    expect(svc.atualizar).not.toHaveBeenCalled();
+  });
+
   it('mostra o histórico de consultas do paciente, que abre o prontuário', async () => {
     consultas.listarTodos.mockImplementation(async (pacienteId) =>
       pacienteId === 1
