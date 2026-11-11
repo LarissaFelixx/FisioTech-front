@@ -1,7 +1,14 @@
 import type { Paciente, PacienteCreateRequest, PacienteUpdateRequest } from '../../types/paciente';
 import { dataBrParaIso, isoParaDataBr } from '../../utils/date';
 import { mensagemDeErro } from '../../utils/mensagensErro';
-import { dataBr, email, maximo, minimo, obrigatorio, type Schema } from '../../utils/validation';
+import {
+  dataNascimentoBr,
+  email,
+  maximo,
+  minimo,
+  obrigatorio,
+  type Schema,
+} from '../../utils/validation';
 
 /** Regras de `features/pacientes` do Angular (lista e formulário), como funções puras. */
 
@@ -71,7 +78,7 @@ export function schemaPaciente(editando: boolean): Partial<Schema<PacienteCampos
     nome: [obrigatorio, maximo(120)],
     email: [obrigatorio, email, maximo(120)],
     senha: editando ? [minimo(8), maximo(100)] : [obrigatorio, minimo(8), maximo(100)],
-    dataNascimento: [dataBr],
+    dataNascimento: [dataNascimentoBr],
   };
 }
 

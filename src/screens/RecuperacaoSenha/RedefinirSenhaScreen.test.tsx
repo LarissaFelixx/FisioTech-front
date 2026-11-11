@@ -8,15 +8,17 @@ import {
 } from './RedefinirSenhaScreen';
 
 const mockReset = jest.fn();
+const mockGoBack = jest.fn();
 
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ reset: mockReset }),
+  useNavigation: () => ({ reset: mockReset, goBack: mockGoBack }),
   useRoute: () => ({ params: { email: 'ana.souza@clinica.br' } }),
 }));
 
 beforeEach(() => {
   mockReset.mockClear();
+  mockGoBack.mockClear();
 });
 
 const preencher = (testID: string, texto: string) =>
@@ -30,6 +32,12 @@ async function preencherFormulario(codigo: string, senha: string, confirmacao: s
 }
 
 describe('RedefinirSenhaScreen', () => {
+  it('oferece retorno visível para corrigir o email da recuperação', async () => {
+    await render(<RedefinirSenhaScreen />);
+    await tocar('redefinir-voltar');
+    expect(mockGoBack).toHaveBeenCalledTimes(1);
+  });
+
   it('mostra o título e o email que recebeu o código', async () => {
     await render(<RedefinirSenhaScreen />);
 

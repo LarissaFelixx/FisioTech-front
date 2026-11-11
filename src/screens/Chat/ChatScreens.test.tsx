@@ -1,4 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  createNavigationContainerRef,
+  NavigationContainer,
+  type ParamListBase,
+} from '@react-navigation/native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { AuthContext } from '../../contexts/AuthContext';
 import { PacienteNavigator } from '../../navigation/PacienteNavigator';
@@ -15,6 +20,8 @@ jest.mock('../../services/consultaService');
 jest.mock('../../services/pacienteService');
 jest.mock('../../services/mensagemService');
 jest.mock('../../services/meService');
+
+const navigationRef = createNavigationContainerRef<ParamListBase>();
 
 const recebida: Mensagem = {
   id: 1,
@@ -55,17 +62,35 @@ beforeEach(() => {
 
 async function montar(paciente: boolean) {
   return render(
-    <Providers navigation>
+    <Providers>
       <AuthContext.Provider
         value={authValue({
           user: { ...usuarioProfissional, role: paciente ? 'ROLE_PACIENTE' : 'ROLE_PROFISSIONAL' },
         })}
       >
-        {paciente ? <PacienteNavigator /> : <ProfissionalNavigator />}
+        <NavigationContainer ref={navigationRef}>
+          {paciente ? <PacienteNavigator /> : <ProfissionalNavigator />}
+        </NavigationContainer>
       </AuthContext.Provider>
     </Providers>,
   );
 }
+
+it.each([false, true])('retorna da conversa à caixa de entrada (paciente=%s)', async (paciente) => {
+  await montar(paciente);
+  if (!paciente) {
+    await fireEvent.press(screen.getByTestId('tab-mensagens'));
+  }
+  const conversa = `conversa-${paciente ? 1 : 42}`;
+  await fireEvent.press(await screen.findByTestId(conversa));
+  expect(await screen.findByTestId('chat-input')).toBeOnTheScreen();
+  expect(navigationRef.getCurrentRoute()?.name).toBe('MensagemThread');
+
+  await act(async () => navigationRef.goBack());
+
+  expect(navigationRef.getCurrentRoute()?.name).toBe('Mensagens');
+  expect(await screen.findByTestId(conversa)).toBeOnTheScreen();
+});
 
 it('profissional abre a caixa, envia com o paciente correto e atualiza o histórico', async () => {
   await montar(false);
