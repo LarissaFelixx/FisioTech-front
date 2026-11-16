@@ -41,6 +41,7 @@ export type ProfissionalStackParamList = {
   ConsultaWizard: { id: number };
   /** `id` da consulta em que a evolução é registrada. */
   NovaEvolucao: { id: number };
+  RevisarPlano: { pacienteId: number };
   AlterarSenha: undefined;
 };
 

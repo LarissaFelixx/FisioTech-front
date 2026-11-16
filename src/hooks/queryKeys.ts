@@ -35,6 +35,7 @@ export const queryKeys = {
   prontuario: {
     todos: ['prontuario'] as const,
     evolucoes: (pacienteId: number) => ['prontuario', 'evolucoes', pacienteId] as const,
+    planos: (pacienteId: number) => ['prontuario', 'planos', pacienteId] as const,
   },
   avaliacoes: {
     todas: ['avaliacoes'] as const,
