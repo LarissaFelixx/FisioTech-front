@@ -4,6 +4,7 @@ import {
   dataBrParaIso,
   formatDataBr,
   formatDataHoraBr,
+  formatDiaMes,
   formatDiaMesCurto,
   formatDiaMesHora,
   formatHora,
@@ -170,6 +171,10 @@ describe('datas e valores das consultas', () => {
 
   it('formatDiaMesHora: dd/MM · HH:mm', () => {
     expect(formatDiaMesHora(new Date(2026, 8, 5, 9, 7))).toBe('05/09 · 09:07');
+  });
+
+  it('formatDiaMes: dd/MM', () => {
+    expect(formatDiaMes(new Date(2026, 7, 22, 9, 0))).toBe('22/08');
   });
 
   it('máscara e validação de hora', () => {
