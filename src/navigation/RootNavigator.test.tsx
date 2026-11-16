@@ -5,6 +5,7 @@ import { AuthContext, type AuthContextValue } from '../contexts/AuthContext';
 import { consultaService } from '../services/consultaService';
 import { pacienteService } from '../services/pacienteService';
 import { meService } from '../services/meService';
+import { profissionalService } from '../services/profissionalService';
 import { authValue, usuarioProfissional } from '../test/authContextValue';
 import { Providers } from '../test/helpers';
 import { RootNavigator } from './RootNavigator';
@@ -16,6 +17,7 @@ jest.mock('../services/pacienteService', () => ({
   pacienteService: { listarTodos: jest.fn(async () => []), cadastrarPublico: jest.fn() },
 }));
 jest.mock('../services/meService');
+jest.mock('../services/profissionalService');
 
 async function renderRoot(parcial: Partial<AuthContextValue>) {
   const value = authValue(parcial);
@@ -81,13 +83,16 @@ describe('RootNavigator (substitui authGuard/roleGuard)', () => {
     expect(value.logout).toHaveBeenCalled();
   });
 
-  it('admin cai nas abas do admin e sai pelo menu', async () => {
+  it('admin carrega a lista de profissionais e sai pelo menu', async () => {
+    jest.mocked(profissionalService.listarTodos).mockResolvedValue([]);
     const value = await renderRoot({
       status: 'signedIn',
       user: { ...usuarioProfissional, nome: 'Administrador', role: 'ROLE_ADMIN' },
     });
 
     expect(screen.getByRole('header', { name: 'Profissionais' })).toBeOnTheScreen();
+    expect(await screen.findByTestId('admin-profissionais-lista')).toBeOnTheScreen();
+    await waitFor(() => expect(profissionalService.listarTodos).toHaveBeenCalled());
     await fireEvent.press(screen.getByTestId('admin-abrir-menu'));
     await fireEvent.press(screen.getByTestId('menu-sair'));
     expect(value.logout).toHaveBeenCalled();

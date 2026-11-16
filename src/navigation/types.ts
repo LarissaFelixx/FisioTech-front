@@ -22,6 +22,8 @@ export type AdminTabsParamList = {
 export type AdminStackParamList = {
   Tabs: NavigatorScreenParams<AdminTabsParamList>;
   AlterarSenha: undefined;
+  NovoProfissional: undefined;
+  EditarProfissional: { id: number };
 };
 
 /** Abas do profissional (bottom nav do Shell do Angular). */
