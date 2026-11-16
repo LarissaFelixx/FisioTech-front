@@ -219,7 +219,13 @@ três perfis:
 - o admin cria profissionais;
 - o profissional cria pacientes, consultas e mensagens;
 - o paciente se cadastra, marca, remarca e cancela consulta, conversa e avalia;
+- o profissional mantém o prontuário (evoluções e versões do plano);
+- a matriz de permissões dos três perfis (403), 401 sem token e com token inválido, corpos de
+  erro (400, 404, 409) e logout revogando a sessão;
 - depois vêm as trocas de senha e as exclusões.
+
+O que foi verificado, a matriz de permissões e como o app trata cada erro estão em
+[docs/verificacao-integracao-s5-09.md](docs/verificacao-integracao-s5-09.md).
 
 Usa as mesmas credenciais de teste do e2e (`.maestro/e2e.local`) e cria dados novos a cada
 execução. Fica fora do `npm test` porque depende do backend no ar.

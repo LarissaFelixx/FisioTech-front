@@ -100,11 +100,10 @@ export function mensagemErroSalvar(error: unknown): string {
   return mensagemDeErro(
     error,
     {
+      // Validação do DTO ou término antes do início (`EstadoInvalidoException`): ambos são 400
+      // no backend. O término antes do início já é barrado pela validação local.
       400: 'Verifique os dados do plano.',
       404: 'Paciente não encontrado.',
-      // Estado inválido no backend: término antes do início.
-      409: MENSAGEM_FIM_ANTES_INICIO,
-      422: MENSAGEM_FIM_ANTES_INICIO,
     },
     MENSAGEM_ERRO_SALVAR,
   );
