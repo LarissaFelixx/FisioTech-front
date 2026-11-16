@@ -7,8 +7,9 @@ import { useAuth } from '../../hooks/useAuth';
 import type { PacienteStackParamList } from '../../navigation/types';
 
 /**
- * Menu do paciente (#46, Figma "M3 Menu · Paciente"): "Editar Perfil", "Alterar Senha" e "Sair".
- * Quem tem o gatilho (o avatar da Home) renderiza `menu` e chama `abrirMenu`.
+ * Menu do paciente (#46, Figma "M3 Menu · Paciente"): "Editar Perfil", "Meu Tratamento" (S5-06,
+ * não está no Figma), "Alterar Senha" e "Sair". Quem tem o gatilho (o avatar da Home e o do Meu
+ * Perfil) renderiza `menu` e chama `abrirMenu`.
  */
 export function useMenuPaciente() {
   const navigation = useNavigation<NativeStackNavigationProp<PacienteStackParamList>>();
@@ -28,6 +29,12 @@ export function useMenuPaciente() {
           icon: 'user',
           onPress: () => navigation.navigate('Tabs', { screen: 'Perfil' }),
           testID: 'menu-editar-perfil',
+        },
+        {
+          label: 'Meu Tratamento',
+          icon: 'clipboard',
+          onPress: () => navigation.navigate('MeuTratamento'),
+          testID: 'menu-meu-tratamento',
         },
         {
           label: 'Alterar Senha',
