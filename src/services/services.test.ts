@@ -212,6 +212,11 @@ const casos: Caso[] = [
   ['consulta.deletar', () => consultaService.deletar(8), { metodo: 'DELETE', url: '/consultas/8' }],
   // prontuarioService
   [
+    'prontuario.listarEvolucoes',
+    () => prontuarioService.listarEvolucoes(10),
+    { metodo: 'GET', url: '/prontuario/pacientes/10/evolucoes' },
+  ],
+  [
     'prontuario.criarEvolucao',
     () => prontuarioService.criarEvolucao(10, evolucao),
     { metodo: 'POST', url: '/prontuario/pacientes/10/evolucoes', corpo: evolucao },

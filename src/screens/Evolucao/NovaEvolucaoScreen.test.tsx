@@ -9,6 +9,7 @@ import { pacienteService } from '../../services/pacienteService';
 import { prontuarioService } from '../../services/prontuarioService';
 import { authValue } from '../../test/authContextValue';
 import { consulta, httpError, Providers } from '../../test/helpers';
+import type { EvolucaoClinica } from '../../types/prontuario';
 
 jest.mock('../../services/consultaService');
 jest.mock('../../services/pacienteService');
@@ -28,13 +29,29 @@ const realizada = consulta({
   status: 'REALIZADA',
 });
 
+const evolucaoCriada: EvolucaoClinica = {
+  id: 30,
+  pacienteId: 12,
+  profissionalId: 1,
+  profissionalNome: 'Dra. Ana',
+  consultaId: 3,
+  observacoes: 'Melhora',
+  procedimentos: null,
+  respostaPaciente: null,
+  conduta: null,
+  visivelPaciente: true,
+  dataRegistro: '2026-08-22T09:40:00',
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   consultas.listarTodos.mockResolvedValue([realizada]);
   consultas.buscarPorId.mockResolvedValue(realizada);
   pacientes.listarTodos.mockResolvedValue([]);
   avaliacoes.buscarPorConsulta.mockRejectedValue(httpError(404));
-  prontuario.criarEvolucao.mockResolvedValue(undefined);
+  prontuario.listarPlanos.mockResolvedValue([]);
+  prontuario.listarEvolucoes.mockResolvedValue([]);
+  prontuario.criarEvolucao.mockResolvedValue(evolucaoCriada);
 });
 
 async function abrirNovaEvolucao() {
@@ -49,7 +66,8 @@ async function abrirNovaEvolucao() {
   );
   await fireEvent.press(await screen.findByTestId('tab-consultas'));
   await fireEvent.press(await screen.findByTestId('consulta-3'));
-  await fireEvent.press(await screen.findByTestId('consulta-nova-evolucao'));
+  await fireEvent.press(await screen.findByTestId('consulta-prontuario'));
+  await fireEvent.press(await screen.findByTestId('prontuario-nova-evolucao'));
   await screen.findByRole('header', { name: 'Nova evolução' });
 }
 
@@ -65,7 +83,7 @@ describe('Nova evolução', () => {
     expect(screen.getByTestId('evolucao-visivel')).toHaveProp('value', true);
   });
 
-  it('registra a evolução e volta ao prontuário', async () => {
+  it('registra a evolução e volta ao prontuário com o aviso', async () => {
     await abrirNovaEvolucao();
     await fireEvent.changeText(
       screen.getByTestId('evolucao-observacoes'),
@@ -85,14 +103,17 @@ describe('Nova evolução', () => {
         visivelPaciente: false,
       }),
     );
-    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(await screen.findByTestId('prontuario-aviso')).toHaveTextContent('Evolução registrada.');
+    expect(screen.getByTestId('prontuario-paciente')).toHaveTextContent('Marcos Coelho');
+    // O histórico do prontuário é recarregado com a evolução nova.
+    await waitFor(() => expect(prontuario.listarEvolucoes.mock.calls.length).toBeGreaterThan(1));
   });
 
   it('mostra carregamento no botão enquanto envia', async () => {
     let concluir: () => void = () => {};
     prontuario.criarEvolucao.mockReturnValue(
-      new Promise<void>((resolve) => {
-        concluir = resolve;
+      new Promise((resolve) => {
+        concluir = () => resolve(evolucaoCriada);
       }),
     );
     await abrirNovaEvolucao();
@@ -102,7 +123,8 @@ describe('Nova evolução', () => {
     expect(await screen.findByText('Registrando...')).toBeOnTheScreen();
     expect(screen.getByTestId('evolucao-registrar')).toBeDisabled();
     concluir();
-    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(await screen.findByTestId('prontuario-aviso')).toBeOnTheScreen();
+    await waitFor(() => expect(prontuario.listarEvolucoes.mock.calls.length).toBeGreaterThan(1));
   });
 
   it('exige observações antes de enviar', async () => {
@@ -124,7 +146,10 @@ describe('Nova evolução', () => {
   it('"Prontuário" volta sem registrar', async () => {
     await abrirNovaEvolucao();
     await fireEvent.press(screen.getByTestId('evolucao-voltar'));
-    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(await screen.findByTestId('prontuario-paciente')).toBeOnTheScreen();
+    expect(screen.queryByTestId('prontuario-aviso')).toBeNull();
+    // Recarrega ao voltar ao foco.
+    await waitFor(() => expect(prontuario.listarEvolucoes.mock.calls.length).toBeGreaterThan(1));
     expect(prontuario.criarEvolucao).not.toHaveBeenCalled();
   });
 });

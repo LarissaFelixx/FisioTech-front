@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { prontuarioService } from '../services/prontuarioService';
-import type { PlanoCreateRequest } from '../types/plano';
+import type { PlanoCreateRequest } from '../types/prontuario';
 import { queryKeys } from './queryKeys';
 
 /** Revisões do plano terapêutico do paciente (`GET /prontuario/pacientes/{id}/planos`). */

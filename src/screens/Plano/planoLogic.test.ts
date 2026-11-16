@@ -1,5 +1,5 @@
 import { httpError, networkError } from '../../test/helpers';
-import type { PlanoTerapeutico } from '../../types/plano';
+import type { PlanoTerapeutico } from '../../types/prontuario';
 import { MENSAGEM_SEM_CONEXAO } from '../../utils/mensagensErro';
 import { MENSAGENS } from '../../utils/validation';
 import {

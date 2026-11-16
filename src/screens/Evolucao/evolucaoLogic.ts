@@ -1,5 +1,5 @@
 import type { Consulta } from '../../types/consulta';
-import type { EvolucaoCreateRequest } from '../../types/evolucao';
+import type { EvolucaoCreateRequest } from '../../types/prontuario';
 import { formatDiaMes, formatHora, parseDataHora } from '../../utils/date';
 import { mensagemDeErro } from '../../utils/mensagensErro';
 import { maximo, obrigatorio, validar } from '../../utils/validation';

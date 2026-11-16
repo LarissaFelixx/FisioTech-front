@@ -1,0 +1,92 @@
+# S5-07: prontuário do profissional (P1), Nova Evolução (P2) e Revisar Plano (P3) contra o
+# backend REAL. Usa a consulta realizada, o plano v1 e a evolução que o seed criou para a Maria.
+# Roda depois de paciente-tratamento.yaml: a revisão do plano muda o que a paciente vê.
+appId: host.exp.exponent
+name: Profissional — prontuário, nova evolução e revisar plano
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-profissional.yaml
+
+# Consulta realizada → Prontuário do paciente.
+- tapOn:
+    id: 'tab-consultas'
+- scrollUntilVisible:
+    element: '15:00 · Presencial · Unimed'
+    direction: DOWN
+- tapOn: '15:00 · Presencial · Unimed'
+- extendedWaitUntil:
+    visible: 'Realizada'
+    timeout: 20000
+- tapOn:
+    id: 'consulta-prontuario'
+- extendedWaitUntil:
+    visible: 'Plano terapêutico'
+    timeout: 20000
+- assertVisible: 'Prontuário'
+- assertVisible: 'Maria Paciente E2E'
+- assertVisible: 'Ativo · v1'
+- assertVisible: 'Reduzir a dor e recuperar a amplitude completa do ombro.'
+- assertVisible: 'Início .* · Previsão .* · Visível ao paciente'
+- assertVisible: '.* · Consulta 15:00'
+- assertVisible: 'Melhora da dor ao elevar o braço. Mantidos exercícios isométricos.'
+- assertNotVisible:
+    id: 'prontuario-versoes'
+- takeScreenshot: prontuario
+
+# Nova evolução privada: volta ao prontuário com o aviso e ela aparece no histórico.
+- tapOn:
+    id: 'prontuario-nova-evolucao'
+- extendedWaitUntil:
+    visible: 'Nova evolução'
+    timeout: 20000
+- assertVisible: 'Maria Paciente E2E · consulta de .* 15:00'
+- tapOn:
+    id: 'evolucao-registrar'
+- assertVisible: 'Este campo é obrigatório.'
+- tapOn:
+    id: 'evolucao-observacoes'
+- inputText: 'Dor 4/10 na abducao. Progressao para elastico medio.'
+- hideKeyboard
+- tapOn:
+    id: 'evolucao-visivel'
+- tapOn:
+    id: 'evolucao-registrar'
+- extendedWaitUntil:
+    visible: 'Evolução registrada.'
+    timeout: 20000
+- assertVisible: 'Dor 4/10 na abducao. Progressao para elastico medio.'
+- assertVisible: 'Privada'
+
+# Revisar plano: nova versão v2 e a v1 vai para as versões anteriores.
+- tapOn:
+    id: 'prontuario-revisar-plano'
+- extendedWaitUntil:
+    visible: 'Revisar plano terapêutico'
+    timeout: 20000
+- assertVisible: 'Reduzir a dor e recuperar a amplitude completa do ombro.'
+- tapOn:
+    id: 'plano-condutas'
+- eraseText: 100
+- inputText: 'Fortalecimento com elastico medio, 3x/semana.'
+- hideKeyboard
+- tapOn:
+    id: 'plano-salvar'
+- extendedWaitUntil:
+    visible: 'Nova versão do plano salva.'
+    timeout: 20000
+- assertVisible: 'Ativo · v2'
+- assertVisible: 'Fortalecimento com elastico medio, 3x/semana.'
+- tapOn:
+    id: 'prontuario-versoes'
+- assertVisible: 'Substituído · v1'
+- assertVisible: 'Fortalecimento de manguito rotador, 2x/semana.'
+- takeScreenshot: prontuario-versoes
+
+- tapOn:
+    id: 'prontuario-voltar'
+- extendedWaitUntil:
+    visible: 'Realizada'
+    timeout: 10000

@@ -9,7 +9,7 @@ import { pacienteService } from '../../services/pacienteService';
 import { prontuarioService } from '../../services/prontuarioService';
 import { authValue } from '../../test/authContextValue';
 import { consulta, httpError, Providers } from '../../test/helpers';
-import type { PlanoTerapeutico } from '../../types/plano';
+import type { PlanoTerapeutico } from '../../types/prontuario';
 import { clock } from '../../utils/clock';
 
 jest.mock('../../services/consultaService');
@@ -56,6 +56,7 @@ beforeEach(() => {
     ativo,
   ]);
   prontuario.revisarPlano.mockResolvedValue({ ...ativo, id: 6, revisao: 3 });
+  prontuario.listarEvolucoes.mockResolvedValue([]);
 });
 
 async function abrirRevisarPlano() {
@@ -70,7 +71,8 @@ async function abrirRevisarPlano() {
   );
   await fireEvent.press(await screen.findByTestId('tab-consultas'));
   await fireEvent.press(await screen.findByTestId('consulta-3'));
-  await fireEvent.press(await screen.findByTestId('consulta-revisar-plano'));
+  await fireEvent.press(await screen.findByTestId('consulta-prontuario'));
+  await fireEvent.press(await screen.findByTestId('prontuario-revisar-plano'));
   await screen.findByRole('header', { name: 'Revisar plano terapêutico' });
 }
 
@@ -94,7 +96,7 @@ describe('Revisar plano terapêutico', () => {
     expect(screen.getByTestId('plano-visivel')).toHaveProp('value', true);
   });
 
-  it('salva a nova versão e volta ao prontuário', async () => {
+  it('salva a nova versão e volta ao prontuário com o aviso', async () => {
     let concluir: () => void = () => {};
     prontuario.revisarPlano.mockReturnValue(
       new Promise((resolve) => {
@@ -117,7 +119,9 @@ describe('Revisar plano terapêutico', () => {
       visivelPaciente: false,
     });
     concluir();
-    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(await screen.findByTestId('prontuario-aviso')).toHaveTextContent(
+      'Nova versão do plano salva.',
+    );
   });
 
   it('valida por campo antes de enviar', async () => {
@@ -142,7 +146,8 @@ describe('Revisar plano terapêutico', () => {
   });
 
   it('erro ao carregar, com tentar de novo', async () => {
-    prontuario.listarPlanos.mockRejectedValueOnce(httpError(500));
+    // O prontuário e o Revisar Plano dividem a mesma consulta de planos.
+    prontuario.listarPlanos.mockRejectedValue(httpError(500));
     await render(
       <Providers navigation>
         <AuthContext.Provider value={authValue()}>
@@ -154,11 +159,13 @@ describe('Revisar plano terapêutico', () => {
     );
     await fireEvent.press(await screen.findByTestId('tab-consultas'));
     await fireEvent.press(await screen.findByTestId('consulta-3'));
-    await fireEvent.press(await screen.findByTestId('consulta-revisar-plano'));
+    await fireEvent.press(await screen.findByTestId('consulta-prontuario'));
+    await fireEvent.press(await screen.findByTestId('prontuario-revisar-plano'));
 
     expect(
       await screen.findByText('Não foi possível carregar o plano terapêutico.'),
     ).toBeOnTheScreen();
+    prontuario.listarPlanos.mockResolvedValue([ativo]);
     await fireEvent.press(screen.getByText('Tentar novamente'));
     expect(await screen.findByTestId('plano-objetivos')).toHaveDisplayValue(ativo.objetivos);
   });
@@ -166,7 +173,7 @@ describe('Revisar plano terapêutico', () => {
   it('"Prontuário" volta sem salvar', async () => {
     await abrirRevisarPlano();
     await fireEvent.press(screen.getByTestId('plano-voltar'));
-    expect(await screen.findByTestId('consulta-detalhe-paciente')).toBeOnTheScreen();
+    expect(await screen.findByTestId('prontuario-paciente')).toBeOnTheScreen();
     await waitFor(() => expect(prontuario.revisarPlano).not.toHaveBeenCalled());
   });
 });
