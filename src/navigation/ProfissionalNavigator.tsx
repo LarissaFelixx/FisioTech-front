@@ -11,8 +11,8 @@ import { ConsultaWizardScreen } from '../screens/ConsultaWizard/ConsultaWizardSc
 import { NovaEvolucaoScreen } from '../screens/Evolucao/NovaEvolucaoScreen';
 import { PacienteFormScreen } from '../screens/Pacientes/PacienteFormScreen';
 import { PacienteListScreen } from '../screens/Pacientes/PacienteListScreen';
-import { PlaceholderScreen } from '../screens/Placeholder/PlaceholderScreen';
 import { RevisarPlanoScreen } from '../screens/Plano/RevisarPlanoScreen';
+import { AlterarSenhaProfissionalScreen } from '../screens/Profissional/Senha/AlterarSenhaProfissionalScreen';
 import { ProfissionalHomeScreen } from '../screens/ProfissionalHome/ProfissionalHomeScreen';
 import { ProntuarioScreen } from '../screens/Prontuario/ProntuarioScreen';
 import { colors, fonts } from '../theme';
@@ -27,11 +27,6 @@ const TAB_ICONS: Record<keyof ProfissionalTabsParamList, IconName> = {
   Consultas: 'calendar',
   Mensagens: 'chat',
 };
-
-// Tela que ainda não foi migrada.
-const AlterarSenhaPlaceholder = () => (
-  <PlaceholderScreen title="Alterar senha" message="A troca de senha chega no Batch 7." />
-);
 
 function ProfissionalTabs() {
   return (
@@ -109,8 +104,8 @@ export function ProfissionalNavigator() {
       />
       <Stack.Screen
         name="AlterarSenha"
-        component={AlterarSenhaPlaceholder}
-        options={{ title: 'Alterar Senha' }}
+        component={AlterarSenhaProfissionalScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

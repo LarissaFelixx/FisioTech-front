@@ -193,6 +193,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     e cadastro rápido), prontuário e exclusão.
   - `registro-clinico.yaml`: registro clínico da consulta nova em 4 etapas, saída no meio e
     retomada pelo prontuário, voltar com os dados mantidos, finalização e prontuário realizado.
+  - `profissional-senha.yaml`: senha atual errada (400), troca com o app continuando logado,
+    senha antiga recusada no login e volta para a original (S5-08).
   - Área do paciente (atividades #41 a #47), com a paciente e os dados criados pelo seed:
     - `paciente-menu.yaml`: abas, menu pelo avatar (Editar Perfil, Alterar Senha) e Sair (#46).
     - `paciente-perfil.yaml`: edita e salva o Meu Perfil e confere ao entrar de novo (#44).

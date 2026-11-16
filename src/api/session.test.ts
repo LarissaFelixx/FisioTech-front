@@ -81,6 +81,33 @@ describe('createSession', () => {
     expect(storage.value).toBeNull();
   });
 
+  it('refresh antigo recusado depois de um novo login não apaga a sessão nova', async () => {
+    // Troca de senha: o backend revoga a sessão antiga e o app entra de novo. Uma renovação com
+    // o refresh token antigo, ainda em andamento, volta 401 depois que o login já salvou os
+    // tokens novos.
+    let recusarRefresh: () => void = () => {};
+    const client = fakeClient((config) => {
+      if (config.url === '/auth/refresh') {
+        return new Promise((resolve) => {
+          recusarRefresh = () => resolve({ status: 401 });
+        });
+      }
+      return { status: 200, data: tokens(2) };
+    });
+    const storage = memoryStorage('refresh-1');
+    const session = createSession(client, storage);
+
+    const renovacao = session.refresh();
+    await session.login({ email: 'ana@clinica.com', senha: 'senha-nova-123' });
+    recusarRefresh();
+
+    // A requisição que pediu a renovação segue com o token da sessão nova.
+    await expect(renovacao).resolves.toBe('access-2');
+    expect(storage.value).toBe('refresh-2');
+    expect(session.getAccessToken()).toBe('access-2');
+    expect(storage.clear).not.toHaveBeenCalled();
+  });
+
   it('refresh sem token salvo sinaliza sessão expirada sem chamar o servidor', async () => {
     const client = fakeClient(() => ({ status: 200, data: tokens(1) }));
     const session = createSession(client, memoryStorage(null));
