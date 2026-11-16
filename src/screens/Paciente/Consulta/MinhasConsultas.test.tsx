@@ -6,7 +6,13 @@ import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
 import { meService } from '../../../services/meService';
 import { authValue, usuarioProfissional } from '../../../test/authContextValue';
 import { consulta, httpError, paciente as pacienteMe, Providers } from '../../../test/helpers';
-import { linhaConsulta, ordenarConsultas } from './minhasConsultasLogic';
+import { clock } from '../../../utils/clock';
+import {
+  consultasDoFiltro,
+  linhaConsulta,
+  mensagemListaVazia,
+  ordenarConsultas,
+} from './minhasConsultasLogic';
 
 jest.mock('../../../services/meService');
 
@@ -36,10 +42,44 @@ describe('regras de Minhas Consultas', () => {
       ),
     ).toEqual({ quando: '20/07/2025 08:00 · Online', convenio: null, cancelada: true });
   });
+
+  describe('filtro (S5-04)', () => {
+    const agora = new Date(2025, 7, 21, 10, 0);
+    const lista = [
+      consulta({ id: 1, dataHora: '2025-08-29T09:00:00', status: 'AGENDADA' }),
+      consulta({ id: 2, dataHora: '2025-08-22T09:00:00', status: 'CONFIRMADA' }),
+      consulta({ id: 3, dataHora: '2025-08-01T10:00:00', status: 'REALIZADA' }),
+      consulta({ id: 4, dataHora: '2025-08-25T08:00:00', status: 'CANCELADA' }),
+      // Agendada que já passou sem ser realizada não é "próxima".
+      consulta({ id: 5, dataHora: '2025-08-20T08:00:00', status: 'AGENDADA' }),
+      consulta({ id: 6, dataHora: '2025-08-15T15:00:00', status: 'REALIZADA' }),
+    ];
+    const ids = (filtro: Parameters<typeof consultasDoFiltro>[1]) =>
+      consultasDoFiltro(lista, filtro, agora).map((c) => c.id);
+
+    it('"Todas" mantém todas, da mais recente para a mais antiga', () => {
+      expect(ids('todas')).toEqual([1, 4, 2, 5, 6, 3]);
+    });
+
+    it('"Próximas" só agendadas/confirmadas por vir, da mais perto para a mais longe', () => {
+      expect(ids('proximas')).toEqual([2, 1]);
+    });
+
+    it('"Realizadas" só as realizadas, da mais recente para a mais antiga', () => {
+      expect(ids('realizadas')).toEqual([6, 3]);
+    });
+
+    it('mensagem de lista vazia por filtro', () => {
+      expect(mensagemListaVazia('todas')).toBe('Você ainda não tem consultas.');
+      expect(mensagemListaVazia('proximas')).toBe('Você não tem consultas marcadas.');
+      expect(mensagemListaVazia('realizadas')).toBe('Você ainda não tem consultas realizadas.');
+    });
+  });
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(clock, 'agora').mockReturnValue(new Date(2025, 7, 21, 10, 0));
   jest.mocked(meService.minhasConversas).mockResolvedValue([]);
   jest.mocked(meService.minhaConsulta).mockResolvedValue(consulta({ id: 2 }));
   jest.mocked(meService.perfil).mockResolvedValue(pacienteMe());
@@ -56,6 +96,8 @@ beforeEach(() => {
     consulta({ id: 2, dataHora: '2025-08-15T15:00:00', status: 'REALIZADA' }),
   ]);
 });
+
+afterEach(() => jest.restoreAllMocks());
 
 async function montarNaAba() {
   await render(
@@ -125,6 +167,44 @@ describe('Minhas Consultas (#39)', () => {
 
     expect(await screen.findByText('Você ainda não tem consultas.')).toBeOnTheScreen();
     expect(screen.getByTestId('consultas-marcar')).toBeOnTheScreen();
+  });
+
+  it('o filtro mostra só as próximas ou só as realizadas', async () => {
+    await montarNaAba();
+    await screen.findByTestId('consultas-lista');
+
+    await fireEvent.press(screen.getByTestId('consultas-filtro-proximas'));
+    expect(screen.getByTestId('consultas-filtro-proximas')).toBeChecked();
+    expect(
+      within(screen.getByTestId('consultas-lista'))
+        .getAllByRole('button')
+        .map((l) => l.props.testID),
+    ).toEqual(['minha-consulta-1']);
+
+    await fireEvent.press(screen.getByTestId('consultas-filtro-realizadas'));
+    expect(
+      within(screen.getByTestId('consultas-lista'))
+        .getAllByRole('button')
+        .map((l) => l.props.testID),
+    ).toEqual(['minha-consulta-2', 'minha-consulta-3']);
+
+    await fireEvent.press(screen.getByTestId('consultas-filtro-todas'));
+    expect(within(screen.getByTestId('consultas-lista')).getAllByRole('button')).toHaveLength(4);
+  });
+
+  it('filtro sem consultas mostra a mensagem dele', async () => {
+    jest
+      .mocked(meService.minhasConsultas)
+      .mockResolvedValue([
+        consulta({ id: 3, dataHora: '2025-08-01T10:00:00', status: 'REALIZADA' }),
+      ]);
+    await montarNaAba();
+    await screen.findByTestId('consultas-lista');
+
+    await fireEvent.press(screen.getByTestId('consultas-filtro-proximas'));
+    expect(screen.getByTestId('consultas-vazio')).toHaveTextContent(
+      'Você não tem consultas marcadas.',
+    );
   });
 
   it('erro ao carregar mostra "Tentar novamente", que recarrega a lista', async () => {

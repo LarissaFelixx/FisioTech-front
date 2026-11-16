@@ -1,28 +1,40 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
 import { Icon } from '../../../components/Icon/Icon';
+import { Segmentado } from '../../../components/Segmentado/Segmentado';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
 import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 import { useMinhasConsultas } from '../../../hooks/useMe';
 import { useRefetchOnFocus } from '../../../hooks/useRefetchOnFocus';
 import type { PacienteStackParamList } from '../../../navigation/types';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../../theme';
-import { linhaConsulta, ordenarConsultas } from './minhasConsultasLogic';
+import { clock } from '../../../utils/clock';
+import {
+  OPCOES_FILTRO,
+  consultasDoFiltro,
+  linhaConsulta,
+  mensagemListaVazia,
+  type FiltroConsultas,
+} from './minhasConsultasLogic';
 
 /**
  * Minhas Consultas (#39, Figma "18 Minhas Consultas"): botão "Marcar Consulta" e a lista das
- * consultas do paciente com o status; tocar numa consulta abre o detalhe.
+ * consultas do paciente com o status; tocar numa consulta abre o detalhe. O filtro
+ * "Todas | Próximas | Realizadas" (S5-04) não está no Figma.
  */
 export function MinhasConsultasScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<PacienteStackParamList>>();
   const consultas = useMinhasConsultas();
   useRefetchOnFocus(consultas.refetch);
 
-  const lista = consultas.data ? ordenarConsultas(consultas.data) : [];
+  const [filtro, setFiltro] = useState<FiltroConsultas>('todas');
+
+  const lista = consultas.data ? consultasDoFiltro(consultas.data, filtro, clock.agora()) : [];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -50,6 +62,14 @@ export function MinhasConsultasScreen() {
           <Text style={styles.marcarTexto}>Marcar Consulta</Text>
         </Pressable>
 
+        <Segmentado
+          accessibilityLabel="Filtrar consultas"
+          opcoes={OPCOES_FILTRO}
+          valor={filtro}
+          onChange={(valor) => setFiltro(valor as FiltroConsultas)}
+          testID="consultas-filtro"
+        />
+
         {consultas.isPending ? (
           <Skeleton variant="list" count={4} />
         ) : consultas.isError ? (
@@ -59,7 +79,9 @@ export function MinhasConsultasScreen() {
             retrying={consultas.isRefetching}
           />
         ) : lista.length === 0 ? (
-          <Text style={styles.vazio}>Você ainda não tem consultas.</Text>
+          <Text style={styles.vazio} testID="consultas-vazio">
+            {mensagemListaVazia(filtro)}
+          </Text>
         ) : (
           <View style={styles.lista} testID="consultas-lista">
             {lista.map((c, i) => {

@@ -20,3 +20,48 @@ export function linhaConsulta(c: Consulta) {
     cancelada: c.status === 'CANCELADA',
   };
 }
+
+// ---------- Filtro ----------
+
+export type FiltroConsultas = 'todas' | 'proximas' | 'realizadas';
+
+export const OPCOES_FILTRO: { valor: FiltroConsultas; label: string }[] = [
+  { valor: 'todas', label: 'Todas' },
+  { valor: 'proximas', label: 'Próximas' },
+  { valor: 'realizadas', label: 'Realizadas' },
+];
+
+/**
+ * Consultas de cada filtro: "Próximas" são as agendadas ou confirmadas que ainda não passaram,
+ * da mais perto para a mais longe; "Realizadas" e "Todas" seguem da mais recente para a mais antiga.
+ */
+export function consultasDoFiltro(
+  consultas: Consulta[],
+  filtro: FiltroConsultas,
+  agora: Date,
+): Consulta[] {
+  if (filtro === 'proximas') {
+    return ordenarConsultas(
+      consultas.filter(
+        (c) =>
+          (c.status === 'AGENDADA' || c.status === 'CONFIRMADA') &&
+          parseDataHora(c.dataHora) >= agora,
+      ),
+    ).reverse();
+  }
+  if (filtro === 'realizadas') {
+    return ordenarConsultas(consultas.filter((c) => c.status === 'REALIZADA'));
+  }
+  return ordenarConsultas(consultas);
+}
+
+export function mensagemListaVazia(filtro: FiltroConsultas): string {
+  switch (filtro) {
+    case 'proximas':
+      return 'Você não tem consultas marcadas.';
+    case 'realizadas':
+      return 'Você ainda não tem consultas realizadas.';
+    default:
+      return 'Você ainda não tem consultas.';
+  }
+}
