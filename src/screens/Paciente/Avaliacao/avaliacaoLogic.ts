@@ -1,4 +1,5 @@
-import type { AvaliacaoCreateRequest } from '../../../types/avaliacao';
+import { toApiError } from '../../../api/errors';
+import type { Avaliacao, AvaliacaoCreateRequest } from '../../../types/avaliacao';
 import type { Consulta } from '../../../types/consulta';
 import { formatDataBr, formatHora, parseDataHora } from '../../../utils/date';
 import { mensagemDeErro } from '../../../utils/mensagensErro';
@@ -47,3 +48,31 @@ export function mensagemErroAvaliar(error: unknown): string {
     'Não foi possível enviar a avaliação.',
   );
 }
+
+/** Status do erro de envio, quando o backend respondeu (409 já avaliada, 400 não realizada). */
+export function statusErroAvaliar(error: unknown): number | null {
+  const erro = toApiError(error);
+  return erro.kind === 'http' ? erro.status : null;
+}
+
+// ---------- Quem pode avaliar (S5-05) ----------
+
+export type SituacaoAvaliacao = 'liberada' | 'nao-realizada' | 'ja-avaliada';
+
+/**
+ * A avaliação só é liberada para consulta REALIZADA e ainda sem avaliação; o backend recusa as
+ * demais (400/409), então a tela nem mostra o formulário nesses casos.
+ */
+export function situacaoAvaliacao(c: Consulta, avaliacao: Avaliacao | null): SituacaoAvaliacao {
+  if (c.status !== 'REALIZADA') {
+    return 'nao-realizada';
+  }
+  return avaliacao ? 'ja-avaliada' : 'liberada';
+}
+
+export const MENSAGEM_SITUACAO: Record<Exclude<SituacaoAvaliacao, 'liberada'>, string> = {
+  'nao-realizada': 'Só é possível avaliar consultas já realizadas.',
+  'ja-avaliada': 'Você já avaliou esta consulta.',
+};
+
+export const MENSAGEM_ERRO_CARREGAR_AVALIACAO = 'Não foi possível carregar a consulta.';
