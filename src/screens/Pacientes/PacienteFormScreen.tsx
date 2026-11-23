@@ -1,15 +1,7 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useLayoutEffect, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../../components/Button/Button';
 import { useConfirm } from '../../components/ConfirmDialog/ConfirmDialog';
@@ -17,6 +9,8 @@ import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Icon } from '../../components/Icon/Icon';
 import { OptionChips } from '../../components/OptionChips/OptionChips';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import { useConsultas } from '../../hooks/useConsultas';
 import {
@@ -163,11 +157,8 @@ function Formulario({ inicial, paciente }: { inicial: PacienteFormValues; pacien
   });
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado contentContainerStyle={styles.content}>
         {paciente ? (
           <>
             <Text style={styles.meta}>
@@ -277,8 +268,8 @@ function Formulario({ inicial, paciente }: { inicial: PacienteFormValues; pacien
         </View>
 
         {paciente ? <HistoricoConsultas pacienteId={paciente.id} /> : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </RolagemTeclado>
+    </AreaTeclado>
   );
 }
 

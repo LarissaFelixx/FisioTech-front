@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '../../../components/Avatar/Avatar';
@@ -15,6 +7,8 @@ import { Button } from '../../../components/Button/Button';
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
 import { OptionChips } from '../../../components/OptionChips/OptionChips';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAtualizarMeuPerfil, useMeuPerfil } from '../../../hooks/useMe';
@@ -123,11 +117,8 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
   });
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado contentContainerStyle={styles.content}>
         <View>
           <Text style={styles.titulo} accessibilityRole="header">
             Meu Perfil
@@ -163,7 +154,7 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
           <TextField label="Telefone" keyboardType="phone-pad" {...campo('telefone')} />
           <TextField label="Endereço" {...campo('endereco')} />
         </View>
-      </ScrollView>
+      </RolagemTeclado>
 
       {/* Retorno no rodapé, junto do botão: no fim do formulário ele ficaria fora da tela. */}
       <View style={styles.rodape} testID="perfil-rodape">
@@ -184,7 +175,7 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
           testID="perfil-salvar"
         />
       </View>
-    </KeyboardAvoidingView>
+    </AreaTeclado>
   );
 }
 

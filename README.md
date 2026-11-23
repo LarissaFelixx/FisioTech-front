@@ -204,6 +204,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     - `paciente-menu.yaml`: abas, menu pelo avatar (Editar Perfil, Alterar Senha) e Sair (#46).
     - `paciente-perfil.yaml`: edita e salva o Meu Perfil e confere ao entrar de novo (#44).
     - `paciente-senha.yaml`: troca a senha, entra com a nova e volta para a original (#45).
+    - `teclado-campos.yaml`: com o teclado aberto, o último campo e o botão do rodapé ficam à
+      vista (Meu Perfil e Alterar Senha).
     - `paciente-consulta-detalhe.yaml`: detalhe da consulta, remarcar e cancelar (#41).
     - `paciente-consulta-realizada.yaml`: consulta realizada com o convite para avaliar (#42).
     - `paciente-avaliar.yaml`: avalia a consulta realizada; roda depois do anterior (#43).

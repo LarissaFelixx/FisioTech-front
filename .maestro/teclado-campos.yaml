@@ -1,0 +1,68 @@
+# Teclado não cobre o campo focado nem o botão do rodapé (Android edge-to-edge).
+# Antes, o KeyboardAvoidingView não agia no Android: o teclado ficava por cima dos últimos campos
+# e do botão. Aqui os toques no botão acontecem COM o teclado aberto (sem hideKeyboard): se ele
+# estivesse coberto, o toque cairia no teclado e a mensagem esperada não apareceria.
+appId: host.exp.exponent
+name: Teclado — campo focado e botão do rodapé à vista
+tags:
+  - backend
+env:
+  METRO_URL: exp://10.0.2.2:8081
+---
+- runFlow: subflows/login-paciente.yaml
+
+# Meu Perfil: Endereço é o último campo, logo acima do rodapé com o Salvar.
+- tapOn:
+    id: 'tab-perfil'
+- extendedWaitUntil:
+    visible:
+      id: 'perfil-nome'
+    timeout: 15000
+# O Endereço começa abaixo da dobra: rola só até ele aparecer, colado no rodapé.
+- scrollUntilVisible:
+    element:
+      id: 'perfil-endereco'
+    direction: DOWN
+- tapOn:
+    id: 'perfil-endereco'
+- runFlow: subflows/fechar-popup-teclado.yaml
+# Digita e apaga: salva os mesmos dados do seed.
+- inputText: 'x'
+- eraseText: 1
+- assertVisible:
+    id: 'perfil-endereco'
+- takeScreenshot: teclado-perfil
+- tapOn:
+    id: 'perfil-salvar'
+# Sucesso ou erro de validação: os dois só aparecem se o toque chegou no Salvar.
+- extendedWaitUntil:
+    visible:
+      id: 'perfil-(sucesso|erro)'
+    timeout: 20000
+
+# Alterar Senha: o último campo e o botão continuam acessíveis com o teclado aberto.
+# A barra de abas fica atrás do teclado: fecha ele antes de trocar de aba.
+- hideKeyboard
+- tapOn:
+    id: 'tab-home'
+- tapOn:
+    id: 'paciente-avatar'
+- tapOn:
+    id: 'menu-alterar-senha'
+- tapOn:
+    id: 'senha-senhaAtual'
+- runFlow: subflows/fechar-popup-teclado.yaml
+- inputText: 'senha-qualquer-1'
+- tapOn:
+    id: 'senha-novaSenha'
+- inputText: 'nova-senha-123'
+- tapOn:
+    id: 'senha-confirmarNovaSenha'
+- inputText: 'outra-coisa-123'
+- assertVisible:
+    id: 'senha-confirmarNovaSenha'
+- takeScreenshot: teclado-senha
+# Confirmação diferente não chega a enviar: nada muda na conta do seed.
+- tapOn:
+    id: 'senha-enviar'
+- assertVisible: 'As senhas não coincidem.'

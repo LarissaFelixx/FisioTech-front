@@ -1,15 +1,7 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/Button/Button';
@@ -17,6 +9,8 @@ import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Icon } from '../../components/Icon/Icon';
 import { OptionChips } from '../../components/OptionChips/OptionChips';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import { ToggleChips } from '../../components/ToggleChips/ToggleChips';
 import { useAtualizarConsulta, useConsulta } from '../../hooks/useConsultas';
@@ -167,16 +161,8 @@ function Wizard({ consulta }: { consulta: Consulta }) {
   const numero = numeroDaEtapa(etapa);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        ref={scroll}
-        style={styles.flex}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado ref={scroll} style={styles.flex} contentContainerStyle={styles.content}>
         <Text style={styles.passo} testID="wizard-passo">
           Passo {numero} de {TOTAL_ETAPAS}
         </Text>
@@ -213,7 +199,7 @@ function Wizard({ consulta }: { consulta: Consulta }) {
             {erro}
           </Text>
         ) : null}
-      </ScrollView>
+      </RolagemTeclado>
 
       <SafeAreaView edges={['bottom']} style={styles.rodape}>
         {etapa !== 'quadro-clinico' ? (
@@ -236,7 +222,7 @@ function Wizard({ consulta }: { consulta: Consulta }) {
           />
         </View>
       </SafeAreaView>
-    </KeyboardAvoidingView>
+    </AreaTeclado>
   );
 }
 

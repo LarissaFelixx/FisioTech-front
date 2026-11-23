@@ -1,13 +1,15 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/Button/Button';
 import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 import { SwitchCard } from '../../components/SwitchCard/SwitchCard';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import { VoltarLink } from '../../components/VoltarLink/VoltarLink';
 import { usePlanos, useRevisarPlano } from '../../hooks/usePlanos';
@@ -99,15 +101,8 @@ function Formulario(props: {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado style={styles.flex} contentContainerStyle={styles.content}>
         <View style={styles.cabecalho}>
           <Text style={styles.titulo} accessibilityRole="header">
             Revisar plano terapêutico
@@ -174,7 +169,7 @@ function Formulario(props: {
             {erro}
           </Text>
         ) : null}
-      </ScrollView>
+      </RolagemTeclado>
 
       <SafeAreaView edges={['bottom']} style={styles.rodape}>
         <Button
@@ -184,7 +179,7 @@ function Formulario(props: {
           testID="plano-salvar"
         />
       </SafeAreaView>
-    </KeyboardAvoidingView>
+    </AreaTeclado>
   );
 }
 

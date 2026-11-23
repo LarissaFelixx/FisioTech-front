@@ -1,7 +1,8 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { useRevelarCampo } from '../Teclado/RolagemTeclado';
 
 type Props = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -14,6 +15,9 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
   ref,
 ) {
   const [focado, setFocado] = useState(false);
+  const input = useRef<TextInput>(null);
+  useImperativeHandle(ref, () => input.current as TextInput);
+  const revelarCampo = useRevelarCampo();
   // Multilinha (`<textarea rows>` do Angular): altura mínima pelo número de linhas.
   const linhas = inputProps.multiline ? (inputProps.numberOfLines ?? 3) : 0;
 
@@ -21,7 +25,7 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        ref={ref}
+        ref={input}
         accessibilityLabel={label}
         placeholderTextColor={colors.textTertiary}
         style={[
@@ -32,6 +36,7 @@ export const TextField = forwardRef<TextInput, Props>(function TextField(
         ]}
         onFocus={(e) => {
           setFocado(true);
+          revelarCampo?.(input.current);
           onFocus?.(e);
         }}
         onBlur={(e) => {

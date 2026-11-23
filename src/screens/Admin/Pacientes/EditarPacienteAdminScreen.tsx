@@ -1,7 +1,7 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AdminOnly } from '../../../components/AdminOnly/AdminOnly';
@@ -9,6 +9,8 @@ import { Button } from '../../../components/Button/Button';
 import { useConfirm } from '../../../components/ConfirmDialog/ConfirmDialog';
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { useAtualizarPacienteAdmin, usePacienteAdmin } from '../../../hooks/usePacientes';
 import { useProfissionais } from '../../../hooks/useProfissionais';
@@ -188,11 +190,8 @@ function EditarPacienteForm({
       edges={['bottom', 'left', 'right']}
       testID="admin-editar-paciente"
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <Text style={styles.hint}>
             ID {paciente.id} · Cadastrado em {formatDataBr(parseDataHora(paciente.dataCriacao))}
           </Text>
@@ -282,8 +281,8 @@ function EditarPacienteForm({
             onPress={() => void salvar()}
             testID="admin-paciente-salvar"
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </RolagemTeclado>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

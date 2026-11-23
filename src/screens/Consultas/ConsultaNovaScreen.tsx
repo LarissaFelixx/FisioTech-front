@@ -1,15 +1,7 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '../../components/Avatar/Avatar';
 import { Button } from '../../components/Button/Button';
@@ -17,6 +9,8 @@ import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { OptionChips } from '../../components/OptionChips/OptionChips';
 import { SearchField } from '../../components/SearchField/SearchField';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import { useCriarConsulta } from '../../hooks/useConsultas';
 import { useCriarPaciente, usePaciente, usePacientes } from '../../hooks/usePacientes';
@@ -209,11 +203,8 @@ function CadastroRapido(props: { onVoltar: () => void; onCadastrado: (p: Pacient
   });
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado contentContainerStyle={styles.content}>
         <View style={styles.card}>
           <Text style={styles.subtitulo}>Cadastrar novo paciente</Text>
           <TextField label="Nome" {...campo('nome')} />
@@ -250,8 +241,8 @@ function CadastroRapido(props: { onVoltar: () => void; onCadastrado: (p: Pacient
             <Text style={styles.linkBotaoTexto}>Voltar pra busca</Text>
           </Pressable>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </RolagemTeclado>
+    </AreaTeclado>
   );
 }
 
@@ -290,11 +281,8 @@ function FormConsulta({
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado contentContainerStyle={styles.content}>
         <View style={styles.pacienteEscolhido}>
           <Text style={styles.meta} testID="consulta-paciente">
             Paciente: {paciente.nome}
@@ -368,8 +356,8 @@ function FormConsulta({
             testID="consulta-iniciar"
           />
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </RolagemTeclado>
+    </AreaTeclado>
   );
 }
 

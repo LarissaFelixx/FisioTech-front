@@ -1,18 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
 import { useConfirm } from '../../../components/ConfirmDialog/ConfirmDialog';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { useAtualizarProfissional, useDeletarProfissional } from '../../../hooks/useProfissionais';
 import type { AdminStackParamList } from '../../../navigation/types';
 import { colors, fontSizes, fonts, spacing } from '../../../theme';
@@ -151,11 +146,8 @@ export function ProfissionalEditor({ profissional }: Props) {
       edges={['bottom', 'left', 'right']}
       testID="admin-editar-profissional"
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <Text style={styles.meta}>
             ID {profissional.id} · Cadastrado em{' '}
             {formatDataBr(parseDataHora(profissional.dataCriacao))}
@@ -191,8 +183,8 @@ export function ProfissionalEditor({ profissional }: Props) {
           >
             <Text style={styles.deleteText}>Excluir profissional</Text>
           </Pressable>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </RolagemTeclado>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

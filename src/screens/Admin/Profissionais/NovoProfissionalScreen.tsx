@@ -1,11 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
 import { AdminOnly } from '../../../components/AdminOnly/AdminOnly';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { useCriarProfissional } from '../../../hooks/useProfissionais';
 import type { AdminStackParamList } from '../../../navigation/types';
 import { colors, fontSizes, fonts, spacing } from '../../../theme';
@@ -95,11 +97,8 @@ function NovoProfissionalForm() {
       edges={['bottom', 'left', 'right']}
       testID="admin-novo-profissional"
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <ProfissionalFields
             valores={valores}
             erros={erros}
@@ -118,8 +117,8 @@ function NovoProfissionalForm() {
             loading={ocupado}
             testID="admin-profissional-salvar"
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </RolagemTeclado>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }
