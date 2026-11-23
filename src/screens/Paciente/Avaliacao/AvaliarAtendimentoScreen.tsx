@@ -1,19 +1,13 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
 import { ErrorState } from '../../../components/ErrorState/ErrorState';
 import { Skeleton } from '../../../components/Skeleton/Skeleton';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { VoltarLink } from '../../../components/VoltarLink/VoltarLink';
 import { useAvaliarConsulta, useMinhaAvaliacao, useMinhaConsulta } from '../../../hooks/useMe';
@@ -110,11 +104,8 @@ export function AvaliarAtendimentoScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <VoltarLink label="Consulta" onPress={() => navigation.goBack()} />
           <View>
             <Text style={styles.titulo} accessibilityRole="header">
@@ -134,7 +125,7 @@ export function AvaliarAtendimentoScreen() {
               erro={erro}
             />
           )}
-        </ScrollView>
+        </RolagemTeclado>
 
         {conteudo ? null : (
           <View style={styles.rodape}>
@@ -147,7 +138,7 @@ export function AvaliarAtendimentoScreen() {
             />
           </View>
         )}
-      </KeyboardAvoidingView>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

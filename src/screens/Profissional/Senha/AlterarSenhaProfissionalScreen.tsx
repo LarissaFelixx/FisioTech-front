@@ -1,9 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { VoltarLink } from '../../../components/VoltarLink/VoltarLink';
 import { useAlterarSenha } from '../../../hooks/useAlterarSenha';
@@ -72,11 +74,8 @@ export function AlterarSenhaProfissionalScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <VoltarLink label="Home" onPress={() => navigation.goBack()} />
           <View>
             <Text style={styles.titulo} accessibilityRole="header">
@@ -110,7 +109,7 @@ export function AlterarSenhaProfissionalScreen() {
               {MENSAGEM_SENHA_ALTERADA}
             </Text>
           ) : null}
-        </ScrollView>
+        </RolagemTeclado>
 
         <View style={styles.rodape}>
           <Button
@@ -120,7 +119,7 @@ export function AlterarSenhaProfissionalScreen() {
             testID="senha-enviar"
           />
         </View>
-      </KeyboardAvoidingView>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

@@ -2,20 +2,13 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type TextInput,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/Button/Button';
 import { Icon } from '../../components/Icon/Icon';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import type { AuthStackParamList } from '../../navigation/types';
 import { colors, fontSizes, fonts, gradients, spacing } from '../../theme';
@@ -89,11 +82,8 @@ export function RedefinirSenhaScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.scroll}>
           <View style={styles.conteudo}>
             <LinearGradient
               colors={gradients.hero.colors}
@@ -185,8 +175,8 @@ export function RedefinirSenhaScreen() {
               </Pressable>
             </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </RolagemTeclado>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

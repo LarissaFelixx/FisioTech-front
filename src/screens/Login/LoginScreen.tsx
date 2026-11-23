@@ -1,19 +1,12 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type TextInput,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/Button/Button';
 import { Icon } from '../../components/Icon/Icon';
+import { AreaTeclado } from '../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../components/TextField/TextField';
 import { CadastroSemLoginError } from '../../contexts/AuthContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -134,15 +127,8 @@ export function LoginScreen() {
   return (
     <LinearGradient colors={['#d7f2f5', colors.bg]} locations={[0, 0.45]} style={styles.fundo}>
       <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scroll}
-            keyboardShouldPersistTaps="handled"
-            testID="login-scroll"
-          >
+        <AreaTeclado style={styles.flex}>
+          <RolagemTeclado contentContainerStyle={styles.scroll} testID="login-scroll">
             <View style={styles.card}>
               <LinearGradient
                 colors={gradients.hero.colors}
@@ -283,8 +269,8 @@ export function LoginScreen() {
                 </>
               )}
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </RolagemTeclado>
+        </AreaTeclado>
       </SafeAreaView>
     </LinearGradient>
   );

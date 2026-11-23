@@ -1,9 +1,11 @@
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../../components/Button/Button';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { VoltarLink } from '../../../components/VoltarLink/VoltarLink';
 import { useAlterarSenha } from '../../../hooks/useAlterarSenha';
@@ -83,11 +85,8 @@ export function AlterarSenhaAdminScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <AreaTeclado style={styles.flex}>
+        <RolagemTeclado contentContainerStyle={styles.content}>
           <View style={styles.cabecalho}>
             <VoltarLink label={origem} onPress={() => navigation.goBack()} />
             <View>
@@ -127,7 +126,7 @@ export function AlterarSenhaAdminScreen() {
               </Text>
             ) : null}
           </View>
-        </ScrollView>
+        </RolagemTeclado>
 
         <View style={styles.rodape}>
           <Button
@@ -137,7 +136,7 @@ export function AlterarSenhaAdminScreen() {
             testID="senha-enviar"
           />
         </View>
-      </KeyboardAvoidingView>
+      </AreaTeclado>
     </SafeAreaView>
   );
 }

@@ -1,19 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AdminOnly } from '../../../components/AdminOnly/AdminOnly';
 import { Button } from '../../../components/Button/Button';
 import { useConfirm } from '../../../components/ConfirmDialog/ConfirmDialog';
+import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
+import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
 import { queryKeys } from '../../../hooks/queryKeys';
 import { pacienteAdminService } from '../../../services/pacienteService';
@@ -174,11 +168,8 @@ function FormularioSenha({ conta, onVoltar }: { conta: ContaSenha; onVoltar: () 
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <AreaTeclado style={styles.flex}>
+      <RolagemTeclado contentContainerStyle={styles.content}>
         <View style={styles.card}>
           <Text style={styles.title} accessibilityRole="header">
             {conta.nome}
@@ -250,8 +241,8 @@ function FormularioSenha({ conta, onVoltar }: { conta: ContaSenha; onVoltar: () 
           onPress={onVoltar}
           testID="admin-senha-outra-conta"
         />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </RolagemTeclado>
+    </AreaTeclado>
   );
 }
 

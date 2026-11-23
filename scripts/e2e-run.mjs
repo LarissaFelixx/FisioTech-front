@@ -101,6 +101,7 @@ process.exit(
             '.maestro/paciente-menu.yaml',
             '.maestro/paciente-perfil.yaml',
             '.maestro/paciente-senha.yaml',
+            '.maestro/teclado-campos.yaml',
             '.maestro/paciente-consulta-detalhe.yaml',
             '.maestro/paciente-consulta-realizada.yaml',
             '.maestro/paciente-avaliar.yaml',
