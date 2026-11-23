@@ -10,6 +10,7 @@ import { Skeleton } from '../../../components/Skeleton/Skeleton';
 import { AreaTeclado } from '../../../components/Teclado/AreaTeclado';
 import { RolagemTeclado } from '../../../components/Teclado/RolagemTeclado';
 import { TextField } from '../../../components/TextField/TextField';
+import { useToast } from '../../../components/Toast/Toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAtualizarMeuPerfil, useMeuPerfil } from '../../../hooks/useMe';
 import { colors, fontSizes, fonts, shadows, spacing } from '../../../theme';
@@ -83,12 +84,11 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
   const [valores, setValores] = useState(() => valoresDoPerfil(perfil));
   const [erros, setErros] = useState<Partial<Record<PerfilCampos, string>>>({});
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState(false);
+  const { toast, mostrarToast } = useToast();
 
   function alterar(campo: PerfilCampos, valor: string) {
     setValores((a) => ({ ...a, [campo]: valor }));
     setErros((a) => ({ ...a, [campo]: undefined }));
-    setSucesso(false);
   }
 
   async function salvar() {
@@ -98,10 +98,9 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
       return;
     }
     setErro(null);
-    setSucesso(false);
     try {
       await atualizar.mutateAsync(montarPerfil(valores, perfil));
-      setSucesso(true);
+      mostrarToast(MENSAGEM_PERFIL_SALVO);
       // Nome e email aparecem em outras telas (saudação, menu, troca de senha).
       await recarregarUsuario().catch(() => undefined);
     } catch (e) {
@@ -156,16 +155,13 @@ function FormPerfil({ perfil }: { perfil: Paciente }) {
         </View>
       </RolagemTeclado>
 
-      {/* Retorno no rodapé, junto do botão: no fim do formulário ele ficaria fora da tela. */}
+      {/* Retorno no rodapé, junto do botão: no fim do formulário ele ficaria fora da tela. O
+          sucesso é um toast que some sozinho, logo acima do rodapé. */}
       <View style={styles.rodape} testID="perfil-rodape">
+        {toast}
         {erro ? (
           <Text style={styles.erro} accessibilityRole="alert" testID="perfil-erro">
             {erro}
-          </Text>
-        ) : null}
-        {sucesso ? (
-          <Text style={styles.sucesso} accessibilityLiveRegion="polite" testID="perfil-sucesso">
-            {MENSAGEM_PERFIL_SALVO}
           </Text>
         ) : null}
         <Button
@@ -195,7 +191,6 @@ const styles = StyleSheet.create({
   // No Figma os campos ficam direto sobre o fundo, sem cartão em volta.
   campos: { gap: spacing.lg },
   erro: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.danger },
-  sucesso: { fontFamily: fonts.medium, fontSize: fontSizes.sm, color: colors.success },
   rodape: {
     gap: spacing.sm,
     paddingHorizontal: spacing.xl,

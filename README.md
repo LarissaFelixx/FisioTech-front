@@ -190,8 +190,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
   - `auth-profissional.yaml`: passa por senha errada (401), login e home com dados reais, depois
     fecha e reabre o app (a sessão continua) e termina com logout.
   - `cadastro-paciente.yaml`: autocadastro de paciente e email duplicado (409).
-  - `profissional-pacientes.yaml`: lista e busca, cadastro, edição (data, sexo, bairro) e
-    exclusão de paciente; paciente com consultas não pode ser excluído (409).
+  - `profissional-pacientes.yaml`: lista e busca, cadastro, edição (data, sexo, bairro, com o
+    toast de sucesso) e exclusão de paciente; paciente com consultas não pode ser excluído (409).
   - `chat-http.yaml`: profissional envia, paciente recebe e responde, profissional recebe a
     resposta; usa contas e vínculos criados pelo seed de desenvolvimento.
   - `profissional-consultas.yaml`: lista agrupada e filtros, nova consulta (paciente existente
@@ -202,7 +202,8 @@ O app usa HTTP em texto puro para falar com o backend local (`usesCleartextTraff
     senha antiga recusada no login e volta para a original (S5-08).
   - Área do paciente (atividades #41 a #47), com a paciente e os dados criados pelo seed:
     - `paciente-menu.yaml`: abas, menu pelo avatar (Editar Perfil, Alterar Senha) e Sair (#46).
-    - `paciente-perfil.yaml`: edita e salva o Meu Perfil e confere ao entrar de novo (#44).
+    - `paciente-perfil.yaml`: recusa nascimento no futuro, edita e salva o Meu Perfil (o toast de
+      sucesso some sozinho) e confere ao entrar de novo (#44).
     - `paciente-senha.yaml`: troca a senha, entra com a nova e volta para a original (#45).
     - `teclado-campos.yaml`: com o teclado aberto, o último campo e o botão do rodapé ficam à
       vista (Meu Perfil e Alterar Senha).

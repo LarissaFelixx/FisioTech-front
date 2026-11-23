@@ -1,6 +1,12 @@
-import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import {
+  useNavigation,
+  useRoute,
+  type CompositeNavigationProp,
+  type RouteProp,
+} from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,21 +15,35 @@ import { ErrorState } from '../../components/ErrorState/ErrorState';
 import { Icon } from '../../components/Icon/Icon';
 import { SearchField } from '../../components/SearchField/SearchField';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
+import { useToast } from '../../components/Toast/Toast';
 import { usePacientes } from '../../hooks/usePacientes';
 import { useRefetchOnFocus } from '../../hooks/useRefetchOnFocus';
-import type { ProfissionalStackParamList } from '../../navigation/types';
+import type { ProfissionalStackParamList, ProfissionalTabsParamList } from '../../navigation/types';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import type { Paciente } from '../../types/paciente';
-import { filtrarPacientes } from './pacienteLogic';
+import { AVISOS_PACIENTES, filtrarPacientes } from './pacienteLogic';
 
-type Navigation = NativeStackNavigationProp<ProfissionalStackParamList>;
+type Navigation = CompositeNavigationProp<
+  BottomTabNavigationProp<ProfissionalTabsParamList, 'Pacientes'>,
+  NativeStackNavigationProp<ProfissionalStackParamList>
+>;
 
 /** Origem: `features/pacientes/paciente-list` (aba Pacientes do profissional). */
 export function PacienteListScreen() {
   const navigation = useNavigation<Navigation>();
+  const aviso = useRoute<RouteProp<ProfissionalTabsParamList, 'Pacientes'>>().params?.aviso;
   const { data, isPending, isError, isRefetching, refetch } = usePacientes();
   const [filtro, setFiltro] = useState('');
+  const { toast, mostrarToast } = useToast();
   useRefetchOnFocus(refetch);
+
+  // Aviso do formulário (ex.: edição salva): vira toast e sai dos parâmetros, para não repetir.
+  useEffect(() => {
+    if (aviso) {
+      mostrarToast(AVISOS_PACIENTES[aviso]);
+      navigation.setParams({ aviso: undefined });
+    }
+  }, [aviso, mostrarToast, navigation]);
 
   const filtrados = useMemo(() => filtrarPacientes(data ?? [], filtro), [data, filtro]);
 
@@ -109,6 +129,8 @@ export function PacienteListScreen() {
           </Pressable>
         )}
       />
+      {/* Âncora de altura zero no pé da tela: o toast aparece logo acima dela. */}
+      <View style={styles.ancoraToast}>{toast}</View>
     </SafeAreaView>
   );
 }
@@ -116,6 +138,7 @@ export function PacienteListScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.xl, paddingBottom: spacing.xxxl },
+  ancoraToast: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   cabecalho: { gap: spacing.lg, marginBottom: spacing.lg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: {

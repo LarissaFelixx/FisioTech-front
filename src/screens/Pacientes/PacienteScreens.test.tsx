@@ -1,6 +1,7 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 
 import { ConfirmDialogProvider } from '../../components/ConfirmDialog/ConfirmDialog';
+import { DURACAO_TOAST_MS } from '../../components/Toast/Toast';
 import { AuthContext } from '../../contexts/AuthContext';
 import { ProfissionalNavigator } from '../../navigation/ProfissionalNavigator';
 import { consultaService } from '../../services/consultaService';
@@ -136,6 +137,8 @@ describe('Cadastro de paciente', () => {
       }),
     );
     expect(await screen.findByRole('header', { name: 'Pacientes' })).toBeOnTheScreen();
+    // O toast é só da edição.
+    expect(screen.queryByTestId('toast')).toBeNull();
   });
 
   it('email duplicado (409)', async () => {
@@ -187,6 +190,32 @@ describe('Edição de paciente', () => {
       }),
     );
     expect(await screen.findByRole('header', { name: 'Pacientes' })).toBeOnTheScreen();
+    expect(await screen.findByTestId('toast')).toHaveTextContent(
+      'Paciente atualizado com sucesso.',
+    );
+  });
+
+  it('o toast de edição salva some sozinho e não volta ao reabrir a aba', async () => {
+    jest.useFakeTimers();
+    try {
+      await abrirEdicao();
+      await fireEvent.press(screen.getByTestId('paciente-salvar'));
+      expect(await screen.findByTestId('toast')).toHaveTextContent(
+        'Paciente atualizado com sucesso.',
+      );
+
+      await act(async () => {
+        jest.advanceTimersByTime(DURACAO_TOAST_MS + 300);
+      });
+      expect(screen.queryByTestId('toast')).toBeNull();
+
+      await fireEvent.press(screen.getByTestId('tab-home'));
+      await fireEvent.press(screen.getByTestId('tab-pacientes'));
+      expect(await screen.findByRole('header', { name: 'Pacientes' })).toBeOnTheScreen();
+      expect(screen.queryByTestId('toast')).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('data inválida não é enviada', async () => {

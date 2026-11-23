@@ -1,5 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+import type { AvisoPacientes } from '../screens/Pacientes/pacienteLogic';
 import type { AvisoProntuario } from '../screens/Prontuario/prontuarioLogic';
 
 /** Rotas do fluxo não autenticado. */
@@ -31,7 +32,8 @@ export type AdminStackParamList = {
 /** Abas do profissional (bottom nav do Shell do Angular). */
 export type ProfissionalTabsParamList = {
   Home: undefined;
-  Pacientes: undefined;
+  /** `aviso` vem do formulário de paciente, ao salvar uma edição. */
+  Pacientes: { aviso?: AvisoPacientes } | undefined;
   Consultas: undefined;
   Mensagens: undefined;
 };

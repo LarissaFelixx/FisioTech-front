@@ -1,6 +1,6 @@
 # Batch 4: pacientes do profissional contra o backend REAL.
-# Lista e busca → cadastro → edição (data, sexo, bairro) → histórico de consultas →
-# exclusão bloqueada (409, paciente com consultas) → exclusão de paciente sem vínculos.
+# Lista e busca → cadastro → edição (data, sexo, bairro) com o toast de sucesso → histórico de
+# consultas → exclusão bloqueada (409, paciente com consultas) → exclusão de paciente sem vínculos.
 appId: host.exp.exponent
 name: Profissional — pacientes (lista, cadastro, edição e exclusão)
 tags:
@@ -77,6 +77,13 @@ env:
 - extendedWaitUntil:
     visible: 'Paciente Novo E2E'
     timeout: 20000
+# De volta à lista, o toast confirma a edição e some sozinho.
+- extendedWaitUntil:
+    visible: 'Paciente atualizado com sucesso.'
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible: 'Paciente atualizado com sucesso.'
+    timeout: 10000
 
 # Reabre e confere que o backend guardou os dados.
 - tapOn: 'Paciente Novo E2E'

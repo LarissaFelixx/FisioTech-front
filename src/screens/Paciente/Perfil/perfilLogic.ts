@@ -1,7 +1,13 @@
 import type { MePerfilUpdateRequest, Paciente } from '../../../types/paciente';
 import { dataBrParaIso, formatDataBr, isoParaDataBr, parseDataHora } from '../../../utils/date';
 import { mensagemDeErro } from '../../../utils/mensagensErro';
-import { dataBr, email, maximo, obrigatorio, type Schema } from '../../../utils/validation';
+import {
+  dataNascimentoBr,
+  email,
+  maximo,
+  obrigatorio,
+  type Schema,
+} from '../../../utils/validation';
 
 /** Regras do Meu Perfil (#44; origem: `features/paciente/paciente-perfil` do Angular). */
 
@@ -23,11 +29,14 @@ export function valoresDoPerfil(p: Paciente): PerfilFormValues {
   };
 }
 
-/** Mesmas validações do Angular: nome e email obrigatórios (até 120); data opcional e válida. */
+/**
+ * Validações do Angular (nome e email obrigatórios, até 120; data opcional e válida), mais a data
+ * de nascimento que não pode estar no futuro, como no cadastro do paciente.
+ */
 export const schemaPerfil: Partial<Schema<PerfilCampos>> = {
   nome: [obrigatorio, maximo(120)],
   email: [obrigatorio, email, maximo(120)],
-  dataNascimento: [dataBr],
+  dataNascimento: [dataNascimentoBr],
 };
 
 const ouNulo = (v: string) => v.trim() || null;

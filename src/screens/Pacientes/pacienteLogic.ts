@@ -104,6 +104,13 @@ export function montarAtualizacao(v: PacienteFormValues): PacienteUpdateRequest 
   };
 }
 
+/** Aviso que a lista de pacientes mostra num toast ao voltar do formulário. */
+export type AvisoPacientes = 'paciente-atualizado';
+
+export const AVISOS_PACIENTES: Record<AvisoPacientes, string> = {
+  'paciente-atualizado': 'Paciente atualizado com sucesso.',
+};
+
 export function mensagemErroSalvar(error: unknown): string {
   return mensagemDeErro(
     error,

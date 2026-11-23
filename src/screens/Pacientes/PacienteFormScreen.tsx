@@ -119,10 +119,12 @@ function Formulario({ inicial, paciente }: { inicial: PacienteFormValues; pacien
     try {
       if (paciente) {
         await atualizar.mutateAsync({ id: paciente.id, request: montarAtualizacao(valores) });
+        // O formulário só abre pela lista: volta para ela, que mostra o toast de sucesso.
+        navigation.popTo('Tabs', { screen: 'Pacientes', params: { aviso: 'paciente-atualizado' } });
       } else {
         await criar.mutateAsync(montarCriacao(valores));
+        navigation.goBack();
       }
-      navigation.goBack();
     } catch (e) {
       setErro(mensagemErroSalvar(e));
     }

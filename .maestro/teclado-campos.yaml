@@ -34,10 +34,10 @@ env:
 - takeScreenshot: teclado-perfil
 - tapOn:
     id: 'perfil-salvar'
-# Sucesso ou erro de validação: os dois só aparecem se o toque chegou no Salvar.
+# Toast de sucesso ou erro de validação: os dois só aparecem se o toque chegou no Salvar.
 - extendedWaitUntil:
     visible:
-      id: 'perfil-(sucesso|erro)'
+      id: 'toast|perfil-erro'
     timeout: 20000
 
 # Alterar Senha: o último campo e o botão continuam acessíveis com o teclado aberto.

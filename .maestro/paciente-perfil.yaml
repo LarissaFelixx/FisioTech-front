@@ -1,5 +1,6 @@
 # Atividade #44: Meu Perfil contra o backend REAL.
-# Aba Perfil → edita nascimento, sexo e telefone → salva → entra de novo: dados persistidos.
+# Aba Perfil → nascimento no futuro é recusado → edita nascimento, sexo e telefone → salva → o
+# toast de sucesso some sozinho → entra de novo: dados persistidos.
 appId: host.exp.exponent
 name: Paciente — meu perfil
 tags:
@@ -17,9 +18,23 @@ env:
 - assertVisible: 'Meu Perfil'
 - assertVisible: 'Maria Paciente E2E'
 
+# O toque vai na ponta direita do campo: no Android o cursor fica onde se toca, e o eraseText
+# apaga para trás.
 - tapOn:
     id: 'perfil-dataNascimento'
+    point: '95%,50%'
 - runFlow: subflows/fechar-popup-teclado.yaml
+- eraseText: 12
+- inputText: '01012999'
+- hideKeyboard
+- tapOn:
+    id: 'perfil-salvar'
+- extendedWaitUntil:
+    visible: 'A data de nascimento não pode estar no futuro.'
+    timeout: 10000
+- tapOn:
+    id: 'perfil-dataNascimento'
+    point: '95%,50%'
 - eraseText: 12
 - inputText: '14051990'
 # Fecha o teclado antes de seguir: com ele aberto o layout se desloca e o próximo toque pode não
@@ -42,6 +57,10 @@ env:
 - extendedWaitUntil:
     visible: 'Perfil atualizado com sucesso.'
     timeout: 20000
+# É um toast: some sozinho, sem editar nenhum campo.
+- extendedWaitUntil:
+    notVisible: 'Perfil atualizado com sucesso.'
+    timeout: 10000
 
 # Entra de novo do zero: o perfil é relido do backend.
 - runFlow: subflows/login-paciente.yaml

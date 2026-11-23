@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
+
+import { DURACAO_TOAST_MS } from '../../../components/Toast/Toast';
 
 import { AuthContext } from '../../../contexts/AuthContext';
 import { PacienteNavigator } from '../../../navigation/PacienteNavigator';
@@ -13,9 +15,17 @@ import {
   schemaPerfil,
   valoresDoPerfil,
 } from './perfilLogic';
-import { validarFormulario } from '../../../utils/validation';
+import { formatDataBr } from '../../../utils/date';
+import { MENSAGENS, validarFormulario } from '../../../utils/validation';
 
 jest.mock('../../../services/meService');
+
+/** Amanhã em DD/MM/AAAA, no calendário local. */
+function amanhaBr(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return formatDataBr(d);
+}
 
 const perfil = (parcial: Partial<Paciente> = {}): Paciente => ({
   id: 5,
@@ -73,6 +83,16 @@ describe('perfilLogic', () => {
       dataNascimento: expect.any(String),
     });
     expect(validarFormulario(valoresDoPerfil(perfil()), schemaPerfil)).toEqual({});
+  });
+
+  it('data de nascimento não pode estar no futuro (hoje ainda vale)', () => {
+    const v = valoresDoPerfil(perfil());
+    expect(validarFormulario({ ...v, dataNascimento: amanhaBr() }, schemaPerfil)).toEqual({
+      dataNascimento: MENSAGENS.nascimentoFuturo,
+    });
+    expect(
+      validarFormulario({ ...v, dataNascimento: formatDataBr(new Date()) }, schemaPerfil),
+    ).toEqual({});
   });
 
   it('"Cadastrado em" e mensagens de erro', () => {
@@ -136,14 +156,43 @@ describe('Meu Perfil (tela)', () => {
         foto: 'https://x/foto.png',
       }),
     );
-    expect(await screen.findByTestId('perfil-sucesso')).toHaveTextContent(
-      'Perfil atualizado com sucesso.',
-    );
-    // Regressão: o retorno fica no rodapé, junto do botão, e não no fim do formulário (fora da tela).
-    expect(
-      within(screen.getByTestId('perfil-rodape')).getByTestId('perfil-sucesso'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByTestId('toast')).toHaveTextContent('Perfil atualizado com sucesso.');
+    // Regressão: o retorno fica junto do botão, e não no fim do formulário (fora da tela).
+    expect(within(screen.getByTestId('perfil-rodape')).getByTestId('toast')).toBeOnTheScreen();
     expect(recarregarUsuario).toHaveBeenCalled();
+  });
+
+  it('o aviso de perfil salvo é um toast que some sozinho', async () => {
+    jest.useFakeTimers();
+    try {
+      await abrirPerfil();
+      await fireEvent.press(screen.getByTestId('perfil-salvar'));
+      expect(await screen.findByTestId('toast')).toHaveTextContent(
+        'Perfil atualizado com sucesso.',
+      );
+
+      // Regressão: o texto antigo só sumia ao editar algum campo.
+      await act(async () => {
+        jest.advanceTimersByTime(DURACAO_TOAST_MS + 300);
+      });
+      expect(screen.queryByTestId('toast')).toBeNull();
+      expect(screen.queryByText('Perfil atualizado com sucesso.')).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('não envia com data de nascimento no futuro', async () => {
+    await abrirPerfil();
+    await fireEvent.changeText(
+      screen.getByTestId('perfil-dataNascimento'),
+      amanhaBr().replaceAll('/', ''),
+    );
+    await fireEvent.press(screen.getByTestId('perfil-salvar'));
+    expect(
+      await screen.findByText('A data de nascimento não pode estar no futuro.'),
+    ).toBeOnTheScreen();
+    expect(meService.atualizarPerfil).not.toHaveBeenCalled();
   });
 
   it('não envia com campo inválido', async () => {
