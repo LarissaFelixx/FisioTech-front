@@ -6,11 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AdminOnly } from '../components/AdminOnly/AdminOnly';
 import { Icon, type IconName } from '../components/Icon/Icon';
 import { AdminCabecalho } from '../screens/Admin/AdminCabecalho';
-import { PacientesProvisoriaScreen } from '../screens/Admin/AdminProvisoriaScreens';
+import { EditarPacienteAdminScreen } from '../screens/Admin/Pacientes/EditarPacienteAdminScreen';
+import { PacienteAdminListScreen } from '../screens/Admin/Pacientes/PacienteAdminListScreen';
 import { EditarProfissionalScreen } from '../screens/Admin/Profissionais/EditarProfissionalScreen';
 import { NovoProfissionalScreen } from '../screens/Admin/Profissionais/NovoProfissionalScreen';
 import { ProfissionalListScreen } from '../screens/Admin/Profissionais/ProfissionalListScreen';
 import { AlterarSenhaAdminScreen } from '../screens/Admin/Senha/AlterarSenhaAdminScreen';
+import { CriacaoSenhaAdminScreen } from '../screens/Admin/Senhas/CriacaoSenhaAdminScreen';
 import { useMenuAdmin } from '../screens/Admin/useMenuAdmin';
 import { colors, fonts, spacing } from '../theme';
 import type { AdminStackParamList, AdminTabsParamList } from './types';
@@ -37,6 +39,20 @@ function ProfissionaisTab() {
   );
 }
 
+function PacientesTab() {
+  const { menu, abrirMenu } = useMenuAdmin();
+
+  return (
+    <SafeAreaView style={styles.tab} edges={['top']}>
+      <View style={styles.cabecalho}>
+        <AdminCabecalho titulo="Administração" onAbrirMenu={abrirMenu} />
+      </View>
+      <PacienteAdminListScreen />
+      {menu}
+    </SafeAreaView>
+  );
+}
+
 function AdminTabs() {
   return (
     <Tabs.Navigator
@@ -53,7 +69,7 @@ function AdminTabs() {
       })}
     >
       <Tabs.Screen name="Profissionais" component={ProfissionaisTab} />
-      <Tabs.Screen name="Pacientes" component={PacientesProvisoriaScreen} />
+      <Tabs.Screen name="Pacientes" component={PacientesTab} />
     </Tabs.Navigator>
   );
 }
@@ -80,6 +96,16 @@ export function AdminNavigator() {
           component={AlterarSenhaAdminScreen}
           // O "‹ Profissionais" no topo da tela substitui o header nativo, como no Figma.
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CriacaoSenha"
+          component={CriacaoSenhaAdminScreen}
+          options={{ title: 'Admin - Criação de senha' }}
+        />
+        <Stack.Screen
+          name="EditarPaciente"
+          component={EditarPacienteAdminScreen}
+          options={{ title: 'Admin - Editar Paciente' }}
         />
         <Stack.Screen
           name="NovoProfissional"

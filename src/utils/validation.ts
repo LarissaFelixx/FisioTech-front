@@ -1,4 +1,4 @@
-import { dataBrParaIso, horaValida } from './date';
+import { dataBrParaIso, formatDataBr, horaValida } from './date';
 import { lerValor } from './moeda';
 
 /**
@@ -13,6 +13,7 @@ export const MENSAGENS = {
   minimo: (n: number) => `Deve ter pelo menos ${n} caracteres.`,
   maximo: (n: number) => `Deve ter no máximo ${n} caracteres.`,
   data: 'Data inválida. Use DD/MM/AAAA.',
+  nascimentoFuturo: 'A data de nascimento não pode estar no futuro.',
   hora: 'Horário inválido. Use HH:MM.',
   valor: 'Valor inválido. Use, por exemplo, 150 ou 150,50.',
 } as const;
@@ -39,6 +40,19 @@ export const maximo =
 /** Data opcional no formato DD/MM/AAAA (vazio é válido). */
 export const dataBr: Rule = (v) =>
   v.trim().length > 0 && dataBrParaIso(v) === null ? MENSAGENS.data : null;
+
+/** Compara dias do calendário local, sem converter a data para UTC. */
+export const dataNascimentoBr: Rule = (valor) => {
+  if (!valor.trim()) {
+    return null;
+  }
+  const nascimento = dataBrParaIso(valor);
+  if (!nascimento) {
+    return MENSAGENS.data;
+  }
+  const hoje = dataBrParaIso(formatDataBr(new Date()));
+  return hoje && nascimento > hoje ? MENSAGENS.nascimentoFuturo : null;
+};
 
 /** Horário opcional no formato HH:MM (vazio é válido). */
 export const hora: Rule = (v) =>

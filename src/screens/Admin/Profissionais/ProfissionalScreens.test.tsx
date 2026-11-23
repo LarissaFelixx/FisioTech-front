@@ -79,6 +79,19 @@ async function abrirCadastroPreenchido() {
 }
 
 describe('novo profissional', () => {
+  it.each([
+    ['cadastro', abrirCadastroPreenchido],
+    ['edição', abrirEdicao],
+  ])('impede data de nascimento futura no fluxo de %s', async (_fluxo, abrir) => {
+    await abrir();
+    await preencher('dataNascimento', '01012999');
+    await fireEvent.press(screen.getByTestId('admin-profissional-salvar'));
+
+    expect(screen.getByText('A data de nascimento não pode estar no futuro.')).toBeOnTheScreen();
+    expect(service.criar).not.toHaveBeenCalled();
+    expect(service.atualizar).not.toHaveBeenCalled();
+  });
+
   it('exige senha inicial mesmo com os demais campos obrigatórios preenchidos', async () => {
     await abrirCadastroPreenchido();
     await preencher('senha', '');
