@@ -37,8 +37,11 @@ env:
     timeout: 20000
 
 # Agora certo: sucesso e o app continua logado na mesma tela.
+# O toque vai na ponta direita do campo: no Android o cursor fica onde se toca, e no centro ele
+# cai antes do último caractere, que o eraseText (apaga para trás) deixaria no campo.
 - tapOn:
     id: 'senha-senhaAtual'
+    point: '95%,50%'
 - eraseText: 30
 - inputText: ${PROF_SENHA}
 - hideKeyboard
@@ -77,6 +80,7 @@ env:
     timeout: 20000
 - tapOn:
     id: 'login-senha'
+    point: '95%,50%'
 - eraseText: 60
 - inputText: ${output.novaSenha}
 - pressKey: Enter
