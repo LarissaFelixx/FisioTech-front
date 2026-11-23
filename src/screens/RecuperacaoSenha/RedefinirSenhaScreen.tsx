@@ -174,6 +174,15 @@ export function RedefinirSenhaScreen() {
               >
                 <Text style={styles.linkTexto}>Reenviar código</Text>
               </Pressable>
+              <Pressable
+                onPress={() => navigation.goBack()}
+                accessibilityRole="button"
+                hitSlop={8}
+                style={styles.link}
+                testID="redefinir-voltar"
+              >
+                <Text style={styles.linkTexto}>Voltar para recuperação</Text>
+              </Pressable>
             </View>
           </View>
         </ScrollView>

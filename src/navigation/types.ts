@@ -22,6 +22,8 @@ export type AdminTabsParamList = {
 export type AdminStackParamList = {
   Tabs: NavigatorScreenParams<AdminTabsParamList>;
   AlterarSenha: undefined;
+  CriacaoSenha: undefined;
+  EditarPaciente: { id: number };
   NovoProfissional: undefined;
   EditarProfissional: { id: number };
 };
